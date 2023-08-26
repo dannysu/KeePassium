@@ -15,7 +15,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.forever.2",
+      "productID" : "com.dannysu.keepassium.ios.iap.forever.2",
       "referenceName" : "Forever 2",
       "type" : "NonConsumable"
     },
@@ -30,7 +30,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.donation.medium",
+      "productID" : "com.dannysu.keepassium.ios.donation.medium",
       "referenceName" : "Donation M",
       "type" : "Consumable"
     },
@@ -45,7 +45,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.donation.large",
+      "productID" : "com.dannysu.keepassium.ios.donation.large",
       "referenceName" : "Donation L",
       "type" : "Consumable"
     },
@@ -60,7 +60,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.version.88",
+      "productID" : "com.dannysu.keepassium.ios.iap.version.88",
       "referenceName" : "Version 88",
       "type" : "NonConsumable"
     },
@@ -75,7 +75,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.donation.small",
+      "productID" : "com.dannysu.keepassium.ios.donation.small",
       "referenceName" : "Donation S",
       "type" : "Consumable"
     },
@@ -90,7 +90,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.version.96",
+      "productID" : "com.dannysu.keepassium.ios.iap.version.96",
       "referenceName" : "Version 96",
       "type" : "NonConsumable"
     },
@@ -105,7 +105,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.version.99",
+      "productID" : "com.dannysu.keepassium.ios.iap.version.99",
       "referenceName" : "Version 99",
       "type" : "NonConsumable"
     },
@@ -120,7 +120,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.version.120",
+      "productID" : "com.dannysu.keepassium.ios.iap.version.120",
       "referenceName" : "Version 120",
       "type" : "NonConsumable"
     }
@@ -159,7 +159,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.keepassium.ios.iap.subscription.1month",
+          "productID" : "com.dannysu.keepassium.ios.iap.subscription.1month",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Monthly",
           "subscriptionGroupID" : "4FCA1157",
@@ -188,7 +188,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.keepassium.ios.iap.subscription.1year",
+          "productID" : "com.dannysu.keepassium.ios.iap.subscription.1year",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Yearly",
           "subscriptionGroupID" : "4FCA1157",

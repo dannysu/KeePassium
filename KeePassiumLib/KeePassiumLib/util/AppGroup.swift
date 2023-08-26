@@ -11,9 +11,9 @@ import Foundation
 public class AppGroup {
     public static var id: String = {
         if BusinessModel.isIntuneEdition {
-            return "group.com.keepassium.intune"
+            return "group.com.dannysu.keepassium.intune"
         } else {
-            return "group.com.keepassium"
+            return "group.com.dannysu.keepassium"
         }
     }()
     

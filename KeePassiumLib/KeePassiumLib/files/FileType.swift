@@ -14,7 +14,7 @@ public enum FileType {
     public static let databaseUTIs: [UTType] = [
         .data, .content, 
         .item, 
-        .init("com.keepassium.kdb")!, .init("com.keepassium.kdbx")!,
+        .init("com.dannysu.keepassium.kdb")!, .init("com.dannysu.keepassium.kdbx")!,
         .init("com.maxep.mikee.kdb")!, .init("com.maxep.mikee.kdbx")!,
         .init("com.jflan.MiniKeePass.kdb")!, .init("com.jflan.MiniKeePass.kdbx")!,
         .init("com.kptouch.kdb")!, .init("com.kptouch.kdbx")!,
@@ -24,7 +24,7 @@ public enum FileType {
         .init("org.keepassxc")!]
     
     public static let keyFileUTIs: [UTType] =
-        [.init("com.keepassium.keyfile")!, .data, .content, .item]
+        [.init("com.dannysu.keepassium.keyfile")!, .data, .content, .item]
 
     public enum DatabaseExtensions {
         public static let all = [kdb, kdbx]

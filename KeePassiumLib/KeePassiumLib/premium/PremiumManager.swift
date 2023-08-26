@@ -23,20 +23,20 @@ public enum InAppProduct: String, Codable {
     
     static let allForever = [.forever, forever2]
     
-    case betaForever = "com.keepassium.ios.iap.beta.forever"
+    case betaForever = "com.dannysu.keepassium.ios.iap.beta.forever"
     
-    case forever = "com.keepassium.ios.iap.forever"
-    case forever2 = "com.keepassium.ios.iap.forever.2"
-    case montlySubscription = "com.keepassium.ios.iap.subscription.1month"
-    case yearlySubscription = "com.keepassium.ios.iap.subscription.1year"
-    case version88 = "com.keepassium.ios.iap.version.88"
-    case version96 = "com.keepassium.ios.iap.version.96"
-    case version99 = "com.keepassium.ios.iap.version.99"
-    case version120 = "com.keepassium.ios.iap.version.120"
+    case forever = "com.dannysu.keepassium.ios.iap.forever"
+    case forever2 = "com.dannysu.keepassium.ios.iap.forever.2"
+    case montlySubscription = "com.dannysu.keepassium.ios.iap.subscription.1month"
+    case yearlySubscription = "com.dannysu.keepassium.ios.iap.subscription.1year"
+    case version88 = "com.dannysu.keepassium.ios.iap.version.88"
+    case version96 = "com.dannysu.keepassium.ios.iap.version.96"
+    case version99 = "com.dannysu.keepassium.ios.iap.version.99"
+    case version120 = "com.dannysu.keepassium.ios.iap.version.120"
     
-    case donationSmall = "com.keepassium.ios.donation.small"
-    case donationMedium = "com.keepassium.ios.donation.medium"
-    case donationLarge = "com.keepassium.ios.donation.large"
+    case donationSmall = "com.dannysu.keepassium.ios.donation.small"
+    case donationMedium = "com.dannysu.keepassium.ios.donation.medium"
+    case donationLarge = "com.dannysu.keepassium.ios.donation.large"
     
     public var period: Period {
         return InAppProduct.period(productIdentifier: self.rawValue)
@@ -200,7 +200,7 @@ public class PremiumManager: NSObject {
     public var status: Status = .initialGracePeriod
     
     public static let statusUpdateNotification =
-        Notification.Name("com.keepassium.premiumManager.statusUpdated")
+        Notification.Name("com.dannysu.keepassium.premiumManager.statusUpdated")
 
     fileprivate func notifyStatusChanged() {
         NotificationCenter.default.post(name: PremiumManager.statusUpdateNotification, object: self)

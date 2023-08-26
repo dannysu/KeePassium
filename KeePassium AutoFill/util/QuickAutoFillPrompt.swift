@@ -10,7 +10,7 @@ import KeePassiumLib
 
 final class QuickAutoFillPrompt {
     private enum Keys {
-        static let root = "com.keepassium.quickAutoFillPrompt"
+        static let root = "com.dannysu.keepassium.quickAutoFillPrompt"
         static let lastSeenDate = root + ".lastSeenDate"
         static let dismissDate = root + ".dismissDate"
     }

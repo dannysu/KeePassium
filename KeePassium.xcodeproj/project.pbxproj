@@ -6174,7 +6174,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium AutoFill/KeePassium_AutoFill-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				INFOPLIST_FILE = "KeePassium AutoFill/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "$(TARGET_NAME)";
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-C";
@@ -6190,7 +6190,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.keepassium.ios.KeePassium-AutoFill";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dannysu.keepassium.ios.KeePassium-AutoFill";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -6210,7 +6210,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium AutoFill/KeePassium_AutoFill-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				INFOPLIST_FILE = "KeePassium AutoFill/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "$(TARGET_NAME)";
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-C";
@@ -6225,7 +6225,7 @@
 				MARKETING_VERSION = 1.43;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.keepassium.ios.KeePassium-AutoFill";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dannysu.keepassium.ios.KeePassium-AutoFill";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -6377,7 +6377,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium/KeePassium-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = fast;
@@ -6396,7 +6396,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.43;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG MAIN_APP";
@@ -6416,7 +6416,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium/KeePassium-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = fast;
@@ -6435,7 +6435,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.43;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = MAIN_APP;
@@ -6455,7 +6455,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium/KeePassium-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_UNROLL_LOOPS = YES;
@@ -6472,7 +6472,7 @@
 				LLVM_LTO = YES;
 				MARKETING_VERSION = 1.43;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.ios.pro;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.ios.pro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG MAIN_APP PREPAID_VERSION";
@@ -6492,7 +6492,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium/KeePassium-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_UNROLL_LOOPS = YES;
@@ -6509,7 +6509,7 @@
 				LLVM_LTO = YES;
 				MARKETING_VERSION = 1.43;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.ios.pro;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.ios.pro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "MAIN_APP PREPAID_VERSION";
@@ -6529,7 +6529,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium/KeePassiumOrg-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = fast;
@@ -6548,7 +6548,7 @@
 				LLVM_LTO = YES;
 				MARKETING_VERSION = 1.43;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.intune;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.intune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_SWIFT_SYMBOLS = NO;
 				SUPPORTS_MACCATALYST = YES;
@@ -6569,7 +6569,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium/KeePassiumOrg-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = fast;
@@ -6588,7 +6588,7 @@
 				LLVM_LTO = YES;
 				MARKETING_VERSION = 1.43;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.intune;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.intune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_SWIFT_SYMBOLS = NO;
 				SUPPORTS_MACCATALYST = YES;
@@ -6627,7 +6627,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.intune.AutoFill;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.intune.AutoFill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRIP_SWIFT_SYMBOLS = NO;
@@ -6665,7 +6665,7 @@
 				MARKETING_VERSION = 1.43;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepassium.intune.AutoFill;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dannysu.keepassium.intune.AutoFill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRIP_SWIFT_SYMBOLS = NO;
@@ -6686,7 +6686,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium AutoFill/KeePassium_AutoFill-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				INFOPLIST_FILE = "$(SRCROOT)/KeePassium AutoFill/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "$(TARGET_NAME)";
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-C";
@@ -6702,7 +6702,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.keepassium.ios.pro.KeePassium-AutoFill";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dannysu.keepassium.ios.pro.KeePassium-AutoFill";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -6722,7 +6722,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "KeePassium AutoFill/KeePassium_AutoFill-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 132;
-				DEVELOPMENT_TEAM = 84W4PHXS24;
+				DEVELOPMENT_TEAM = KS3XCD57V3;
 				INFOPLIST_FILE = "$(SRCROOT)/KeePassium AutoFill/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "$(TARGET_NAME)";
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-C";
@@ -6737,7 +6737,7 @@
 				MARKETING_VERSION = 1.43;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.keepassium.ios.pro.KeePassium-AutoFill";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dannysu.keepassium.ios.pro.KeePassium-AutoFill";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;

@@ -114,7 +114,7 @@ public class Settings {
     }
 
     fileprivate enum Notifications {
-        static let settingsChanged = Notification.Name("com.keepassium.SettingsChanged")
+        static let settingsChanged = Notification.Name("com.dannysu.keepassium.SettingsChanged")
         static let userInfoKey = "changedKey" 
     }
 

@@ -17,7 +17,7 @@ import IntuneMAMSwift
 #endif
 
 class AutoFillCoordinator: NSObject, Coordinator {
-    let log = Logger(subsystem: "com.keepassium.autofill", category: "AutoFillCoordinator")
+    let log = Logger(subsystem: "com.dannysu.keepassium.autofill", category: "AutoFillCoordinator")
     
     var childCoordinators = [Coordinator]()
     var dismissHandler: CoordinatorDismissHandler? 

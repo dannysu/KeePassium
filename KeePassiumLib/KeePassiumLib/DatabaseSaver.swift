@@ -66,7 +66,7 @@ public class DatabaseSaver: ProgressObserver {
     
     private let operationQueue: OperationQueue = {
         let q = OperationQueue()
-        q.name = "com.keepassium.DatabaseSaver"
+        q.name = "com.dannysu.keepassium.DatabaseSaver"
         q.maxConcurrentOperationCount = 2
         q.qualityOfService = .userInitiated
         return q

@@ -19,8 +19,8 @@
             <string>Owner</string>
             <key>LSItemContentTypes</key>
             <array>
-                <string>com.keepassium.kdb</string>
-                <string>com.keepassium.kdbx</string>
+                <string>com.dannysu.keepassium.kdb</string>
+                <string>com.dannysu.keepassium.kdbx</string>
                 <string>com.jflan.MiniKeePass.kdb</string>
                 <string>com.jflan.MiniKeePass.kdbx</string>
                 <string>com.kptouch.kdb</string>
@@ -219,12 +219,12 @@
     <dict>
         <key>AppGroupIdentifiers</key>
         <array>
-            <string>group.com.keepassium.intune</string>
+            <string>group.com.dannysu.keepassium.intune</string>
         </array>
         <key>ADALClientId</key>
         <string>292a80b3-139a-4165-a20d-b2d2e764e538</string>
         <key>ADALRedirectUri</key>
-        <string>msauth.com.keepassium.intune://auth</string>
+        <string>msauth.com.dannysu.keepassium.intune://auth</string>
         <key>DebugSettingsEnabled</key>
         <false/>
         <key>SplashDuration</key>
@@ -326,7 +326,7 @@
                 <string>public.content</string>
             </array>
             <key>UTTypeIdentifier</key>
-            <string>com.keepassium.keyfile</string>
+            <string>com.dannysu.keepassium.keyfile</string>
             <key>UTTypeTagSpecification</key>
             <dict/>
         </dict>
@@ -339,7 +339,7 @@
             <key>UTTypeDescription</key>
             <string>KeePass Database (kdb)</string>
             <key>UTTypeIdentifier</key>
-            <string>com.keepassium.kdb</string>
+            <string>com.dannysu.keepassium.kdb</string>
             <key>UTTypeTagSpecification</key>
             <dict>
                 <key>public.filename-extension</key>
@@ -357,7 +357,7 @@
             <key>UTTypeDescription</key>
             <string>KeePass Database (kdbx)</string>
             <key>UTTypeIdentifier</key>
-            <string>com.keepassium.kdbx</string>
+            <string>com.dannysu.keepassium.kdbx</string>
             <key>UTTypeTagSpecification</key>
             <dict>
                 <key>public.filename-extension</key>

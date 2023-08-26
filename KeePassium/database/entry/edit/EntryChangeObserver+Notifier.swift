@@ -14,7 +14,7 @@ protocol EntryChangeObserver: AnyObject {
 }
 
 class EntryChangeNotifications {
-    private static let entryChanged = Notification.Name("com.keepassium.EntryChanged")
+    private static let entryChanged = Notification.Name("com.dannysu.keepassium.EntryChanged")
     private static let userInfoEntryKey = "ChangedEntry"
     
     private weak var observer: EntryChangeObserver?

@@ -10,7 +10,7 @@ import AuthenticationServices
 import OSLog
 
 class CredentialProviderViewController: ASCredentialProviderViewController {
-    let log = Logger(subsystem: "com.keepassium.autofill", category: "CredentialProviderVC")
+    let log = Logger(subsystem: "com.dannysu.keepassium.autofill", category: "CredentialProviderVC")
     
     var autoFillCoordinator: AutoFillCoordinator! 
     

@@ -10,8 +10,8 @@ import KeePassiumLib
 
 @available(iOS 13, *)
 enum MenuIdentifier {
-    static let databaseFileMenu = UIMenu.Identifier("com.keepassium.menu.databaseFileMenu")
-    static let databaseItemsMenu = UIMenu.Identifier("com.keepassium.menu.databaseItemsMenu")
+    static let databaseFileMenu = UIMenu.Identifier("com.dannysu.keepassium.menu.databaseFileMenu")
+    static let databaseItemsMenu = UIMenu.Identifier("com.dannysu.keepassium.menu.databaseItemsMenu")
 }
 
 class AppDelegate: UIResponder, UIApplicationDelegate {

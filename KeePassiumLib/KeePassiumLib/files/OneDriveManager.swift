@@ -143,7 +143,7 @@ final public class OneDriveManager: NSObject {
     }()
     private static let backgroundQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.keepassium.OneDriveManager"
+        queue.name = "com.dannysu.keepassium.OneDriveManager"
         queue.qualityOfService = .userInitiated
         queue.maxConcurrentOperationCount = 4
         return queue

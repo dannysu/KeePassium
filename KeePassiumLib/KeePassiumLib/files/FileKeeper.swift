@@ -62,9 +62,9 @@ public class FileKeeper {
         
         static var mainAppPrefix: String {
             if BusinessModel.type == .prepaid {
-                return "com.keepassium.pro.recentFiles"
+                return "com.dannysu.keepassium.pro.recentFiles"
             } else {
-                return "com.keepassium.recentFiles"
+                return "com.dannysu.keepassium.recentFiles"
             }
         }
 
@@ -74,9 +74,9 @@ public class FileKeeper {
             }
             
             if BusinessModel.type == .prepaid {
-                return "com.keepassium.pro.autoFill.recentFiles"
+                return "com.dannysu.keepassium.pro.autoFill.recentFiles"
             } else {
-                return "com.keepassium.autoFill.recentFiles"
+                return "com.dannysu.keepassium.autoFill.recentFiles"
             }
         }
         
@@ -123,7 +123,7 @@ public class FileKeeper {
 
     private let operationQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.keepassium.FileKeeper"
+        queue.name = "com.dannysu.keepassium.FileKeeper"
         queue.qualityOfService = .utility
         queue.maxConcurrentOperationCount = 8
         return queue

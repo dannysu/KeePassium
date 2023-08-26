@@ -27,7 +27,7 @@ public final class WebDAVManager: NSObject {
     
     private static let backgroundQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.keepassium.WebDAVManager"
+        queue.name = "com.dannysu.keepassium.WebDAVManager"
         queue.qualityOfService = .userInitiated
         queue.maxConcurrentOperationCount = 4
         return queue

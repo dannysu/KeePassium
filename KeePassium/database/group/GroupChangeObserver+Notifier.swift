@@ -14,7 +14,7 @@ protocol GroupChangeObserver: AnyObject {
 }
 
 class GroupChangeNotifications {
-    private static let groupChanged = Notification.Name("com.keepassium.GroupChanged")
+    private static let groupChanged = Notification.Name("com.dannysu.keepassium.GroupChanged")
     private static let userInfoGroupKey = "ChangedGroup"
 
     private weak var observer: GroupChangeObserver?

@@ -30,10 +30,10 @@
     <dict>
         <key>AppGroupIdentifiers</key>
         <array>
-            <string>group.com.keepassium.intune</string>
+            <string>group.com.dannysu.keepassium.intune</string>
         </array>
         <key>ContainingAppBundleId</key>
-        <string>com.keepassium.intune</string>
+        <string>com.dannysu.keepassium.intune</string>
     </dict>
 #endif
 	<key>ITSAppUsesNonExemptEncryption</key>
