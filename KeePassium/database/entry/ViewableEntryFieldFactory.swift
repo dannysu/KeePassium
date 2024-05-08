@@ -1,15 +1,15 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
 //  by the Free Software Foundation: https://www.gnu.org/licenses/).
 //  For commercial licensing, please contact the author.
 
-import UIKit
 import KeePassiumLib
+import UIKit
 
-fileprivate let singlelineFields: [String] =
+private let singlelineFields: [String] =
     [EntryField.title, EntryField.userName, EntryField.password, EntryField.url]
 
 protocol ViewableField: AnyObject {
@@ -17,20 +17,22 @@ protocol ViewableField: AnyObject {
 
     var internalName: String { get }
     var visibleName: String { get }
-    
+
     var value: String? { get }
     var resolvedValue: String? { get }
     var decoratedValue: String? { get }
-    
+
     var isProtected: Bool { get }
-    
+
     var isEditable: Bool { get }
 
     var isMultiline: Bool { get }
 
     var isFixed: Bool { get }
-    
+
     var isValueHidden: Bool { get set }
+
+    var isAuditable: Bool { get set }
 
     var isHeightConstrained: Bool { get set }
 }
@@ -39,12 +41,12 @@ extension ViewableField {
     var isMultiline: Bool {
         return !singlelineFields.contains(internalName)
     }
-    
+
 }
 
 class BasicViewableField: ViewableField {
     weak var field: EntryField?
-    
+
     var internalName: String { return field?.name ?? "" }
     var value: String? { return field?.value }
     var resolvedValue: String? { return field?.resolvedValue }
@@ -53,11 +55,13 @@ class BasicViewableField: ViewableField {
     var isFixed: Bool { return field?.isStandardField ?? false }
 
     var isValueHidden: Bool
-    
+
+    var isAuditable: Bool = true
+
     var isHeightConstrained: Bool
-    
+
     var isEditable: Bool { return true }
-    
+
     var visibleName: String {
         switch internalName {
         case EntryField.title: return LString.fieldTitle
@@ -65,15 +69,16 @@ class BasicViewableField: ViewableField {
         case EntryField.password: return LString.fieldPassword
         case EntryField.url: return LString.fieldURL
         case EntryField.notes: return LString.fieldNotes
+        case EntryField.tags: return LString.fieldTags
         default:
             return internalName
         }
     }
-    
+
     convenience init(field: EntryField, isValueHidden: Bool) {
         self.init(fieldOrNil: field, isValueHidden: isValueHidden)
     }
-    
+
     init(fieldOrNil field: EntryField?, isValueHidden: Bool) {
         self.field = field
         self.isValueHidden = isValueHidden
@@ -89,19 +94,19 @@ class DynamicViewableField: BasicViewableField, Refreshable {
         self.fields = Weak.wrapped(fields)
         super.init(fieldOrNil: field, isValueHidden: isValueHidden)
     }
-    
+
     public func refresh() {
     }
 }
 
 class TOTPViewableField: DynamicViewableField {
     var totpGenerator: TOTPGenerator?
-    
+
     override var internalName: String { return EntryField.totp }
     override var visibleName: String { return LString.fieldOTP }
 
     override var isEditable: Bool { return false }
-    
+
     override var value: String {
         return totpGenerator?.generate() ?? ""
     }
@@ -111,16 +116,16 @@ class TOTPViewableField: DynamicViewableField {
     override var decoratedValue: String? {
         return value
     }
-    
+
     var elapsedTimeFraction: Double? {
         return totpGenerator?.elapsedTimeFraction
     }
-    
+
     init(fields: [EntryField]) {
         super.init(field: nil, fields: fields, isValueHidden: false)
         refresh()
     }
-    
+
     override func refresh() {
         let _fields = Weak.unwrapped(self.fields)
         self.totpGenerator = TOTPGeneratorFactory.makeGenerator(from: _fields) 
@@ -134,7 +139,7 @@ class ViewableEntryFieldFactory {
         case nonEditable
         case otpConfig
     }
-    
+
     static func makeAll(
         from entry: Entry,
         in database: Database,
@@ -143,6 +148,7 @@ class ViewableEntryFieldFactory {
         var result = [ViewableField]()
 
         let hasValidOTPConfig = TOTPGeneratorFactory.makeGenerator(for: entry) != nil
+        let isAuditable = (entry as? Entry2)?.qualityCheck ?? true
 
         var excludedFieldNames = Set<String>()
         if excludedFields.contains(.title) {
@@ -152,6 +158,10 @@ class ViewableEntryFieldFactory {
             excludedFieldNames.insert(EntryField.otpConfig1)
             excludedFieldNames.insert(EntryField.otpConfig2Seed)
             excludedFieldNames.insert(EntryField.otpConfig2Settings)
+            excludedFieldNames.insert(EntryField.timeOtpLength)
+            excludedFieldNames.insert(EntryField.timeOtpPeriod)
+            excludedFieldNames.insert(EntryField.timeOtpSecret)
+            excludedFieldNames.insert(EntryField.timeOtpAlgorithm)
         }
         let excludeEmptyValues = excludedFields.contains(.emptyValues)
         let excludeNonEditable = excludedFields.contains(.nonEditable)
@@ -162,28 +172,43 @@ class ViewableEntryFieldFactory {
             if excludeEmptyValues && field.value.isEmpty {
                 continue
             }
-            
+
             let viewableField = makeOne(field: field)
+            viewableField.isAuditable = isAuditable
             result.append(viewableField)
         }
-        
+
         if hasValidOTPConfig && !excludeNonEditable {
             result.append(TOTPViewableField(fields: entry.fields))
         }
-        
+
         return result
     }
-    
+
+    static func makeTags(from entry: Entry, parent: Group?, includeEmpty: Bool) -> (EntryField, ViewableField)? {
+        let tags = entry.tags
+        guard !tags.isEmpty || includeEmpty else {
+            return nil
+        }
+
+        let entryField = EntryField(
+            name: EntryField.tags,
+            value: TagHelper.tagsToString(tags),
+            isProtected: false
+        )
+        let viewableField = BasicViewableField(fieldOrNil: entryField, isValueHidden: false)
+        return (entryField, viewableField)
+    }
+
     static private func makeOne(field: EntryField) -> ViewableField {
         let isHidden =
             (field.isProtected || field.name == EntryField.password)
             && Settings.current.isHideProtectedFields
         let result = BasicViewableField(field: field, isValueHidden: isHidden)
-        
+
         if field.name == EntryField.notes {
             result.isHeightConstrained = Settings.current.isCollapseNotesField
         }
         return result
     }
 }
-

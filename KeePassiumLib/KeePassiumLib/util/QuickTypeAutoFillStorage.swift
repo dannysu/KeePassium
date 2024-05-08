@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -10,7 +10,7 @@ import AuthenticationServices
 
 final public class QuickTypeAutoFillStorage {
     static let urlDetector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-    
+
     public static var isEnabled: Bool {
         let semaphore = DispatchSemaphore(value: 0)
         var result = false
@@ -23,14 +23,14 @@ final public class QuickTypeAutoFillStorage {
         }
         return result
     }
-    
+
     public static func removeAll() {
         let store = ASCredentialIdentityStore.shared
         store.getState { state in
             guard state.isEnabled else {
                 return
             }
-            store.removeAllCredentialIdentities { (success, error) in
+            store.removeAllCredentialIdentities { _, error in
                 if let error = error {
                     Diag.error("Failed to remove identities [message: \(error.localizedDescription)]")
                 } else {
@@ -44,10 +44,9 @@ final public class QuickTypeAutoFillStorage {
         let identities = getCredentialIdentities(from: databaseFile)
         removeIdentities(identities)
     }
-    
+
     public static func removeIdentities(_ identities: [ASPasswordCredentialIdentity]) {
-        ASCredentialIdentityStore.shared.removeCredentialIdentities(identities) {
-            (success, error) in
+        ASCredentialIdentityStore.shared.removeCredentialIdentities(identities) { success, error in
             if let error = error {
                 Diag.error("Failed to remove QuickType AutoFill data [message: \(error.localizedDescription)]")
             } else {
@@ -68,7 +67,7 @@ final public class QuickTypeAutoFillStorage {
                 return
             }
             let identities = self.getCredentialIdentities(from: databaseFile)
-            let completion: ((Bool, Error?) -> Void) = { (success, error) in
+            let completion: ((Bool, Error?) -> Void) = { success, error in
                 if let error = error {
                     Diag.error("Failed to save QuickType AutoFill data [message: \(error.localizedDescription)]")
                 } else {
@@ -82,14 +81,17 @@ final public class QuickTypeAutoFillStorage {
             }
         }
     }
-    
+
     private static func getCredentialIdentities(
         from databaseFile: DatabaseFile
     ) -> [ASPasswordCredentialIdentity] {
         var result = [ASPasswordCredentialIdentity]()
         let rootGroup = databaseFile.database.root
         rootGroup?.applyToAllChildren(groupHandler: nil, entryHandler: { entry in
-            guard (entry.parent as? Group2)?.isSearchingEnabled ?? true else {
+            let parentGroup2 = entry.parent as? Group2
+            let canSearch = parentGroup2?.resolvingIsSearchingEnabled() ?? true
+            let canAutoType = parentGroup2?.resolvingIsAutoTypeEnabled() ?? true
+            guard canSearch && canAutoType else {
                 return
             }
             if entry.isDeleted || entry.isHiddenFromSearch || entry.isExpired {
@@ -98,7 +100,7 @@ final public class QuickTypeAutoFillStorage {
             if let serviceIDs = entry.extractSearchableData()?.toCredentialServiceIdentifiers() {
                 let recordID = QuickTypeAutoFillRecord(context: databaseFile, itemID: entry.uuid)
                 let entryCredentialIdentities = makeCredentialIdentities(
-                    userName: entry.resolvedUserName,
+                    userName: "\(entry.resolvedUserName) | \(entry.resolvedTitle)",
                     services: serviceIDs,
                     record: recordID
                 )
@@ -107,7 +109,7 @@ final public class QuickTypeAutoFillStorage {
         })
         return result
     }
-    
+
     private static func makeCredentialIdentities(
         userName: String,
         services: [ASCredentialServiceIdentifier],
@@ -129,19 +131,19 @@ final public class QuickTypeAutoFillStorage {
 
 private struct SearchableData {
     var urls = Set<URL>()
-    
+
     mutating func add(url: URL) {
         urls.insert(url)
     }
     mutating func addAll(urls: [URL]) {
         self.urls.formUnion(urls)
     }
-    
+
     func toCredentialServiceIdentifiers() -> [ASCredentialServiceIdentifier] {
         let urlBasedPart = urls.map { url in
             ASCredentialServiceIdentifier(identifier: url.absoluteString, type: .URL)
         }
-        
+
         var result = [ASCredentialServiceIdentifier]()
         result.append(contentsOf: urlBasedPart)
         return result
@@ -154,12 +156,12 @@ extension Entry {
         if isHiddenFromSearch {
             return nil
         }
-        
+
         var result = SearchableData()
         if let mainURL = URL.from(malformedString: resolvedURL) {
             result.add(url: mainURL)
         }
-        
+
         guard let entry2 = self as? Entry2 else {
             return result
         }

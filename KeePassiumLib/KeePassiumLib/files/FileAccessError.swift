@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -10,35 +10,40 @@ import Foundation
 
 public enum FileAccessError: LocalizedError {
     case timeout(fileProvider: FileProvider?)
-    
+
     case noInfoAvailable
-    
+
     case internalError
-    
+
     case fileProviderDoesNotRespond(fileProvider: FileProvider?)
-    
+
     case fileProviderNotFound(fileProvider: FileProvider?)
-    
+
     case targetFileIsReadOnly(fileProvider: FileProvider)
-    
+
     case networkAccessDenied
 
+    case managedAccessDenied
+
+    case authorizationRequired(message: String, recoveryAction: String)
+
     case serverSideError(message: String)
-    
+
     case networkError(message: String)
-    
+
     case systemError(_ originalError: Error?)
-    
+
     public var isTimeout: Bool {
         switch self {
-        case .timeout(_):
+        case .timeout:
             return true
         default:
             return false
         }
     }
-    
+
     public var errorDescription: String? {
+        // swiftlint:disable line_length
         switch self {
         case .timeout(let fileProvider):
             if let fileProvider = fileProvider {
@@ -130,6 +135,10 @@ public enum FileAccessError: LocalizedError {
                 bundle: Bundle.framework,
                 value: "Network access is blocked by the settings.",
                 comment: "Error message: network access is forbidden by system or app settings.")
+        case .managedAccessDenied:
+            return LString.Error.storageAccessDeniedByOrg
+        case .authorizationRequired(let message, _):
+            return message
         case .serverSideError(let message):
             return message
         case .networkError(let message):
@@ -137,17 +146,27 @@ public enum FileAccessError: LocalizedError {
         case .systemError(let originalError):
             return originalError?.localizedDescription
         }
+        // swiftlint:enable line_length
     }
-    
+
     public var failureReason: String? {
         return nil
     }
-    
+
     public var recoverySuggestion: String? {
-        return nil
+        switch self {
+        case .authorizationRequired(_, let recoveryAction):
+            return recoveryAction
+        default:
+            return nil
+        }
     }
-    
-    public static func make(from originalError: Error, fileProvider: FileProvider?) -> FileAccessError {
+
+    public static func make(
+        from originalError: Error,
+        fileName: String,
+        fileProvider: FileProvider?
+    ) -> FileAccessError {
         let nsError = originalError as NSError
         Diag.error("""
             Failed to access the file \
@@ -156,7 +175,7 @@ public enum FileAccessError: LocalizedError {
         switch (nsError.domain, nsError.code) {
         case (NSCocoaErrorDomain, CocoaError.Code.xpcConnectionReplyInvalid.rawValue): 
             return .fileProviderDoesNotRespond(fileProvider: fileProvider)
-            
+
         case (NSCocoaErrorDomain, CocoaError.Code.xpcConnectionInterrupted.rawValue), 
              (NSCocoaErrorDomain, CocoaError.Code.xpcConnectionInvalid.rawValue): 
             return .fileProviderDoesNotRespond(fileProvider: fileProvider)
@@ -168,15 +187,26 @@ public enum FileAccessError: LocalizedError {
                 return .systemError(originalError)
             }
 
+        case (NSCocoaErrorDomain, CocoaError.Code.fileReadNoPermission.rawValue),
+             (NSCocoaErrorDomain, CocoaError.Code.fileNoSuchFile.rawValue),
+             (NSCocoaErrorDomain, CocoaError.Code.fileReadCorruptFile.rawValue):
+            let message = String.localizedStringWithFormat(
+                LString.Error.filePermissionRequiredDescriptionTemplate, fileName
+            )
+            return .authorizationRequired(
+                message: message,
+                recoveryAction: LString.Error.actionReAddFileToAllowAccess
+            )
+
         case ("NSFileProviderInternalErrorDomain", 0), 
              ("NSFileProviderErrorDomain", -2001): 
             return .fileProviderNotFound(fileProvider: fileProvider)
-            
+
         default:
             return .systemError(originalError)
         }
     }
-    
+
     public var underlyingError: Error? {
         switch self {
         case .systemError(let originalError):
@@ -188,6 +218,7 @@ public enum FileAccessError: LocalizedError {
 }
 
 extension LString.Error {
+    // swiftlint:disable line_length
     fileprivate static let oneDriveIsReadOnlyDescription = NSLocalizedString(
         "[FileAccessError/OneDriveReadOnly/reason]",
         bundle: Bundle.framework,
@@ -200,4 +231,23 @@ extension LString.Error {
         value: "Use the Export option to save file to another location.",
         comment: "Suggestion for error recovery"
     )
+    fileprivate static let filePermissionRequiredDescriptionTemplate = NSLocalizedString(
+        "[FileAccessError/PermissionRequired/reason]",
+        bundle: Bundle.framework,
+        value: "KeePassium needs your permission to access '%@'.",
+        comment: "Error message for file with an expired access permission [fileName: String]."
+    )
+    fileprivate static let actionReAddFileToAllowAccess = NSLocalizedString(
+        "[FileAccessError/PermissionRequired/recoveryAction]",
+        bundle: Bundle.framework,
+        value: "Select the file again to allow access",
+        comment: "Action/button for error recovery"
+    )
+    public static let storageAccessDeniedByOrg = NSLocalizedString(
+        "[FileAccessError/ManagedAccessDenied/title]",
+        bundle: Bundle.framework,
+        value: "Access to this storage is disabled by your organization.",
+        comment: "Error message: organization's IT administrator has forbidden access to a data storage location."
+    )
+    // swiftlint:enable line_length
 }

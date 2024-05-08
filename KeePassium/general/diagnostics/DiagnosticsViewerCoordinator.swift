@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -11,10 +11,10 @@ import KeePassiumLib
 class DiagnosticsViewerCoordinator: NSObject, Coordinator {
     var childCoordinators = [Coordinator]()
     var dismissHandler: CoordinatorDismissHandler?
-    
+
     private var router: NavigationRouter
     private var diagnosticsViewerVC: DiagnosticsViewerVC
-    
+
     init(router: NavigationRouter) {
         self.router = router
         diagnosticsViewerVC = DiagnosticsViewerVC.create()
@@ -22,12 +22,12 @@ class DiagnosticsViewerCoordinator: NSObject, Coordinator {
 
         diagnosticsViewerVC.delegate = self
     }
-    
+
     deinit {
         assert(childCoordinators.isEmpty)
         removeAllChildCoordinators()
     }
-    
+
     func start() {
         if router.navigationController.topViewController == nil {
             let leftButton = UIBarButtonItem(
@@ -42,30 +42,31 @@ class DiagnosticsViewerCoordinator: NSObject, Coordinator {
             self.dismissHandler?(self)
         })
     }
-    
+
     @objc private func didPressDismissButton() {
         router.dismiss(animated: true)
     }
 }
 
 extension DiagnosticsViewerCoordinator: DiagnosticsViewerDelegate {
-    func didPressCopy(in diagnosticsViewer: DiagnosticsViewerVC, text: String) {
+    func didPressCopy(text: String, in diagnosticsViewer: DiagnosticsViewerVC) {
         Clipboard.general.insert(text: text, timeout: nil)
         HapticFeedback.play(.copiedToClipboard)
         diagnosticsViewer.showNotification(LString.diagnosticLogCopiedToClipboard)
     }
-    
-    func didPressContactSupport(in diagnosticsViewer: DiagnosticsViewerVC, text: String) {
-        let popoverAnchor = PopoverAnchor(barButtonItem: diagnosticsViewer.contactButton)
+
+    func didPressContactSupport(
+        text: String,
+        at popoverAnchor: PopoverAnchor,
+        in diagnosticsViewer: DiagnosticsViewerVC
+    ) {
         SupportEmailComposer.show(
             subject: .problem,
             parent: diagnosticsViewer,
-            popoverAnchor: popoverAnchor)
-        {
-            [weak self] (success) in
+            popoverAnchor: popoverAnchor) { [weak self] success in
             if !success {
                 Diag.debug("Failed to create an email message, copying to clipboard instead")
-                self?.didPressCopy(in: diagnosticsViewer, text: text)
+                self?.didPressCopy(text: text, in: diagnosticsViewer)
             }
         }
     }

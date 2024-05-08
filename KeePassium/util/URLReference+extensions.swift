@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -9,45 +9,38 @@
 import KeePassiumLib
 
 extension URLReference {
-    
-    func getIcon(fileType: FileType) -> UIImage? {
+
+    func getIconSymbol(fileType: FileType) -> SymbolName? {
         switch fileType {
         case .database:
-            return getDatabaseIcon()
+            return getDatabaseIconSymbol()
         case .keyFile:
-            return UIImage(asset: .keyFileListitem)
+            return .keyFile
         }
     }
-    
-    private func getDatabaseIcon() -> UIImage {
+
+    private func getDatabaseIconSymbol() -> SymbolName? {
         switch self.location {
-        case .external,
-             .remote:
-            return getExternalDatabaseIcon()
+        case .external, .remote:
+            return getExternalDatabaseIconSymbol()
         case .internalDocuments, .internalInbox:
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                return UIImage(asset: .fileProviderOnMyIPadListitem)
-            }
-            if UIDevice.current.hasHomeButton() {
-                return UIImage(asset: .fileProviderOnMyIPhoneListitem)
-            } else {
-                return UIImage(asset: .fileProviderOnMyIPhoneXListitem)
-            }
+            return FileProvider.getLocalStorageIconSymbol()
         case .internalBackup:
-            return UIImage(asset: .databaseBackupListitem)
+            return .clockArrowCirclepath
         }
     }
-    
-    private func getExternalDatabaseIcon() -> UIImage {
-        guard let _fileProvider = fileProvider else {
-            return UIImage(asset: .fileProviderGenericListitem)
+
+    private func getExternalDatabaseIconSymbol() -> SymbolName {
+        guard let fileProvider else {
+            return .fileProviderGeneric
         }
-        if let _fileInfo = self.getCachedInfoSync(canFetch: false),
-           _fileInfo.isInTrash
+
+        if let fileInfo = self.getCachedInfoSync(canFetch: false),
+           fileInfo.isInTrash
         {
-            return UIImage(asset: .databaseTrashedListitem)
+            return .trash
         }
-        return _fileProvider.icon ?? UIImage(asset: .fileProviderGenericListitem)
+        return fileProvider.iconSymbol ?? .fileProviderGeneric
     }
 
     public func getLocationDescription() -> String {

@@ -10,6 +10,12 @@
 /* Call to action: perform accessibilty `activate` action to listen to text/content. */
 "[Accessibility/activateToListen]" = "Attiva per ascoltare.";
 
+/* Short name of the default/system font. For example: `Font: Default` */
+"[Appearance/DefaultFont/shortTitle]" = "Predefinito";
+
+/* Title of a setting option: font */
+"[Appearance/Font/title]" = "Font";
+
 /* Title of a setting option: font size */
 "[Appearance/TextSize/title]" = "Dimensione testo";
 
@@ -43,6 +49,9 @@
 /* Type of keyboard to show for App Lock passcode: digits only (PIN code). */
 "[AppLock/Passcode/KeyboardType/title] Numeric" = "Numerica";
 
+/* Notification for business users when they set up too weak app protection passcode. */
+"[AppLock/Passcode/orgRequiresStonger]" = "La tua organizzazione richiede un codice più complesso.";
+
 /* Hint/call to action about keyboard shortcut */
 "[AppLock/Passcode/pressEscForTouchID]" = "Premi Esc per Touch ID";
 
@@ -50,7 +59,7 @@
 "[AppLock/passcodeUpdated/title]" = "Codice di accesso cambiato con successo.";
 
 /* Action/button to save new or edited AppLock passcode. */
-"[AppLock/savePasscode]" = "Salva codice di accesso";
+"[AppLock/savePasscode]" = "Salva codice";
 
 /* Call to action in the passcode input dialog. */
 "[AppLock/SetupPasscode/callToAction]" = "Proteggi KeePassium da accessi non autorizzati";
@@ -86,10 +95,10 @@
 "[ChallengeResponseError] slotNotConfigured" = "La chiave fisica non è configurata per la pratica challenge/response.";
 
 /* Progress status */
-"[Cipher/Progress] Decrypting" = "Decifrazione";
+"[Cipher/Progress] Decrypting" = "Decrittazione in corso";
 
 /* Progress status */
-"[Cipher/Progress] Encrypting" = "Cifratura";
+"[Cipher/Progress] Encrypting" = "Criptazione in corso";
 
 /* Action copy some named value to clipboard. For example: `Copy Password`. [valueName: String] */
 "[Clipboard/Copy/namedValue]" = "Copia %@";
@@ -101,10 +110,10 @@
 "[ContactUs/subtitle]" = "Suggerimenti? Problemi? Facci sapere!";
 
 /* Error message about AES cipher. [errorCode: Int] */
-"[CryptoError] AES decryption error (code %d)" = "Errore decifrazione AES (codice %d)";
+"[CryptoError] AES decryption error (code %d)" = "Errore decrittazione AES (codice %d)";
 
 /* Error message about AES cipher. [errorCode: Int] */
-"[CryptoError] AES encryption error (code %d)" = "Errore cifratura AES (codice %d)";
+"[CryptoError] AES encryption error (code %d)" = "Errore crittografia AES (codice %d)";
 
 /* Error message about AES cipher. [errorCode: Int] */
 "[CryptoError] AES initialization error (code %d)" = "Errore inizializzazione AES (codice %d)";
@@ -136,8 +145,62 @@
 /* Action: add/import an image as a custom icon */
 "[Database/CustomIcon/add]" = "Aggiungi icona personalizzata";
 
+/* Action: download icon of a website */
+"[Database/CustomIcon/DownloadFavicon/action]" = "Scarica favicon";
+
+/* Action/button to download favicons of websites mentioned in selected entries. */
+"[Database/CustomIcon/DownloadFavicons/action]" = "Scarica favicon";
+
+/* Report of favicon download results. */
+"[Database/CustomIcon/DownloadFavicons/stats]" = "Voci processate: %1$d\nIcone aggiornate: %2$d";
+
+/* Status message: multiple website favicons are being downloaded */
+"[Database/CustomIcon/DownloadFavicons/status]" = "Scarico favicon";
+
+/* Status message: a website favicon is being downloaded */
+"[Database/CustomIcon/DownloadOneFavicon/status]" = "Scarico favicon";
+
 /* Message to confirm deletion of a database file. (This deletes the file itself) */
 "[Database/Delete/Confirm/text] Delete database file?\n Make sure you have a backup." = "Eliminare il file database?\nAssicurati di avere una copia di sicurezza.";
+
+/* Action to modify database encryption settings. */
+"[Database/EncryptionSettings/Change/action]" = "Modifica impostazioni di crittografia";
+
+/* Parameter name in database encryption settings. Example: 'Encryption Algorithm: AES-256' */
+"[Database/EncryptionSettings/dataCipher]" = "Algoritmo crittografico";
+
+/* Parameter name in database encryption settings. Defines the number of times/iterations a calculation (transform) should be executed. Example: 'Transform Rounds: 100' */
+"[Database/EncryptionSettings/iterations]" = "Cicli trasformativi";
+
+/* Parameter name in database encryption settings. This is a term, see https://en.wikipedia.org/wiki/Key_derivation_function. Example: 'Key Derivation Function: Argon2' */
+"[Database/EncryptionSettings/kdf]" = "Funzione di derivazione di chiave";
+
+/* Parameter name in database encryption settings. Defines the amount of memory that should be used by an algorithm. Example: 'Memory Usage: 16 MB' */
+"[Database/EncryptionSettings/memory]" = "Memoria utilizzata";
+
+/* Warning for too high value of the `Memory usage` parameter in database encryption settings. */
+"[Database/EncryptionSettings/memoryAutoFillWarning]" = "Un elevato consumo di memoria potrebbe rendere questo database incompatibile con l'inserimento automatico.";
+
+/* Action/button button in database encryption settings. Resets the settings to recommended values. */
+"[Database/EncryptionSettings/reset]" = "Ripristina impostazioni predefinite";
+
+/* Parameter name in database encryption settings. Defines the number of computations to run in parallel/simultaneously. Example: 'Parallelism: 2 threads' */
+"[Database/EncryptionSettings/threads]" = "Parallelismo";
+
+/* Title: database encryption settings. */
+"[Database/EncryptionSettings/title]" = "Impostazioni di crittografia";
+
+/* Info message when changing database file format. */
+"[Database/FormatVersion/Conversion/allDataPreserved]" = "Tutti i tuoi dati saranno conservati.";
+
+/* Info message when the app needs to change database file format. [oldFormat, newFormat: String] */
+"[Database/FormatVersion/Upgrade/text]" = "KeePassium deve aggiornare il formato del file del database (da %1$@ a %2$@). Potrebbe essere necessario aggiornare altre applicazioni che utilizzano questo database.";
+
+/* Title of an info message when the app needs to change database file format. */
+"[Database/FormatVersion/Upgrade/title]" = "Prima di continuare";
+
+/* Status of a database item (entry or group) after it was edited. */
+"[Database/Item/Edited/state]" = "Modificato";
 
 /* Notification when user tries to copy data from KDBX to older KDB database. */
 "[Database/LesserTargetFormat/warning]" = "Questo è un formato database vecchio, alcuni dati potrebbero andare persi.";
@@ -175,6 +238,9 @@
 /* Status message: loading a database */
 "[Database/Loading/Status] Loading..." = "Carico...";
 
+/* Action/button: change master key of a database. */
+"[Database/MasterKey/Change/action]" = "Modifica chiave principale";
+
 /* Notification after changing database master key */
 "[Database/MasterKey/changed] Master key successfully changed" = "Chiave principale cambiata con successo";
 
@@ -202,8 +268,11 @@
 /* Title of a warning message, shown after opening a problematic database */
 "[Database/Opened/Warning/title] Your database is ready, but there was an issue." = "Il tuo database è pronto, ma si è verificato un errore.";
 
+/* Title of a list with database-related actions (e.g. lock database, change master key, etc) */
+"[Database/Operations/title]" = "Operazioni database";
+
 /* Status message: preparing database print preview. */
-"[Database/Print/preparingPreview]" = "Preparazione anteprima…";
+"[Database/Print/preparingPreview]" = "Preparo anteprima…";
 
 /* Progress status: finished loading database */
 "[Database/Progress] Done" = "Fatto";
@@ -226,8 +295,17 @@
 /* Suggested solution/call to action when intermediate sync app fails. */
 "[Database/RecommendRemote/callToAction]" = "Prova a connetterti al tuo archivio remoto direttamente da KeePassium.";
 
+/* Action/button */
+"[Database/Reload/action]" = "Ricarica database";
+
 /* Message to confirm removal of database file from the app. (This keeps the file, but removes its reference from the app.) */
 "[Database/Remove/Confirm/text] Remove database from the list?\n The file will remain intact and you can add it again later." = "Rimuovere il database dalla lista?\nIl file rimarrà intatto e potrai aggiungerlo di nuovo in seguito.";
+
+/* Action/button to save the current database. */
+"[Database/Save/action] Save Database" = "Salva database";
+
+/* Action/button to save file to a remote server. */
+"[Database/SaveToServer/action]" = "Salva sul server";
 
 /* Status message: finished saving a database */
 "[Database/Saving/Status] Done" = "Fatto";
@@ -326,7 +404,7 @@
 "[Database1/Header1/Error] Wrong file signature. Not a KeePass database?" = "Firma file errata. Non è un database KeePass?";
 
 /* Status message: collecting database items into a single package */
-"[Database1/Progress] Packing the content" = "Impacco il contenuto";
+"[Database1/Progress] Packing the content" = "Aggrego il contenuto";
 
 /* Status message: processing the content of a database */
 "[Database1/Progress] Parsing content" = "Analizzo il contenuto";
@@ -410,7 +488,7 @@
 "[Database2/Progress] Reading database content" = "Leggo contenuto database";
 
 /* Progress bar status */
-"[Database2/Progress] Writing encrypted blocks" = "Scrivo blocchi cifrati";
+"[Database2/Progress] Writing encrypted blocks" = "Scrivo blocchi criptati";
 
 /* Progress bar status: un-zipping the database content */
 "[Database2/Progress/decompressing]" = "Decomprimo database";
@@ -455,13 +533,16 @@
 "[DatabaseError] Invalid password or key file" = "Password o file chiave non validi";
 
 /* Subtitle for `Diagnostic Log`. Keep it short. */
-"[DiagLog/subtitle]" = "Per risoluzione problemi esperta";
+"[DiagLog/subtitle]" = "Per risoluzione problemi avanzata";
 
 /* Title of the diagnostic info screen */
 "[DiagLog/title]" = "Registro diagnostico";
 
 /* Notification/confirmation message */
 "[Diagnostics] Diagnostic log has been copied to clipboard." = "Il registro diagnostico è stato copiato negli appunti.";
+
+/* Action: select a different icon for an item */
+"[EditEntry/Icon/change]" = "Cambia icona";
 
 /* Action: choose a username from a list */
 "[EditEntry/UserName/choose]" = "Scegli";
@@ -499,6 +580,12 @@
 /* Action: copy a reference to the selected entry field to clipboard */
 "[Entry/Field/CopyReference/action]" = "Copia riferimento campo";
 
+/* Action: display text using large font */
+"[Entry/Field/LargeType/action]" = "Mostra con testo grande";
+
+/* Name of an entry field */
+"[Entry/Field/name] Icon" = "Icona";
+
 /* Name of an entry field */
 "[Entry/Field/name] Notes" = "Note";
 
@@ -514,11 +601,14 @@
 /* Name of an entry field */
 "[Entry/Field/name] User Name" = "Nome utente";
 
+/* Name of an entry field */
+"[Entry/Field/tags] Tags" = "Tag";
+
 /* Status message: loading file to be attached to an entry */
 "[Entry/Files/Add] Loading attachment file" = "Carico file allegato";
 
 /* Title of a field with entry creation date and time */
-"[Entry/History] Creation Date" = "Data creazione";
+"[Entry/History] Creation Date" = "Data di creazione";
 
 /* Title of a field with date and time when the entry will no longer be valid. 'Never' is also a possible value */
 "[Entry/History] Expiry Date" = "Data scadenza";
@@ -527,7 +617,7 @@
 "[Entry/History] Last Access Date" = "Data ultimo accesso";
 
 /* Title of a field with entry's last modification date and time */
-"[Entry/History] Last Modification Date" = "Data ultima modifica";
+"[Entry/History] Last Modification Date" = "Data di ultima modifica";
 
 /* Title of a list with previous versions/revisions of an entry. */
 "[Entry/History] Previous Versions" = "Versioni precedenti";
@@ -565,6 +655,9 @@
 /* Error message shown when there's internal inconsistency in KeePassium. */
 "[FileAccessError/internalError]" = "Errore interno di KeePassium, ti preghiamo di inviarci una segnalazione in merito.";
 
+/* Error message: organization's IT administrator has forbidden access to a data storage location. */
+"[FileAccessError/ManagedAccessDenied/title]" = "L'accesso a questo archivio è impedito dalla tua istituzione.";
+
 /* Error message: network access is forbidden by system or app settings. */
 "[FileAccessError/NetworkAccessDenied/generic]" = "L'accesso alla rete è bloccato dalle impostazioni.";
 
@@ -583,6 +676,12 @@
 /* Suggestion for error recovery */
 "[FileAccessError/OneDriveReadOnly/recoverySuggestion]" = "Utilizza l'opzione Esporta per salvare il file da un'altra parte.";
 
+/* Error message for file with an expired access permission [fileName: String]. */
+"[FileAccessError/PermissionRequired/reason]" = "KeePassium richiede il tuo permesso per accedere a '%@'.";
+
+/* Action/button for error recovery */
+"[FileAccessError/PermissionRequired/recoveryAction]" = "Seleziona di nuovo il file per consentire l'accesso";
+
 /* Error message: storage provider app (e.g. Google Drive) does not respond to requests (quickly enough). */
 "[FileAccessError/Timeout/genericFileProvider]" = "Il fornitore di spazio di archiviazione non risponde.";
 
@@ -596,7 +695,7 @@
 "[FileInfo/Error/failed to change attributes]" = "Impossibile aggiornare attributi file.";
 
 /* Field title */
-"[FileInfo/Field/title] Creation Date" = "Data creazione";
+"[FileInfo/Field/title] Creation Date" = "Data di creazione";
 
 /* Field title */
 "[FileInfo/Field/title] File Location" = "Posizione file";
@@ -608,7 +707,7 @@
 "[FileInfo/Field/title] File Size" = "Dimensione file";
 
 /* Field title */
-"[FileInfo/Field/title] Last Modification Date" = "Data ultima modifica";
+"[FileInfo/Field/title] Last Modification Date" = "Data di ultima modifica";
 
 /* Title of a field with an error message */
 "[FileInfo/Field/valueError] Error" = "Errore";
@@ -640,6 +739,9 @@
 /* Localized name of the storage service: Boxcryptor (https://boxcryptor.com) */
 "[FileProvider/Boxcryptor/name]" = "Boxcryptor";
 
+/* Localized name of the storage service: Cryptomator (https://cryptomator.org) */
+"[FileProvider/Cryptomator/name]" = "Cryptomator";
+
 /* Localized name of the storage service: Dropbox (https://dropbox.com) */
 "[FileProvider/Dropbox/name]" = "Dropbox";
 
@@ -651,6 +753,9 @@
 
 /* Localized name of the storage service iCloud Drive (https://icloud.com/iclouddrive) */
 "[FileProvider/iCloud Drive/name]" = "iCloud Drive";
+
+/* Localized name of the storage service: MagentaCLOUD (https://www.telekom.de/zubuchoptionen/magenta-cloud) */
+"[FileProvider/MagentaCloud/name]" = "MagentaCLOUD";
 
 /* Localized name of the storage service: MEGA (https://mega.nz) */
 "[FileProvider/Mega.nz/name]" = "MEGA.nz";
@@ -672,6 +777,9 @@
 
 /* Localized name of the storage service: pCloud (https://pcloud.com) */
 "[FileProvider/pCloud/name]" = "pCloud";
+
+/* Localized name of the storage service: Proton Drive (https://proton.me/drive) */
+"[FileProvider/ProtonDrive/name]" = "Proton Drive";
 
 /* Localized name of the storage service: QNAP Qfile (https://apps.apple.com/app/qfile/id526330408) */
 "[FileProvider/qnapQFile/name]" = "Qfile";
@@ -710,16 +818,16 @@
 "[FileProvider/Yandex.Disk/name]" = "Yandex.Disk";
 
 /* A sorting option for a list of files, by file creation date. Example: 'Sort Order: Creation Date (Oldest First)' */
-"[FilesSortOrder/longTitle] Creation Date (Oldest First)" = "Data creazione (meno recenti prima)";
+"[FilesSortOrder/longTitle] Creation Date (Oldest First)" = "Data di creazione (meno recenti prima)";
 
 /* A sorting option for a list of files, by file creation date. Example: 'Sort Order: Creation Date (Recent First)' */
-"[FilesSortOrder/longTitle] Creation Date (Recent First)" = "Data creazione (più recenti prima)";
+"[FilesSortOrder/longTitle] Creation Date (Recent First)" = "Data di creazione (più recenti prima)";
 
 /* A sorting option for a list of files, by file's last modification date. Example: 'Sort Order: Modification Date (Oldest First)' */
-"[FilesSortOrder/longTitle] Modification Date (Oldest First)" = "Data modifica (meno recenti prima)";
+"[FilesSortOrder/longTitle] Modification Date (Oldest First)" = "Data di modifica (meno recenti prima)";
 
 /* A sorting option for a list of files, by file's last modification date. Example: 'Sort Order: Modification Date (Recent First)' */
-"[FilesSortOrder/longTitle] Modification Date (Recent First)" = "Data modifica (più recenti prima)";
+"[FilesSortOrder/longTitle] Modification Date (Recent First)" = "Data di modifica (più recenti prima)";
 
 /* A sorting option for a list of files, by file name. Example: 'Sort Order: Name (A..Z)' */
 "[FilesSortOrder/longTitle] Name (A..Z)" = "Nome (A-Z)";
@@ -781,6 +889,9 @@
 /* Action/button to export an item to another app */
 "[Generic] Export" = "Esporta";
 
+/* Action/button shown below error messages. Tapping the button will start the fixing/repairing workflow described in the error message. */
+"[Generic] Fix this" = "Risolvi";
+
 /* Action/button to view more help/info about some topic */
 "[Generic] Learn more" = "Maggiori informazioni...";
 
@@ -829,6 +940,12 @@
 /* Checkbox/Button to show a text field in its full size */
 "[Generic] Show more" = "Mostra di più";
 
+/* Action/button to skip the current step and proceed with the next one */
+"[Generic] Skip" = "Salta";
+
+/* Action/button to select some items in a list. */
+"[Generic/Action/SelectItems]" = "Seleziona";
+
 /* Message to confirm deletion of an item. */
 "[Generic/ConfirmDelete/title] Are you sure?" = "Confermi?";
 
@@ -862,6 +979,9 @@
 /* Title of a list with predefined quick-choice values (for example: 'Presets: 1 week, 1 months, 1 year') */
 "[Generic/Presets]" = "Predefinite";
 
+/* Action: refresh list of items, usually files */
+"[Generic/RefreshList/action]" = "Ricarica lista";
+
 /* Title of a search field (a noun, not verb) */
 "[Generic/Search/title]" = "Cerca";
 
@@ -873,6 +993,9 @@
 
 /* Title of an warning message */
 "[Generic/title] Warning" = "Attenzione";
+
+/* Warning message template. Swap the icon and message for right-to-left languages. */
+"[Generic/WarningWithIcon/template]" = "⚠️ %@";
 
 /* VoiceOver description of a group [groupTitle: String, itemCount: Int] */
 "[Group/a11y/description]" = "%@, gruppo";
@@ -895,17 +1018,20 @@
 /* Title of the confirmation dialog for `Empty Recycle Bin` action */
 "[Group/RecycleBin/Empty/confirmTitle]" = "Eliminare definitivamente gli elementi contenuti nel Cestino?";
 
+/* Title of an input field for group name */
+"[GroupEditor/Name/placeholder]" = "Nome gruppo";
+
 /* An option in Group Viewer settings. Example: 'Sort Order: By Creation Date (New..Old)' */
-"[GroupSortOrder/longTitle] By Creation Date (New..Old)" = "Per data creazione (più recenti prima)";
+"[GroupSortOrder/longTitle] By Creation Date (New..Old)" = "Per data di creazione (più recenti prima)";
 
 /* An option in Group Viewer settings. Example: 'Sort Order: By Creation Date (Old..New)' */
-"[GroupSortOrder/longTitle] By Creation Date (Old..New)" = "Per data creazione (meno recenti prima)";
+"[GroupSortOrder/longTitle] By Creation Date (Old..New)" = "Per data di creazione (meno recenti prima)";
 
 /* An option in Group Viewer settings. Example: 'Sort Order: By Modification Date (New..Old)' */
-"[GroupSortOrder/longTitle] By Modification Date (New..Old)" = "Per data modifica (più recenti prima)";
+"[GroupSortOrder/longTitle] By Modification Date (New..Old)" = "Per data di modifica (più recenti prima)";
 
 /* An option in Group Viewer settings. Example: 'Sort Order: By Modification Date (Old..New)' */
-"[GroupSortOrder/longTitle] By Modification Date (Old..New)" = "Per data modifica (meno recenti prima)";
+"[GroupSortOrder/longTitle] By Modification Date (Old..New)" = "Per data di modifica (meno recenti prima)";
 
 /* An option in Group Viewer settings. Example: 'Sort Order: By Title (A..Z)' */
 "[GroupSortOrder/longTitle] By Title (A..Z)" = "Per titolo (A-Z)";
@@ -922,11 +1048,26 @@
 /* Name of an input field which shows selected hardware key */
 "[HardwareKey/Field/title]" = "Chiave fisica";
 
+/* Connector type for older Apple devices, used through a USB adapter. https://en.wikipedia.org/wiki/Lightning_(connector) */
+"[HardwareKey/Interface/LightningViaUSBAdapter]" = "Lightning (via adattatore USB)";
+
+/* A notice for hardware keys that need an adapter for physical connection to device. */
+"[HardwareKey/LightningOverUSB/RequiresAdapter]" = "Richiede un adattatore Apple da USB-C a Lightning";
+
 /* A notification that NFC (Near Field Communication) interface is not supported by the current iOS version. */
 "[HardwareKey/NFC/OS too old]" = "NFC richiede iOS 13 o versioni successive.";
 
 /* Master key/unlock option: don't use hardware keys */
 "[HardwareKey/None] No Hardware Key" = "Nessuna chiave fisica";
+
+/* Title of a list with possible hardware key connections */
+"[HardwareKey/Picker/title]" = "Chiavi fisiche";
+
+/* Information notice. 'Challenge-response' is a glossary term. */
+"[HardwareKey/USB/chalRespNotSupported]" = "Questo dispositivo non supporta challenge-response tramite connessione USB.";
+
+/* Information notice */
+"[HardwareKey/USB/iPadAppOnMac]" = "USB non è disponibile, perché questa è un'app per iPad eseguita su macOS. Usa l'app nativa per Mac.";
 
 /* Master key/unlock option: use given slot of YubiKey */
 "[HardwareKey/YubiKey/Slot] YubiKey Slot #%d" = "Slot Yubikey %d";
@@ -946,6 +1087,45 @@
 /* Notification that an archived/historical item (e.g entry) has been successfully restored */
 "[Item/History/Restored]" = "Versione precedente ripristinata";
 
+/* Title of a list with advanced/expert-level properties of a database item (e.g. entry) */
+"[Item/Properties/Advanced/title]" = "Avanzate";
+
+/* Possible value of the `Password AutoFill` setting. For example: 'Password AutoFill: Allowed' */
+"[Item/Properties/AutoFill/allowed]" = "Consentito";
+
+/* Possible value of the `Password AutoFill` setting. For example: 'Password AutoFill: Disabled' */
+"[Item/Properties/AutoFill/disabled]" = "Disattivato";
+
+/* Title of a setting: whether the item (e.g. entry) should be used in AutoFill feature. App-specific setting for KeePassXC. */
+"[Item/Properties/AutoFill/KeePassXC/title]" = "Inserimento automatico (KeePassXC)";
+
+/* Title of a setting: whether the item (e.g. entry) should be used in AutoFill feature */
+"[Item/Properties/AutoFill/title]" = "Inserimento automatico";
+
+/* Default value of an item property. For example: 'Password Audit: Inherit from parent group (Allowed)'. [inheritedValue: String] */
+"[Item/Properties/inheritedValue]" = "Eredita dal gruppo genitore (%@)";
+
+/* Possible value of the `Password Audit` setting. For example: 'Password Audit: Allowed' */
+"[Item/Properties/PasswordAudit/allowed]" = "Consentita";
+
+/* Possible value of the `Password Audit` setting. For example: 'Password Audit: Disabled' */
+"[Item/Properties/PasswordAudit/disabled]" = "Disattivata";
+
+/* Title of a setting: whether the item (e.g. entry) should be included in password audit */
+"[Item/Properties/PasswordAudit/title]" = "Ispezione password";
+
+/* Possible value of the `Search` setting. Example: 'Search: Allowed' */
+"[Item/Properties/Search/allowed]" = "Consentita";
+
+/* Possible value of the `Search` setting, when the item should be excluded from search results. Example: 'Search: Disabled' */
+"[Item/Properties/Search/disabled]" = "Disattivata";
+
+/* Title of a setting: whether the item (e.g. entry) should be considered during search. Example: 'Search: Allowed' */
+"[Item/Properties/Search/title] Search" = "Cerca";
+
+/* Title of a list with item (e.g. entry) properties/settings, such as searchability, auto-typing, etc */
+"[Item/Properties/title]" = "Proprietà";
+
 /* Name of an entry/group category (visual style): default one, like in KeePass */
 "[ItemCategory] Default (KeePass)" = "Predefinito (KeePass)";
 
@@ -964,14 +1144,32 @@
 /* Error message about system keychain. */
 "[KeychainError/unexpectedFormat] Keychain error: unexpected data format" = "Errore portachiavi: formato dati inaspettato";
 
+/* Action: create new key file. */
+"[KeyFile/Create/action]" = "Crea file chiave";
+
+/* Default name for new key files. Should match the `key file` term in the glossary. */
+"[KeyFile/Create/defaultName]" = "filechiave.dat";
+
 /* Message to confirm deletion of a key file. */
 "[KeyFile/Delete/Confirm/text] Delete key file?\n Make sure you have a backup." = "Eliminare il file chiave?\nAssicurati di avere una copia.";
 
 /* Name of an input field which shows selected key file */
 "[KeyFile/Field/title]" = "File chiave";
 
+/* Action: import/add a key file into the app. `Key file` is a glossary term. */
+"[KeyFile/Import/action]" = "Importa file chiave";
+
+/* Description of the `Import Key File` action. */
+"[KeyFile/Import/actionDescription]" = "Aggiungi file all'app";
+
 /* Message to confirm removal of a key file from the app. (This keeps the file, but removes its reference from the app.) */
 "[KeyFile/Remove/Confirm/text] Remove key file from the list?\n The file will remain intact and you can add it again later." = "Rimuovere file chiave dalla lista?\nIl file rimarrà intatto e potrai aggiungerlo di nuovo in seguito.";
+
+/* Action: use a key file at its storage location, without importing to the app. */
+"[KeyFile/Use/action]" = "Seleziona file chiave";
+
+/* Description of the `Select Key File` action. */
+"[KeyFile/Use/actionDescription]" = "Usa senza aggiungere";
 
 /* Error message when the key file is misformatted or damaged */
 "[KeyFileError/Corrupted/title]" = "File chiave corrotto";
@@ -986,7 +1184,7 @@
 "[Org/ContactYourAdmin]" = "Contatta il tuo amministratore di sistema.";
 
 /* Error message, euphemism for missing corporate license */
-"[Org/LicenseMissing]" = "KeePassium non ha trovato l'account aziendale della tua organizzazione.";
+"[Org/LicenseMissing]" = "KeePassium non ha trovato l'account aziendale della tua istituzione.";
 
 /* Notification next to the OTP code which was copied to clipboard */
 "[OTP/CopiedToClipboard/title]" = "Password monouso copiata negli appunti";
@@ -1121,7 +1319,7 @@
 "[PasswordGenerator/Wordlist/EFFLarge/title]" = "Lista vocaboli EFF ampia (7776 parole)";
 
 /* Name of a wordlist for passphrase generator. `EFF` is an organization name. */
-"[PasswordGenerator/Wordlist/EFFShort/title]" = "Lista vocaboli EFF breve (1296 parole)";
+"[PasswordGenerator/Wordlist/EFFShort/title]" = "Dizionario EEF breve n. %d (1296 parole)";
 
 /* List of words to be used for a passphrase. */
 "[PasswordGenerator/Wordlist/title]" = "Lista vocaboli";
@@ -1151,7 +1349,7 @@
 "[Premium/Benefits/HardwareKeys/details]" = "Proteggi i tuoi segreti con una chiave fisica, tipo YubiKey.";
 
 /* Title of a premium feature */
-"[Premium/Benefits/HardwareKeys/title]" = "Usa le chiavi hardware";
+"[Premium/Benefits/HardwareKeys/title]" = "Usa chiavi fisiche";
 
 /* Explanation of the premium feature */
 "[Premium/Benefits/MultiDB/details]" = "Aggiungi più database e passa rapidamente da uno all'altro.";
@@ -1161,6 +1359,9 @@
 
 /* List of premium benefits/advantages */
 "[Premium/Benefits/Negative/header] " = "Cosa ti perdi";
+
+/* Title of a premium feature */
+"[Premium/Benefits/PasswordAudit/title]" = "Verifica le tue password";
 
 /* List of premium benefits/advantages */
 "[Premium/Benefits/Positive/header] " = "Cosa ottieni";
@@ -1175,7 +1376,7 @@
 "[Premium/CallToAction/buyNow]" = "Acquista ora";
 
 /* Call to action: continue using the free version */
-"[Premium/CallToAction/free]" = "Continua a testare";
+"[Premium/CallToAction/free]" = "Continua prova";
 
 /* Call to action: start free trial */
 "[Premium/CallToAction/startTrial]" = "Prova gratis";
@@ -1289,7 +1490,7 @@
 "[Premium/Upgrade/price] around %@ / month" = "≈ %@ / mese";
 
 /* Status message when downloading available in-app purchases */
-"[Premium/Upgrade/Progress] Contacting AppStore..." = "Contatto l'AppStore...";
+"[Premium/Upgrade/Progress] Contacting AppStore..." = "Contatto App Store...";
 
 /* Status: in-app purchase started */
 "[Premium/Upgrade/Progress] Purchasing..." = "Acquisto in corso...";
@@ -1344,6 +1545,12 @@
 
 /* Title of a premium feature: ability to use multiple databases (In Title Case) */
 "[PremiumFeature/MultiDB/title] Multiple Databases" = "Database multipli";
+
+/* Description/call to action for the `Password Audit` premium feature. */
+"[PremiumFeature/PasswordAudit/description]" = "Scopri se le tue password sono state esposte in una violazione di dati nota.";
+
+/* Title of a premium feature: discover which passwords are known to be compromized */
+"[PremiumFeature/PasswordAudit/title]" = "Ispezione password";
 
 /* Description/advertisement for the `Preview Attachments` premium feature */
 "[PremiumFeature/Preview/description] Preview images and documents directly in the app, in the premium version." = "Visualizza immagini e documenti direttamente nell'app, nella versione Premium.";
@@ -1404,6 +1611,9 @@
 
 /* Action: authenticate to OneDrive account */
 "[RemoteConnection/SignIn/OneDrive/action]" = "Accedi a OneDrive";
+
+/* Error description: the user should manually sign in to their OneDrive account */
+"[RemoteConnection/SignIn/OneDrive/authorizationRequried]" = "OneDrive richiede di nuovo l'accesso.";
 
 /* No comment provided by engineer. */
 "[RemoteConnection/SignIn/PrivateMode/description]" = "Apri la pagina di accesso in un pannello privato";
@@ -1474,6 +1684,9 @@
 /* Title of AutoFill settings screen */
 "[Settings/AutoFill/title]" = "Inserimento automatico password";
 
+/* No comment provided by engineer. */
+"[Settings/AutoFill/UnavailableInIntune/description]" = "L'inserimento automatico non è disponibile in KeePassium per Intune.";
+
 /* Title of an option: automatically use the single best match found by AutoFill search */
 "[Settings/AutoFill/UsePerfectMatch/title]" = "Inserisci risultato perfetto in automatico";
 
@@ -1541,7 +1754,7 @@
 "[Settings/DataProtection/title]" = "Protezione dati";
 
 /* An option in Group Viewer settings. Refers fo the most recent time when the entry was modified. Will be shown as 'Entry Subtitle: Last Modified Date'. */
-"[Settings/EntryListDetail/longTitle] Last Modified Date" = "Data ultima modifica";
+"[Settings/EntryListDetail/longTitle] Last Modified Date" = "Data di ultima modifica";
 
 /* An option in Group Viewer settings. Will be shown as 'Entry Subtitle: None', meanining that no entry details will be shown in any lists. */
 "[Settings/EntryListDetail/longTitle] None" = "Nessuno";
@@ -1562,10 +1775,13 @@
 "[Settings/GroupViewer] Entry Subtitle" = "Sottotitolo voce";
 
 /* Title of a settings section: sort order of groups and entries in a list */
-"[Settings/GroupViewer] Sort Order" = "Ordinamento";
+"[Settings/GroupViewer] Sort Order" = "Ordine";
 
 /* Title of list view configuration screen */
 "[Settings/ListSettings/title]" = "Impostazioni elenco";
+
+/* Notification when corporate user tries to change an app setting controlled by organization's IT department. */
+"[Settings/Managed/notification]" = "Questa impostazione è gestita dalla tua istituzione.";
 
 /* Confirmation dialog message */
 "[Settings/NetworkAccess/Confirmation/text]" = "Consentire a KeePassium di connettersi a servizi esterni in rete?";
@@ -1585,6 +1801,9 @@
 /* Setting option: the app is permitted to use online features */
 "[Settings/NetworkAccessMode/Online/title]" = "Consenti accesso alla rete";
 
+/* Action/button which resets some settings to their default state. */
+"[Settings/RestoreDefaults/action]" = "Ripristina predefiniti";
+
 /* Section title in settings */
 "[Settings/Search/title]" = "Cerca";
 
@@ -1592,10 +1811,10 @@
 "[SortBy]" = "Ordina per";
 
 /* List sorting option. Example: 'Sort by: Date Created' */
-"[SortBy/DateCreated]" = "Data creazione";
+"[SortBy/DateCreated]" = "Data di creazione";
 
 /* List sorting option. Example: 'Sort by: Date Modified' */
-"[SortBy/DateModified]" = "Data modifica";
+"[SortBy/DateModified]" = "Data di modifica";
 
 /* List sorting option (for file names). Example: 'Sort by: Name' */
 "[SortBy/FileName]" = "Nome";

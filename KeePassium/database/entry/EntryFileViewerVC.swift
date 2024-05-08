@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -7,18 +7,19 @@
 //  For commercial licensing, please contact the author.
 
 import KeePassiumLib
+import UniformTypeIdentifiers
 
 protocol EntryFileViewerDelegate: AnyObject {
     func shouldReplaceExistingFile(in viewController: EntryFileViewerVC) -> Bool
-    
+
     func canPreviewFiles(in viewController: EntryFileViewerVC) -> Bool
-    
+
     func didPressAddFile(at popoverAnchor: PopoverAnchor, in viewController: EntryFileViewerVC)
     func didPressAddPhoto(
         fromCamera: Bool,
         at popoverAnchor: PopoverAnchor,
         in viewController: EntryFileViewerVC)
-    
+
     func didPressSave(
         file attachment: Attachment,
         at popoverAnchor: PopoverAnchor,
@@ -48,9 +49,9 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         static let noFiles = "NoFilesCell"
         static let addFile = "AddFileCell"
     }
-    
+
     weak var delegate: EntryFileViewerDelegate?
-     
+
     private var attachments = [Attachment]()
 
     private var canEditFiles = false
@@ -58,35 +59,28 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
     private var previewFilesBarButton: UIBarButtonItem! 
     private var addFileBarButton: UIBarButtonItem! 
     private var deleteFilesBarButton: UIBarButtonItem! 
-    
-    
-    
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         navigationItem.rightBarButtonItem = editButtonItem
         tableView.allowsMultipleSelectionDuringEditing = true
+        tableView.dragInteractionEnabled = true
+        tableView.dragDelegate = self
 
         previewFilesBarButton = UIBarButtonItem(
-            image: UIImage(asset: .filePreviewToolbar),
+            image: .symbol(.rectangleStack),
             style: .plain,
             target: self,
             action: #selector(didPressViewAll(_:)))
         previewFilesBarButton.title = LString.actionPreviewAttachments
         previewFilesBarButton.accessibilityLabel = LString.actionPreviewAttachments
 
-        if #available(iOS 14, *) {
-            addFileBarButton = UIBarButtonItem(systemItem: .add)
-            addFileBarButton.accessibilityLabel = LString.actionAddAttachment
-            addFileBarButton.menu = makeAddAttachmentMenu()
-        } else {
-            addFileBarButton = UIBarButtonItem(
-                barButtonSystemItem: .add,
-                target: self,
-                action: #selector(didPressAddFileAttachment(_:))
-            )
-            addFileBarButton.accessibilityLabel = LString.actionAddAttachment
-        }
+        addFileBarButton = UIBarButtonItem(systemItem: .add)
+        addFileBarButton.accessibilityLabel = LString.actionAddAttachment
+        addFileBarButton.menu = makeAddAttachmentMenu()
+
         deleteFilesBarButton = UIBarButtonItem(
             title: LString.actionDelete, 
             image: nil,
@@ -102,27 +96,27 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         ]
         updateToolbar()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         refresh()
     }
-    
+
     override func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
         setEditing(false, animated: false)
     }
-    
+
     public func setContents(_ attachments: [Attachment], canEditEntry: Bool, animated: Bool) {
         self.attachments = attachments
         self.canEditFiles = canEditEntry
         refresh(animated: animated)
     }
-    
+
     func refresh() {
         refresh(animated: false)
     }
-    
+
     func refresh(animated: Bool) {
         editButtonItem.isEnabled = canEditFiles
         if animated {
@@ -132,33 +126,39 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         }
         updateToolbar()
     }
-    
+
     @available(iOS 14, *)
     private func makeAddAttachmentMenu() -> UIMenu {
-        let chooseFileAction = UIAction(title: LString.actionChooseFile, image: UIImage.get(.folder)) {
-            [weak self] action in
+        let chooseFileAction = UIAction(
+            title: LString.actionChooseFile,
+            image: .symbol(.folder)
+        ) { [weak self] action in
             self?.didPressAddFileAttachment(action)
         }
-        let choosePhotoAction = UIAction(title: LString.actionChoosePhoto, image: UIImage.get(.photo)) {
-            [weak self] _ in
+        let choosePhotoAction = UIAction(
+            title: LString.actionChoosePhoto,
+            image: .symbol(.photo)
+        ) { [weak self] _ in
             self?.didPressAddPhotoAttachment(fromCamera: false)
         }
-        let takePhotoAction = UIAction(title: LString.actionTakePhoto, image: UIImage.get(.camera)) {
-            [weak self] _ in
+        let takePhotoAction = UIAction(
+            title: LString.actionTakePhoto,
+            image: .symbol(.camera)
+        ) { [weak self] _ in
             self?.didPressAddPhotoAttachment(fromCamera: true)
         }
-        
+
         let menu = UIMenu.make(
             reverse: true,
             children: [
                 chooseFileAction,
                 choosePhotoAction,
-                takePhotoAction,
+                takePhotoAction
             ]
         )
         return menu
     }
-    
+
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -167,7 +167,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return max(1, attachments.count) // at least one for "Nothing here"
     }
-    
+
     override func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
@@ -175,7 +175,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         if attachments.isEmpty {
             return tableView.dequeueReusableCell(withIdentifier: CellID.noFiles, for: indexPath)
         }
-        
+
         guard indexPath.row < attachments.count else {
             assertionFailure()
             return tableView.dequeueReusableCell(withIdentifier: CellID.noFiles, for: indexPath)
@@ -183,7 +183,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         let att = attachments[indexPath.row]
         return setupAttachmentCell(att, for: indexPath)
     }
-    
+
     private func setupAttachmentCell(
         _ attachment: Attachment,
         for indexPath: IndexPath
@@ -197,7 +197,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         )
         return cell
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard indexPath.row < attachments.count else {
             return // skip "empty list" row
@@ -212,7 +212,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
             tableView.deselectRow(at: indexPath, animated: true)
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         guard indexPath.row < attachments.count else {
             return
@@ -221,7 +221,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
             updateToolbar()
         }
     }
-    
+
     override func tableView(
         _ tableView: UITableView,
         editingStyleForRowAt indexPath: IndexPath
@@ -236,17 +236,17 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         }
         return .delete
     }
-    
+
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         guard canEditFiles else {
             return false
         }
-        
+
         let isFileRow = !attachments.isEmpty && (indexPath.row < attachments.count)
         return isFileRow
     }
-    
-    
+
+
     override func getContextActionsForRow(
         at indexPath: IndexPath,
         forSwipe: Bool
@@ -265,7 +265,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
                 self?.didPressDeleteAttachment(at: indexPath)
             }
         )
-        
+
         let renameFileAction = ContextualAction(
             title: LString.actionRename,
             imageName: .pencil,
@@ -274,7 +274,7 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
                 self?.didPressRenameAttachment(at: indexPath)
             }
         )
-        
+
         let saveAsAction = ContextualAction(
             title: LString.actionFileSaveAs,
             imageName: .squareAndArrowDown,
@@ -285,12 +285,12 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
         )
         return [saveAsAction, renameFileAction, deleteAction]
     }
-    
+
     override func tableView(
         _ tableView: UITableView,
         commit editingStyle: UITableViewCell.EditingStyle,
-        forRowAt indexPath: IndexPath)
-    {
+        forRowAt indexPath: IndexPath
+    ) {
         assert(canEditFiles)
         didPressDeleteAttachment(at: indexPath)
     }
@@ -303,12 +303,12 @@ final class EntryFileViewerVC: TableViewControllerWithContextActions, Refreshabl
 }
 
 private extension EntryFileViewerVC {
-    
+
     @objc private func didPressViewAll(_ sender: UIBarButtonItem) {
         let popoverAnchor = PopoverAnchor(barButtonItem: sender)
         delegate?.didPressViewAll(files: attachments, at: popoverAnchor, in: self)
     }
-    
+
     @objc private func didPressAddFileAttachment(_ sender: AnyObject) {
         assert(canEditFiles)
         maybeConfirmReplacement(confirmed: { [weak self] in
@@ -317,7 +317,7 @@ private extension EntryFileViewerVC {
             self.delegate?.didPressAddFile(at: popoverAnchor, in: self)
         })
     }
-    
+
     private func didPressAddPhotoAttachment(fromCamera: Bool) {
         assert(canEditFiles)
         maybeConfirmReplacement(confirmed: { [weak self] in
@@ -326,14 +326,14 @@ private extension EntryFileViewerVC {
             self.delegate?.didPressAddPhoto(fromCamera: fromCamera, at: popoverAnchor, in: self)
         })
     }
-    
-    private func maybeConfirmReplacement(confirmed confirmedHandler: @escaping ()->()) {
+
+    private func maybeConfirmReplacement(confirmed confirmedHandler: @escaping () -> Void) {
         let isReplacementRequired = delegate?.shouldReplaceExistingFile(in: self) ?? true
         guard isReplacementRequired else {
             confirmedHandler()
             return
         }
-        
+
         let replacementAlert = UIAlertController(
             title: NSLocalizedString(
                 "[Entry/Files/Add] Replace existing attachment?",
@@ -351,11 +351,11 @@ private extension EntryFileViewerVC {
         }
         present(replacementAlert, animated: true, completion: nil)
     }
-    
+
     private func didPressRenameAttachment(at indexPath: IndexPath) {
         assert(canEditFiles)
         let attachment = attachments[indexPath.row]
-        
+
         let renameController = UIAlertController(
             title: NSLocalizedString(
                 "[Entry/Files/Rename/title] Rename File",
@@ -363,12 +363,12 @@ private extension EntryFileViewerVC {
                 comment: "Title of a dialog for renaming an attached file"),
             message: nil,
             preferredStyle: .alert)
-        renameController.addTextField { (textField) in
+        renameController.addTextField { textField in
             textField.text = attachment.name
         }
         renameController.addAction(title: LString.actionCancel, style: .cancel, handler: nil)
         renameController.addAction(title: LString.actionRename, style: .default) {
-            [weak renameController, weak self] (action) in
+            [weak renameController, weak self] _ in 
             guard let self = self,
                   let textField = renameController?.textFields?.first,
                   let newName = textField.text,
@@ -381,23 +381,23 @@ private extension EntryFileViewerVC {
         }
         present(renameController, animated: true, completion: nil)
     }
-    
+
     private func didPressSaveAttachment(at indexPath: IndexPath) {
         let attachment = attachments[indexPath.row]
         let popoverAnchor = PopoverAnchor(tableView: tableView, at: indexPath)
         delegate?.didPressSave(file: attachment, at: popoverAnchor, in: self)
     }
-    
+
     private func didPressDeleteAttachment(at indexPath: IndexPath) {
         assert(canEditFiles)
         let attachment = attachments[indexPath.row]
         delegate?.didPressDelete(files: [attachment], in: self)
     }
-    
+
     private func makeConfirmDeleteSelectionMenu(for button: UIBarButtonItem) -> UIMenu {
         let deleteAction = UIAction(
             title: button.title ?? LString.actionDelete,
-            image: UIImage.get(.trash),
+            image: .symbol(.trash),
             attributes: [.destructive],
             handler: { [weak self] _ in
                 self?.didPressDeleteSelection()
@@ -405,10 +405,10 @@ private extension EntryFileViewerVC {
         )
         return UIMenu.make(options: [.destructive], children: [deleteAction])
     }
-    
+
     private func didPressDeleteSelection() {
         assert(canEditFiles)
-        
+
         let attachmentsToDelete: [Attachment]
         if let selectedIndexPaths = tableView.indexPathsForSelectedRows {
             Diag.debug("Deleting selected attachments")
@@ -421,7 +421,7 @@ private extension EntryFileViewerVC {
         }
         delegate?.didPressDelete(files: attachmentsToDelete, in: self)
     }
-    
+
     private func updateToolbar() {
         let hasAttachments = !attachments.isEmpty
         let isPreviewAllowed = delegate?.canPreviewFiles(in: self) ?? true
@@ -434,5 +434,34 @@ private extension EntryFileViewerVC {
             deleteFilesBarButton.title = LString.actionDeleteAll
         }
         deleteFilesBarButton.menu = makeConfirmDeleteSelectionMenu(for: deleteFilesBarButton)
+    }
+}
+
+extension EntryFileViewerVC: UITableViewDragDelegate {
+    func tableView(
+        _ tableView: UITableView,
+        itemsForBeginning session: UIDragSession,
+        at indexPath: IndexPath
+    ) -> [UIDragItem] {
+        guard indexPath.row < attachments.count else {
+            return []
+        }
+
+        let attachment = attachments[indexPath.row]
+        let type = UTType(filenameExtension: (attachment.name as NSString).pathExtension)
+        do {
+            let data: ByteArray
+            if attachment.isCompressed {
+                data = try attachment.data.gunzipped()
+            } else {
+                data = attachment.data
+            }
+            let itemProvider = NSItemProvider(item: data.asData as NSData, typeIdentifier: type?.identifier)
+            itemProvider.suggestedName = attachment.name
+            return [UIDragItem(itemProvider: itemProvider)]
+        } catch {
+            Diag.error("Failed to unzip attachment [message: \(error.localizedDescription)")
+            return []
+        }
     }
 }

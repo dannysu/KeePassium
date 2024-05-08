@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018-2022 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -25,17 +25,20 @@ class YubiKeyUSB {
         case waitingForTouch
         case processing
     }
-    
+
     public static var isSupported: Bool {
-        if #available(macCatalyst 12, *),
-           ProcessInfo.isCatalystApp
-        {
-            return true
-        } else {
+        guard #available(macCatalyst 12, *),
+              ProcessInfo.isCatalystApp
+        else {
             return false
         }
+        #if MAIN_APP
+        return true
+        #elseif AUTOFILL_EXT
+        return false // app extension cannot get "input monitoring" permission
+        #endif
     }
-    
+
 #if targetEnvironment(macCatalyst)
     public enum Error: LocalizedError {
         case cancelled
@@ -43,7 +46,7 @@ class YubiKeyUSB {
         case slotNotConfigured
         case responseTimeout
         case touchTimeout
-        
+
         public var errorDescription: String? {
             switch self {
             case .cancelled:
@@ -59,12 +62,12 @@ class YubiKeyUSB {
             }
         }
     }
-    
+
     private enum HIDLayer {
         static let featureReportSize = 8
         static let featureReportDataSize = featureReportSize - 1
     }
-    
+
     private enum YubiKeyLayer {
         static let YubicoVendorID = 0x1050
         static let YubicoOTPUsage = (1, 6)
@@ -74,7 +77,7 @@ class YubiKeyUSB {
         static let buildVersionOffset = 0x03
         static let configSequenceOffset = 0x04
         static let touchLowOffset = 0x05
-        
+
         static let configStatusMask = UInt8(0x1F)
 
         static let slotDataSize = 64
@@ -82,32 +85,32 @@ class YubiKeyUSB {
             static let timeoutWait = UInt8(0x20) 
             static let pending = UInt8(0x40)  
             static let slotWrite = UInt8(0x80)  
-            
+
             static let sequenceMask = UInt8(0x1F)
         }
         static let crcValidResidue = UInt16(0xF0B8)
-        
+
         static let hmacChallengeSize = 64
         static let hmacResponseSize = 20
     }
-    
+
     public let isOTPEnabled: Bool
-    
+
     private var hidDevice: IOHIDDevice
     private var isDeviceOpen = false
     private var isCancelled = false
-    
+
     private init(hidDevice: IOHIDDevice, isOTPEnabled: Bool) {
         self.hidDevice = hidDevice
         self.isOTPEnabled = isOTPEnabled
     }
-    
+
     public static func getConnectedKeys() -> [YubiKeyUSB] {
         let hidManager = IOHIDManagerCreate(
             kCFAllocatorDefault,
             IOOptionBits(kIOHIDOptionsTypeNone)
         )
-        
+
         let filterDict = [kIOHIDVendorIDKey as CFString: YubiKeyLayer.YubicoVendorID]
         IOHIDManagerSetDeviceMatching(hidManager, filterDict as CFDictionary)
         guard let deviceCFSet = IOHIDManagerCopyDevices(hidManager),
@@ -116,8 +119,8 @@ class YubiKeyUSB {
             Diag.debug("Failed to get YubiKey USB devices")
             return []
         }
-        
-        var yubiKeyDevices = Array<YubiKeyUSB>()
+
+        var yubiKeyDevices = [YubiKeyUSB]()
         let hidDevices = Array(deviceSet)
         for hidDevice in hidDevices {
             let vendorID = hidDevice.getVendorID()
@@ -137,8 +140,8 @@ class YubiKeyUSB {
         }
         return yubiKeyDevices
     }
-    
-    
+
+
     public func open() throws {
         guard !isDeviceOpen else {
             assertionFailure("Device is already opened, ignoring")
@@ -153,7 +156,7 @@ class YubiKeyUSB {
         isCancelled = false
         Diag.debug("USB HID device opened")
     }
-    
+
     public func close() {
         guard isDeviceOpen else {
             assertionFailure("Tried to close already closed device, ignoring")
@@ -164,7 +167,7 @@ class YubiKeyUSB {
         isCancelled = false
         Diag.debug("USB HID device closed")
     }
-    
+
     private func send(_ packet: Data) throws {
         guard isDeviceOpen else {
             Diag.warning("USB HID device must be opened")
@@ -179,14 +182,14 @@ class YubiKeyUSB {
             throw Error.communicationFailure
         }
     }
-    
+
     private func receivePacket() throws -> [UInt8] {
         guard isDeviceOpen else {
             Diag.warning("USB HID device must be opened")
             throw Error.communicationFailure
         }
-        
-        var buffer = Array<UInt8>(repeating: 0, count: 8)
+
+        var buffer = [UInt8](repeating: 0, count: 8)
         var bufferLen = CFIndex(buffer.count)
         let result = IOHIDDeviceGetReport(
             hidDevice,
@@ -201,14 +204,14 @@ class YubiKeyUSB {
         }
         return buffer
     }
-    
-    
+
+
     private func resetState() throws {
         var resetPacket = Data(repeating: 0, count: HIDLayer.featureReportSize)
         resetPacket[resetPacket.count - 1] = 0xFF
         try send(resetPacket)
     }
-    
+
     private func awaitReadyToWrite() throws {
         for _ in 0..<20 {
             let statusByte = try receivePacket()[HIDLayer.featureReportDataSize]
@@ -223,11 +226,11 @@ class YubiKeyUSB {
         Diag.info("Timeout waiting for YubiKey to become ready to receive")
         throw Error.responseTimeout
     }
-    
+
     private func sendFrame(_ frame: Data) throws -> UInt8 {
         assert(frame.count == 70, "YubiKey HID frame must be 70 bytes long")
         let sequenceNumber = try receivePacket()[YubiKeyLayer.configSequenceOffset]
-        
+
         var seq: UInt8 = 0
         var frameStart = 0
         let packetSize = HIDLayer.featureReportDataSize
@@ -244,7 +247,7 @@ class YubiKeyUSB {
         }
         return sequenceNumber
     }
-    
+
     private func readFrame(configSequence: UInt8, observer: YubiKeyStateObserver?) throws -> Data {
         var response = Data()
         var needsTouch = false
@@ -275,7 +278,7 @@ class YubiKeyUSB {
                     nextConfigSeq == 0 &&
                     packet[YubiKeyLayer.touchLowOffset] & YubiKeyLayer.configStatusMask == 0
                 if isConfigSuccessfullyChanged || isNoValidConfigPresent {
-                    return Data(packet[1..<packet.count-1])
+                    return Data(packet[1..<packet.count - 1])
                 } else if needsTouch {
                     Diag.info("Timed out waiting for touch")
                     throw Error.touchTimeout
@@ -301,41 +304,19 @@ class YubiKeyUSB {
             }
         }
     }
-    
-    private func calculateCRC(data: Data) -> UInt16 {
-        var crc: UInt16 = 0xFFFF
-        data.forEach { byte in
-            crc ^= UInt16(byte)
-            (0..<8).forEach { _ in
-                let lastBit = crc & 1
-                crc >>= 1
-                if lastBit != 0 {
-                    crc ^= 0x8408
-                }
-            }
-        }
-        return crc
-    }
-    
-    private func padRight(_ data: Data, toSize: Int) -> Data {
-        var paddedData = data
-        let padding = Data(count: toSize - data.count)
-        paddedData.append(padding)
-        return paddedData
-    }
-    
+
     private func rawSendAndReceive(
         slot: UInt8,
         data: Data,
         observer: YubiKeyStateObserver?
     ) throws -> Data {
-        let paddedData = padRight(data, toSize: YubiKeyLayer.slotDataSize)
+        let paddedData = data.withZeroPadding(toSize: YubiKeyLayer.slotDataSize)
         guard paddedData.count <= YubiKeyLayer.slotDataSize else {
             Diag.warning("YubiKey payload too large for HID frame")
             throw Error.communicationFailure
         }
-        
-        let crc = calculateCRC(data: paddedData)
+
+        let crc = paddedData.getISO13239Checksum()
         var frame = paddedData
         frame.append(slot)
         frame.append(UInt8(crc & 0xFF))
@@ -346,7 +327,7 @@ class YubiKeyUSB {
         let response = try readFrame(configSequence: configSeq, observer: observer)
         return response
     }
-    
+
     private func sendAndReceive(
         slot: UInt8,
         data: Data,
@@ -354,8 +335,8 @@ class YubiKeyUSB {
         observer: YubiKeyStateObserver? = nil
     ) throws -> Data {
         let rawResponse = try rawSendAndReceive(slot: slot, data: data, observer: observer)
-        let responseWithCRC = rawResponse.prefix(expectedCount + 2) 
-        let payloadCRCResidue = calculateCRC(data: responseWithCRC)
+        let responseWithCRC = rawResponse.prefix(expectedCount + 2)
+        let payloadCRCResidue = responseWithCRC.getISO13239Checksum()
         guard payloadCRCResidue == YubiKeyLayer.crcValidResidue else {
             Diag.warning("USB HID response has invalid CRC")
             throw Error.communicationFailure
@@ -363,8 +344,8 @@ class YubiKeyUSB {
         let response = rawResponse.prefix(expectedCount) 
         return response
     }
-    
-    
+
+
     public func readSerialNumber() throws -> Int {
         let bytes = try sendAndReceive(
             slot: ConfigSlot.deviceSerial.rawValue,
@@ -374,18 +355,18 @@ class YubiKeyUSB {
         let serialNumber: Int =
             Int(bytes[0]) << 24 |
             Int(bytes[1]) << 16 |
-            Int(bytes[2]) << 8  |
+            Int(bytes[2]) << 8 |
             Int(bytes[3])
         return serialNumber
     }
-    
+
     public func performChallengeResponse(
         slot: ConfigSlot,
         challenge: Data,
         observer: YubiKeyStateObserver? = nil
     ) throws -> Data {
         assert(slot == .chalHMAC1 || slot == .chalHMAC2)
-        let paddedChallenge = padRight(challenge, toSize: YubiKeyLayer.hmacChallengeSize)
+        let paddedChallenge = challenge.withPKCS7Padding(toSize: YubiKeyLayer.hmacChallengeSize)
 
         assert(paddedChallenge.count == YubiKeyLayer.hmacChallengeSize)
         let response = try sendAndReceive(
@@ -397,7 +378,7 @@ class YubiKeyUSB {
         assert(response.count == YubiKeyLayer.hmacResponseSize)
         return response
     }
-    
+
     public func cancel() {
         if isDeviceOpen {
             isCancelled = true
@@ -407,6 +388,40 @@ class YubiKeyUSB {
 }
 
 #if targetEnvironment(macCatalyst)
+fileprivate extension Data {
+    func getISO13239Checksum() -> UInt16 {
+        var crc: UInt16 = 0xFFFF
+        self.forEach { byte in
+            crc ^= UInt16(byte)
+            (0..<8).forEach { _ in
+                let lastBit = crc & 1
+                crc >>= 1
+                if lastBit != 0 {
+                    crc ^= 0x8408
+                }
+            }
+        }
+        return crc
+    }
+
+    func withPKCS7Padding(toSize: Int) -> Data {
+        var paddedData = self
+        let paddingLength = toSize - self.count
+        let pkcs7padding: [UInt8] = Array(repeating: UInt8(paddingLength), count: paddingLength)
+        paddedData.append(contentsOf: pkcs7padding)
+        return paddedData
+    }
+
+    func withZeroPadding(toSize: Int) -> Data {
+        var paddedData = self
+        let zeroPadding: [UInt8] = Array(repeating: 0, count: toSize - self.count)
+        paddedData.append(contentsOf: zeroPadding)
+        return paddedData
+    }
+}
+#endif
+
+#if targetEnvironment(macCatalyst)
 fileprivate extension IOHIDDevice {
     private func getIntProperty(key: String) -> Int? {
         return IOHIDDeviceGetProperty(self, key as CFString) as? Int
@@ -414,7 +429,7 @@ fileprivate extension IOHIDDevice {
     private func getStringProperty(key: String) -> String? {
         return IOHIDDeviceGetProperty(self, key as CFString) as? String
     }
-    
+
     func getVendorID() -> Int {
         return getIntProperty(key: kIOHIDVendorIDKey) ?? -1
     }

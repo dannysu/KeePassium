@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -13,17 +13,17 @@ protocol EntryFinderDelegate: AnyObject {
     func didChangeSearchQuery(_ searchText: String, in viewController: EntryFinderVC)
     func didSelectEntry(_ entry: Entry, in viewController: EntryFinderVC)
     func didPressLockDatabase(in viewController: EntryFinderVC)
-    
+
     func getAnnouncements(for viewController: EntryFinderVC) -> [AnnouncementItem]
 }
 
 final class EntryFinderCell: UITableViewCell {
     fileprivate static let storyboardID = "EntryFinderCell"
-    
+
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
     @IBOutlet weak var iconView: UIImageView!
-    
+
     fileprivate var entry: Entry? {
         didSet {
             guard let entry = entry else {
@@ -42,14 +42,14 @@ final class EntryFinderCell: UITableViewCell {
 final class CallerIDView: UIView {
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var copyButton: UIButton!
-    
+
     typealias CopyHandler = (CallerIDView) -> Void
-    var copyHandler: CopyHandler? = nil
-    
-    @IBAction func didPressCopyButton(_ sender: Any) {
+    var copyHandler: CopyHandler?
+
+    @IBAction private func didPressCopyButton(_ sender: Any) {
         copyHandler?(self)
     }
-    
+
     func blink() {
         UIView.animate(
             withDuration: 0.3,
@@ -58,7 +58,7 @@ final class CallerIDView: UIView {
             animations: {
                 self.textLabel.alpha = 0.3
             },
-            completion: { finished in
+            completion: { _ in
                 self.textLabel.alpha = 1.0
             }
         )
@@ -73,36 +73,33 @@ final class EntryFinderVC: UITableViewController {
     }
     @IBOutlet var separatorView: UIView!
     @IBOutlet var callerIDView: CallerIDView!
-    
+
     weak var delegate: EntryFinderDelegate?
 
     var callerID: String? {
         didSet { refreshCallerID() }
     }
-    
+
     private var announcements = [AnnouncementItem]()
-    
+
     private var searchController: UISearchController! 
     private var manualSearchButton: UIBarButtonItem! 
     private var searchResults = FuzzySearchResults(exactMatch: [], partialMatch: [])
-    
+
     override var canDismissFromKeyboard: Bool {
         return !(searchController?.isActive ?? false)
     }
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSearch()
-        
+
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 44.0
         tableView.register(AnnouncementCell.classForCoder(), forCellReuseIdentifier: CellID.announcement)
         tableView.selectionFollowsFocus = true
-        if #available(iOSApplicationExtension 15.0, *) {
-            tableView.sectionHeaderTopPadding = 1 
-        }
-        
+        tableView.sectionHeaderTopPadding = 1 
+
         manualSearchButton = UIBarButtonItem(
             barButtonSystemItem: .search,
             target: self,
@@ -121,8 +118,8 @@ final class EntryFinderVC: UITableViewController {
         super.viewDidAppear(animated)
         navigationController?.navigationBar.isUserInteractionEnabled = true
     }
-    
-    
+
+
     private func setupSearch() {
         searchController = UISearchController(searchResultsController: nil)
         navigationItem.searchController = searchController
@@ -131,11 +128,7 @@ final class EntryFinderVC: UITableViewController {
         searchController.searchBar.returnKeyType = .search
         searchController.searchBar.barStyle = .default
         searchController.searchBar.delegate = self
-        
-        if #available(iOS 12.0, *) {
-        } else {
-            searchController.dimsBackgroundDuringPresentation = false
-        }
+
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchResultsUpdater = self
         searchController.delegate = self
@@ -146,7 +139,7 @@ final class EntryFinderVC: UITableViewController {
         guard isViewLoaded else {
             return
         }
-        
+
         let hasCallerID = callerID?.isNotEmpty ?? false
         callerIDView.copyButton.isHidden = !hasCallerID
         let callerIDText = self.callerID ?? "?"
@@ -163,7 +156,7 @@ final class EntryFinderVC: UITableViewController {
         }
         tableView.tableFooterView = callerIDView
     }
-    
+
     public func setSearchResults(_ newResults: FuzzySearchResults) {
         searchResults = newResults
 
@@ -173,18 +166,18 @@ final class EntryFinderVC: UITableViewController {
 
         refresh()
     }
-    
+
     public func activateManualSearch() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.searchController.isActive = true
             self.searchController.searchBar.becomeFirstResponderWhenSafe()
-            
+
             let searchText = self.searchController.searchBar.text ?? ""
             self.delegate?.didChangeSearchQuery(searchText, in: self)
         }
     }
-    
+
     func refresh() {
         guard isViewLoaded else {
             return
@@ -192,21 +185,20 @@ final class EntryFinderVC: UITableViewController {
         announcements = delegate?.getAnnouncements(for: self) ?? []
         tableView.reloadData()
     }
-    
+
     func refreshAnnouncements() {
         guard isViewLoaded else { return }
         let wasEmpty = announcements.isEmpty
         announcements = delegate?.getAnnouncements(for: self) ?? []
         let isEmpty = announcements.isEmpty
-        
+
         if wasEmpty != isEmpty {
             tableView.reloadData()
         } else {
             tableView.reloadSections([0], with: .automatic)
         }
     }
-    
-    
+
 
     private enum SectionType {
         case announcement
@@ -215,7 +207,7 @@ final class EntryFinderVC: UITableViewController {
         case matchSeparator
         case partialMatch
     }
-    
+
     private func getSectionTypeAndIndex(_ section: Int) -> (SectionType, Int) {
         let precedingSections = announcements.isEmpty ? 0 : 1
         let resultSection = section - precedingSections
@@ -225,7 +217,7 @@ final class EntryFinderVC: UITableViewController {
         if searchResults.isEmpty {
             return (.nothingFound, 0)
         }
-        
+
         let nExactResults = searchResults.exactMatch.count
         if resultSection < nExactResults {
             return (.exactMatch, resultSection)
@@ -235,13 +227,13 @@ final class EntryFinderVC: UITableViewController {
             return (.partialMatch, resultSection - nExactResults - 1)
         }
     }
-    
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         let nAnnouncementSections = announcements.isEmpty ? 0 : 1
         if searchResults.isEmpty {
             return nAnnouncementSections + 1 // for "Nothing found" cell
         }
-        
+
         var nSearchResultSections = searchResults.exactMatch.count
         let hasPartialResults = !searchResults.partialMatch.isEmpty
         if hasPartialResults {
@@ -258,14 +250,14 @@ final class EntryFinderVC: UITableViewController {
         case .nothingFound:
             return 1 // "Nothing found" cell
         case .exactMatch:
-            return searchResults.exactMatch[sectionIndex].entries.count
+            return searchResults.exactMatch[sectionIndex].scoredItems.count
         case .matchSeparator:
             return 0
         case .partialMatch:
-            return searchResults.partialMatch[sectionIndex].entries.count
+            return searchResults.partialMatch[sectionIndex].scoredItems.count
         }
     }
-    
+
     override func tableView(
         _ tableView: UITableView,
         titleForHeaderInSection section: Int
@@ -292,7 +284,7 @@ final class EntryFinderVC: UITableViewController {
             return UITableView.automaticDimension
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let (sectionType, _) = getSectionTypeAndIndex(section)
         switch sectionType {
@@ -312,7 +304,7 @@ final class EntryFinderVC: UITableViewController {
             return nil
         }
     }
-    
+
     override func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
@@ -336,7 +328,7 @@ final class EntryFinderVC: UITableViewController {
                 resultIndex: sectionIndex)
         }
     }
-    
+
     private func makeAnnouncementCell(at indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView
             .dequeueReusableCell(withIdentifier: CellID.announcement, for: indexPath)
@@ -345,14 +337,14 @@ final class EntryFinderVC: UITableViewController {
         cell.announcementView.apply(announcement)
         return cell
     }
-    
+
     private func makeNothingFoundCell(at indexPath: IndexPath) -> UITableViewCell {
         return tableView.dequeueReusableCell(
             withIdentifier: CellID.nothingFound,
             for: indexPath
         )
     }
-    
+
     private func makeExactMatchResultCell(
         at indexPath: IndexPath,
         resultIndex: Int
@@ -361,10 +353,11 @@ final class EntryFinderVC: UITableViewController {
             withIdentifier: CellID.entry,
             for: indexPath)
             as! EntryFinderCell
-        cell.entry = searchResults.exactMatch[resultIndex].entries[indexPath.row].entry
+        let exactMatchSection = searchResults.exactMatch[resultIndex]
+        cell.entry = exactMatchSection.scoredItems[indexPath.row].item as? Entry
         return cell
     }
-    
+
     private func makePartialMatchResultCell(
         at indexPath: IndexPath,
         resultIndex: Int
@@ -373,11 +366,12 @@ final class EntryFinderVC: UITableViewController {
             withIdentifier: CellID.entry,
             for: indexPath)
             as! EntryFinderCell
-        cell.entry = searchResults.partialMatch[resultIndex].entries[indexPath.row].entry
+        let partialMatchSection = searchResults.partialMatch[resultIndex]
+        cell.entry = partialMatchSection.scoredItems[indexPath.row].item as? Entry
         return cell
     }
-    
-    
+
+
     override func tableView(
         _ tableView: UITableView,
         willSelectRowAt indexPath: IndexPath
@@ -390,32 +384,38 @@ final class EntryFinderVC: UITableViewController {
             return indexPath
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         Watchdog.shared.restart()
-        
+
         let (sectionType, sectionIndex) = getSectionTypeAndIndex(indexPath.section)
         switch sectionType {
         case .announcement, .matchSeparator, .nothingFound:
             return
         case .exactMatch:
-            let selectedEntry = searchResults.exactMatch[sectionIndex].entries[indexPath.row].entry
-            delegate?.didSelectEntry(selectedEntry, in: self)
+            let exactMatchSection = searchResults.exactMatch[sectionIndex]
+            guard let entry = exactMatchSection.scoredItems[indexPath.row].item as? Entry else {
+                return
+            }
+            delegate?.didSelectEntry(entry, in: self)
         case .partialMatch:
-            let selectedEntry = searchResults.partialMatch[sectionIndex].entries[indexPath.row].entry
-            delegate?.didSelectEntry(selectedEntry, in: self)
+            let partialMatchSection = searchResults.partialMatch[sectionIndex]
+            guard let entry = partialMatchSection.scoredItems[indexPath.row].item as? Entry else {
+                return
+            }
+            delegate?.didSelectEntry(entry, in: self)
         }
     }
-    
-    @IBAction func didPressManualSearch(_ sender: Any) {
+
+    @IBAction private func didPressManualSearch(_ sender: Any) {
         activateManualSearch()
     }
-    
-    @IBAction func didPressLockDatabase(_ sender: UIBarButtonItem) {
+
+    @IBAction private func didPressLockDatabase(_ sender: UIBarButtonItem) {
         Watchdog.shared.restart()
         let confirmationAlert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let lockDatabaseAction = UIAlertAction(title: LString.actionLockDatabase, style: .destructive) {
-            [weak self](action) in
+            [weak self] _ in
             guard let self = self else { return }
             self.delegate?.didPressLockDatabase(in: self)
         }
@@ -442,14 +442,14 @@ extension EntryFinderVC: UISearchBarDelegate {
     private func acceptFirstEntry(from searchResults: SearchResults) {
         assert(!searchResults.isEmpty)
         guard let firstGroup = searchResults.first,
-              let firstEntry = firstGroup.entries.first
+              let firstEntry = firstGroup.scoredItems.first?.item as? Entry
         else {
             assertionFailure()
             return
         }
-        delegate?.didSelectEntry(firstEntry.entry, in: self)
+        delegate?.didSelectEntry(firstEntry, in: self)
     }
-    
+
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         if searchResults.exactMatch.count > 0 {
             acceptFirstEntry(from: searchResults.exactMatch)
@@ -473,8 +473,10 @@ extension EntryFinderVC: UISearchResultsUpdating {
 
 
 extension LString {
+    // swiftlint:disable line_length
     public static let autoFillCallerIDTemplate = NSLocalizedString(
         "[AutoFill/Search/callerID]",
         value: "Caller ID: %@",
         comment: "An identifier of the app that called AutoFill. The term is intentionally similar to https://ru.wikipedia.org/wiki/Caller_ID. [callerID: String]")
+    // swiftlint:enable line_length
 }

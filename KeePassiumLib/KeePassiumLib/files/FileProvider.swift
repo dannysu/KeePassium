@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -7,6 +7,9 @@
 //  For commercial licensing, please contact the author.
 
 public enum FileProvider: Hashable {
+    public static var all: Set<FileProvider> = {
+        Set(providerByID.values)
+    }()
 
     private static let providerByID: [String: FileProvider] = [
         "com.apple.FileProvider.LocalStorage": .localStorage,
@@ -15,21 +18,29 @@ public enum FileProvider: Hashable {
         "net.box.BoxNet.documentPickerFileProvider": .box,
         "com.boxcryptor.ios.files": .boxcryptor,
         "com.boxcryptor.ios.BoxcryptorDocumentProviderFileProvider": .boxcryptorLegacy2020,
+        "org.cryptomator.ios.fileprovider": .cryptomator,
         "com.getdropbox.Dropbox.FileProvider": .dropbox,
         "com.skyjos.fileexplorer.fileprovider": .feFileExplorer,
         "com.google.Drive.FileProviderExtension": .googleDrive,
-        "com.apple.CloudDocs.MobileDocumentsFileProvider": .iCloudDrive,
+        "com.apple.CloudDocs.iCloudDriveFileProvider": .iCloudDrive,
+        "com.apple.CloudDocs.MobileDocumentsFileProvider": .iCloudDriveLegacy,
+        "com.imagam.ifiles2.docsfileprovider": .imagamIFiles,
         "com.dannysu.keepassium.fileprovider.webdav": .keepassiumWebDAV,
         "com.dannysu.keepassium.fileprovider.onedrive": .keepassiumOneDrive,
+        "com.dannysu.keepassium.fileprovider.dropbox": .keepassiumDropbox,
         "mega.ios.MEGAPickerFileProvider": .megaNz,
+        "de.telekom.Mediencenter.FileProviderExtension": .magentaCloud,
         "it.twsweb.Nextcloud.File-Provider-Extension": .nextcloud,
         "com.microsoft.skydrive.onedrivefileprovider": .oneDrive,
         "com.owncloud.ios-app.ownCloud-File-Provider": .ownCloud,
+        "com.openxchange.mobile.drive2.drivefileprovider": .oxDrive,
         "com.pcloud.pcloud.FileProvider": .pCloud,
+        "ch.protonmail.drive.fileprovider": .protonDrive,
         "com.qnap.qfile.FileProvider": .qnapQFile,
         "com.readdle.ReaddleDocsIPad.DocsExtFileProvider": .readdleDocuments,
         "com.resilio.sync.fileprovider": .resilioSync,
         "com.seafile.seafilePro.SeafFileProvider": seafilePro,
+        "com.appliedphasor.secure-shellfish.provider": secureShellFish,
         "com.apple.SMBClientProvider.FileProvider": .smbShare,
         "com.stratospherix.filebrowser.DocumentProviderFileProvider": .stratospherixFileBrowser,
         "com.sync.mobileapp.NewFileProvider": .syncCom,
@@ -47,21 +58,29 @@ public enum FileProvider: Hashable {
     case box
     case boxcryptor
     case boxcryptorLegacy2020
+    case cryptomator
     case dropbox
     case feFileExplorer
     case googleDrive
     case iCloudDrive
+    case iCloudDriveLegacy
+    case imagamIFiles
     case keepassiumWebDAV
     case keepassiumOneDrive
+    case keepassiumDropbox
     case megaNz
+    case magentaCloud
     case nextcloud
     case oneDrive
     case ownCloud
+    case oxDrive
     case pCloud
+    case protonDrive
     case qnapQFile
     case readdleDocuments
     case resilioSync
     case seafilePro
+    case secureShellFish
     case smbShare
     case stratospherixFileBrowser
     case syncCom
@@ -70,12 +89,12 @@ public enum FileProvider: Hashable {
     case tresorit
     case usbDrive
     case yandexDisk
-    
+
     case localStorage
     case other(id: String)
-    
+
     public var rawValue: String { return id }
-    
+
     public var id: String {
         switch self {
         case .other(let id):
@@ -84,7 +103,7 @@ public enum FileProvider: Hashable {
             return FileProvider.idByProvider[self]!
         }
     }
-    
+
     public init(rawValue: String) {
         if let provider = FileProvider.providerByID[rawValue] {
             self = provider
@@ -92,11 +111,12 @@ public enum FileProvider: Hashable {
             self = .other(id: rawValue)
         }
     }
-    
+
     public var localizedName: String {
+        // swiftlint:disable line_length
         switch self {
-        case .amerigoFree: fallthrough
-        case .amerigo:
+        case .amerigoFree,
+             .amerigo:
             return NSLocalizedString(
                 "[FileProvider/Amerigo/name]",
                 bundle: Bundle.framework,
@@ -115,6 +135,12 @@ public enum FileProvider: Hashable {
                 bundle: Bundle.framework,
                 value: "Boxcryptor",
                 comment: "Localized name of the storage service: Boxcryptor (https://boxcryptor.com)")
+        case .cryptomator:
+            return NSLocalizedString(
+                "[FileProvider/Cryptomator/name]",
+                bundle: Bundle.framework,
+                value: "Cryptomator",
+                comment: "Localized name of the storage service: Cryptomator (https://cryptomator.org)")
         case .dropbox:
             return NSLocalizedString(
                 "[FileProvider/Dropbox/name]",
@@ -133,22 +159,32 @@ public enum FileProvider: Hashable {
                 bundle: Bundle.framework,
                 value: "Google Drive",
                 comment: "Localized name of the storage service: Google Drive (https://drive.google.com)")
-        case .iCloudDrive:
+        case .iCloudDrive, .iCloudDriveLegacy:
             return NSLocalizedString(
                 "[FileProvider/iCloud Drive/name]",
                 bundle: Bundle.framework,
                 value: "iCloud Drive",
                 comment: "Localized name of the storage service iCloud Drive (https://icloud.com/iclouddrive)")
+        case .imagamIFiles:
+            return "iFiles"
         case .keepassiumWebDAV:
             return LString.connectionTypeWebDAV
         case .keepassiumOneDrive:
             return LString.connectionTypeOneDrive
+        case .keepassiumDropbox:
+            return LString.connectionTypeDropbox
         case .megaNz:
             return NSLocalizedString(
                 "[FileProvider/Mega.nz/name]",
                 bundle: Bundle.framework,
                 value: "MEGA.nz",
                 comment: "Localized name of the storage service: MEGA (https://mega.nz)")
+        case .magentaCloud:
+            return NSLocalizedString(
+                "[FileProvider/MagentaCloud/name]",
+                bundle: Bundle.framework,
+                value: "MagentaCLOUD",
+                comment: "Localized name of the storage service: MagentaCLOUD (https://www.telekom.de/zubuchoptionen/magenta-cloud)")
         case .nextcloud:
             return NSLocalizedString(
                 "[FileProvider/Nextcloud/name]",
@@ -167,12 +203,21 @@ public enum FileProvider: Hashable {
                 bundle: Bundle.framework,
                 value: "ownCloud",
                 comment: "Localized name of the storage service: ownCloud (https://owncloud.com)")
+        case .oxDrive:
+            return "OX Drive"
         case .pCloud:
             return NSLocalizedString(
                 "[FileProvider/pCloud/name]",
                 bundle: Bundle.framework,
                 value: "pCloud",
                 comment: "Localized name of the storage service: pCloud (https://pcloud.com)")
+        case .protonDrive:
+            return NSLocalizedString(
+                "[FileProvider/ProtonDrive/name]",
+                bundle: Bundle.framework,
+                value: "Proton Drive",
+                comment: "Localized name of the storage service: Proton Drive (https://proton.me/drive)")
+
         case .qnapQFile:
             return NSLocalizedString(
                 "[FileProvider/qnapQFile/name]",
@@ -197,6 +242,12 @@ public enum FileProvider: Hashable {
                 bundle: Bundle.framework,
                 value: "Seafile Pro",
                 comment: "Localized name of the storage app: Seafile Pro (https://apps.apple.com/us/app/seafile-pro/id639202512)")
+        case .secureShellFish:
+            return NSLocalizedString(
+                "[FileProvider/Secure ShellFish/name]",
+                bundle: Bundle.framework,
+                value: "Secure ShellFish",
+                comment: "Localized name of the storage app: Secure ShellFish (https://apps.apple.com/app/ssh-files-secure-shellfish/id1336634154)")
         case .smbShare:
             return NSLocalizedString(
                 "[FileProvider/SMB/name]",
@@ -250,8 +301,9 @@ public enum FileProvider: Hashable {
         case .other(let id):
             return id
         }
+        // swiftlint:enable line_length
     }
-    
+
     private func getLocalStorageName() -> String {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return NSLocalizedString(
@@ -260,7 +312,7 @@ public enum FileProvider: Hashable {
                 value: "On My iPhone",
                 comment: "Localized name of the local on-device storage, as shown in the Files app.")
         }
-        
+
         if ProcessInfo.isRunningOnMac {
             return "macOS" 
         } else {
@@ -271,7 +323,7 @@ public enum FileProvider: Hashable {
                 comment: "Localized name of the local on-device storage, as shown in the Files app.")
         }
     }
-    
+
     public static func find(for url: URL) -> FileProvider? {
         return DataSourceFactory.findInAppFileProvider(for: url)
     }

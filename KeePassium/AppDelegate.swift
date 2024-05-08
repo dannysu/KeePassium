@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -16,9 +16,13 @@ enum MenuIdentifier {
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-    
+
     private var mainCoordinator: MainCoordinator!
-    
+
+    #if targetEnvironment(macCatalyst)
+    private var macUtils: MacUtils?
+    #endif
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -26,16 +30,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         initAppGlobals(application)
 
         let window = UIWindow(frame: UIScreen.main.bounds)
-        if #available(iOS 13, *) {
-            let args = ProcessInfo.processInfo.arguments
-            if args.contains("darkMode") {
-                window.overrideUserInterfaceStyle = .dark
-            }
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("darkMode") {
+            window.overrideUserInterfaceStyle = .dark
         }
 
         let incomingURL: URL? = launchOptions?[.url] as? URL
         let hasIncomingURL = incomingURL != nil
-        
+
         if UIDevice.current.userInterfaceIdiom == .pad {
             window.makeKeyAndVisible()
             mainCoordinator = MainCoordinator(window: window)
@@ -45,37 +47,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             mainCoordinator.start(hasIncomingURL: hasIncomingURL)
             window.makeKeyAndVisible()
         }
-        
+
         self.window = window
+
+        #if targetEnvironment(macCatalyst)
+        loadMacUtilsPlugin()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sceneWillDeactivate),
+            name: UIScene.willDeactivateNotification,
+            object: nil
+        )
+        #endif
+
         return true
     }
-    
+
     private func initAppGlobals(_ application: UIApplication) {
         #if PREPAID_VERSION
         BusinessModel.type = .prepaid
         #else
         BusinessModel.type = .freemium
         #endif
-        
+
         #if INTUNE
         BusinessModel.isIntuneEdition = true
+        OneDriveManager.shared.setAuthProvider(MSALOneDriveAuthProvider())
         #else
         BusinessModel.isIntuneEdition = false
         #endif
 
         AppGroup.applicationShared = application
-        
+
         SettingsMigrator.processAppLaunch(with: Settings.current)
     }
-    
+
     func applicationWillTerminate(_ application: UIApplication) {
         PremiumManager.shared.finishObservingTransactions()
     }
-    
+
     func application(
         _ application: UIApplication,
         open url: URL,
-        options: [UIApplication.OpenURLOptionsKey : Any] = [:]
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
         let result = mainCoordinator.processIncomingURL(
             url,
@@ -83,6 +97,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             openInPlace: options[.openInPlace] as? Bool)
         return result
     }
+
+    #if targetEnvironment(macCatalyst)
+    private func loadMacUtilsPlugin() {
+        let bundleFileName = "MacUtils.bundle"
+        guard let bundleURL = Bundle.main.builtInPlugInsURL?.appendingPathComponent(bundleFileName) else {
+            Diag.error("Failed to find MacUtils plugin, macOS-specific functions will be limited")
+            return
+        }
+
+        guard let bundle = Bundle(url: bundleURL) else {
+            Diag.error("Failed to load MacUtils plugin, macOS-specific functions will be limited")
+            return
+        }
+
+        let className = "MacUtils.MacUtilsImpl"
+        guard let pluginClass = bundle.classNamed(className) as? MacUtils.Type else {
+            Diag.error("Failed to instantiate MacUtils plugin, macOS-specific functions will be limited")
+            return
+        }
+
+        macUtils = pluginClass.init()
+    }
+
+    @objc
+    private func sceneWillDeactivate(_ notification: Notification) {
+        macUtils?.disableSecureEventInput()
+    }
+    #endif
 }
 
 extension AppDelegate {
@@ -125,15 +167,13 @@ extension AppDelegate {
         builder.remove(menu: .transformations)
         builder.remove(menu: .speech)
         builder.remove(menu: .toolbar)
-        
-        if #available(iOS 15.0, *) {
-            builder.replaceChildren(ofMenu: .standardEdit) { children -> [UIMenuElement] in
-                children.filter {
-                    ($0 as? UIKeyCommand)?.action != #selector(UIResponderStandardEditActions.pasteAndMatchStyle(_:))
-                }
+
+        builder.replaceChildren(ofMenu: .standardEdit) { children -> [UIMenuElement] in
+            children.filter {
+                ($0 as? UIKeyCommand)?.action != #selector(UIResponderStandardEditActions.pasteAndMatchStyle(_:))
             }
         }
-        
+
         let aboutAppMenuTitle = builder.menu(for: .about)?.children.first?.title
             ?? String.localizedStringWithFormat(LString.menuAboutAppTemplate, AppInfo.name)
         let aboutAppMenuAction = UICommand(
@@ -198,41 +238,41 @@ extension AppDelegate {
             options: [.displayInline],
             children: [createEntryMenuItem, createGroupMenuItem]
         )
-        
+
         builder.insertChild(databaseFileMenu, atStartOfMenu: .file)
         builder.insertSibling(databaseItemsMenu, beforeMenu: databaseFileMenu.identifier)
     }
-    
+
     @objc
     private func showAppHelp() {
         UIApplication.shared.open(URL.AppHelp.helpIndex, options: [:], completionHandler: nil)
     }
-    
+
     @objc
     private func showAboutScreen() {
         mainCoordinator.perform(action: .showAboutScreen)
     }
-    
+
     @objc
     private func showSettingsScreen() {
         mainCoordinator.perform(action: .showAppSettings)
     }
-    
+
     @objc
     private func createDatabase() {
         mainCoordinator.perform(action: .createDatabase)
     }
-    
+
     @objc
     private func openDatabase() {
         mainCoordinator.perform(action: .openDatabase)
     }
-    
+
     @objc
     private func lockDatabase() {
         mainCoordinator.perform(action: .lockDatabase)
     }
-    
+
     @objc
     private func createEntry() {
         mainCoordinator.perform(action: .createEntry)

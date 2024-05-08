@@ -1,5 +1,283 @@
 #CHANGELOG
 
+## [1.52.149] - 2024-04-04
+
+### Fixed
+
+- Fixed Intune build which referenced an outdated type
+
+
+## [1.52.148] - 2024-04-04  [WITHDRAWN]
+
+### Added
+
+- Direct in-app Dropbox support (free for Dropbox Basic and Pro; Dropbox Business requires premium) (#344, #340, #304, #171)
+
+### Fixed
+
+- Intune: Added new MTD scheme required by Intune SDK
+
+
+## [1.51.147] - 2024-03-30
+
+### Added
+
+- YubiKey 5Ci (Lightning side) now works in iOS AutoFill
+
+### Improved
+
+- Improved usability of password generator (closes #349) [thanks, WinkelCode]
+- Direct OneDrive connection will list up to 500 items in a directory [thanks, Michael]
+- Added detection of OX Drive and Imagam iFiles file providers
+- Removed unused parts of YubiKit library
+- Intune: Added AppConfig specfile
+
+### Fixed
+
+- It was impossible to edit groups in KDB databases (regression in 1.49; fixes #351) [thanks, everyone]
+- Large custom icons could be downsized incorrectly (fixes #354) [thanks, ixs]
+- Freezing in entries with very long passwords [thanks, everyone]
+- macOS: possible incorrect processing of YubiKey over USB (fixes #350)
+
+
+## [1.50.146] - 2024-03-10
+
+### Added
+
+- System icon set for databases (closes #193)
+
+### Improved
+
+- Added detection of Secure ShellFish file provider
+
+### Fixed
+
+- Some storage providers failed with error "Blocked by your organization" (fixes #346) [thanks, everyone]
+- Search words were treated as OR conditions instead of AND (regression in 1.49.144)
+
+
+## [1.49.145] - 2024-03-06
+
+### Added
+
+- Support for OTP codes configured by KeePass (TimeOtp fields)
+
+### Improved 
+
+- Updated NL translation
+
+
+## [1.49.144] - 2024-03-06
+
+### Improved
+
+- Search in AutoFill will consider tags and groups now
+- More informative UI for hardware key selector
+
+### Fixed
+
+- Support YubiKeys with Lightning connector on USB-C devices via Apple's adapter [thanks, everyone]
+- macOS: Disable secure input mode when app loses focus (#343) [thanks, Ernest]
+
+
+## [1.49.143] - 2024-02-26
+
+### Added
+
+- Tags for entries and groups (#249) [thanks, everyone]
+- Search by tags (use `tag:keyword`) (#249)
+- Search results now include groups [thanks, everyone]
+- Possibility to create key files
+- Large-type view for entry fields (tap the field to see the button)
+- New onboarding/Welcome workflow
+
+### Improved
+
+- Quick AutoFill suggestions now show entry title after username (fixes #334) [thanks, Torsten]
+- It is possible to create databases via a direct OneDrive connection [thanks, R.B.]
+- New parameters for managed AppConfig: `allowedFileProviders`, `supportEmail`, `requireAppPasscodeSet`, `minimumAppPasscodeEntropy`, `minimumDatabasePasswordEntropy` [thanks, R.B. and K.H.]
+- Improved key file picker and app history UI
+- App history (What's New) will only show changes relevant for the current app (that is, no Mac-specific things on iOS, no Intune updates in freemium version, etc)
+- Added 'Connect to server' option to AutoFill onboarding (#333) [thanks, gencys]
+- Updated translations [thanks, everyone]
+
+### Fixed
+
+- Hide password quality indicator when entry audit is disabled [thanks, everyone]
+- "Temporary database" warning could appear after a manual database reload
+- Intune: handle multiple Intune config policies
+
+
+## [1.48.142] - 2023-12-06
+
+### Added
+
+- Drag and drop attachments to other apps
+- Possibility to disable/allow search, password audit and AutoFill for specific groups and entries
+
+### Improved
+
+- Tapping on password quality icon will show its meaning [thanks, everyone]
+- Entry viewer shows entry's internal UUID that can be used for field references.
+- Updated translations [thanks, everyone]
+
+### Fixed
+
+- Intune: support for conditional access grant "require app protection policy" [thanks, R.B.]
+- Intune: consider invalid AppConfig values as unmanaged
+
+
+## [1.47.141] - 2023-11-24
+
+### Added
+
+- Possibility to change database encryption settings
+- Support for AppConfig managed settings in corporate deployments
+
+### Improved
+
+- Quick AutoFill can again copy TOTP to clipboard instead of simply showing it (closes #242) [thanks, David]
+
+### Fixed
+
+- "Storage does not respond" error when saving (fixes #327) [thanks, everyone]
+- Sometimes the database did not lock up properly (fixes #322) [thanks, vit9696]
+- When unlocking the app, require pressing the Unlock button when number of failed attempts matters [thanks, J.L.]
+- OneDrive: better detection of "invalid_grant" error
+- Favicon was not always refreshed after download (fixes #323) [thanks, everyone]
+
+
+## [1.46.140] - 2023-10-24
+
+### Added
+
+- Drag-and-drop attachments to entry viewer
+
+### Improved
+
+- Added SwiftLint to enforce consistent code style
+
+### Fixed
+
+- Ask network permission before favicon download (fixes #321) [thanks, vit9696]
+- DB timeout did not lock both panes on macOS (regression in 1.46.139; closes #322) [thanks, vit9696]
+
+
+## [1.46.139] - 2023-10-05
+
+### Added 
+
+- Password audit powered by 'Have I Been Pwned' service (requires premium) (closes #187)
+- Password quality indicator (closes #170)
+- Favicon downloader (closes #164)
+- Customizable entry font [thanks, everyone]
+- A button to reload the currently opened DB (step towards #226)
+- Intune: Business licensing mechanism
+
+### Improved
+
+- You can disable Quick AutoFill for specific databases (#289) [thanks, everyone]
+- App passcode is tested while being entered, no need to tap the "Unlock" button [thanks, Hinrich]
+- macOS: copied items are marked as concealed for clipboard managers (closes #315)  [thanks, piercefaulkner]
+- macOS: lock app/DB when locking the screen (closes #231) [thanks, Rodrigo]
+- UI improvements in DB viewer and entry editor
+- Updated translations [thanks, everyone]
+
+### Changed
+
+- Intune: update MSAL version to 1.2.3
+- Intune: Extended the provisional license to 2023-12-31
+
+### Fixed
+
+- "No such file" error when saving to Dropbox (fixes #304) [thanks, everyone]
+- Better error message when YubiKey is not completely configured
+
+
+## [1.45.138] - 2023-07-13
+
+### Changed
+
+- Extended the provisional business license to 2023-08-31
+- Updated translations
+
+
+## [1.45.137] - 2023-07-12
+
+### Improved
+
+- Added expiry option "Now" (closes #300) [thanks, thejoker8814]
+- Added detection of MagentaCloud file provider
+- Updated all translations
+
+### Removed 
+
+- Intune: removed AutoFill, because not supported by Intune SDK (msintuneappsdk/ms-intune-app-sdk-ios#314)
+
+### Fixed
+
+- AutoFill: exclude groups that have AutoType disabled [thanks, Kelly]
+- Search: Check parent groups when omitting non-searchable ones
+- Minor UI improvements in expiry date editor
+
+
+## [1.45.136] - 2023-07-03
+
+### Added
+
+- Uniform and scalable SF Symbols icons (closes #287) [thanks, everyone]
+- Passphrase generator now includes EFF short list #1 [thanks, K.J.]
+
+### Changed
+
+- This version requires at least iOS 15.4 / macOS 12.0
+
+### Fixed
+
+- OneDrive: periodic "invalid_grant" error [thanks, everyone]
+- Error messages could be visible while loading a fallback database [thanks, everyone]
+- Database unlocker could load a wrong fallback file sometimes
+- Lingering donation suggestion, required database reload [thanks everyone]
+- Temporary files (such as print previews) could stay around for too long [thanks, Christopher]
+- Minor UI refinements here and there
+
+
+## [1.45.135] - 2023-05-29
+
+### Improved
+
+- Expand the randomizer sheet when going to full mode
+
+### Fixed
+
+- iCloud Drive icon on iOS 16.5 [thanks, E.M.]
+- Excessive WebDAV credential caching (fixes #295) [thanks, Henrik]
+- Update the cached derived key on DB save [thanks, Santiago]
+- macOS: top margin of some popovers
+
+
+## [1.44.134] - 2023-05-29
+
+### Fixed
+
+- macOS: App settings were getting reset by AutoFill
+
+
+## [1.44.133] - 2023-05-23
+
+### Changed
+
+- Alternative app icons are available in the free version, no longer a premium feature
+- Extended the provisional business license to 2023-07-31
+- Updated translations
+
+### Fixed
+
+- macOS: App settings were getting reset on every launch (regression in 1.43.131) [thanks, everyone]
+- AutoFill: matching entries by service name [thanks, D.S.]
+- AutoFill: parsing the domain-only entry URL fields (without the scheme component)
+
+
 ## [1.43.132] - 2023-05-07
 
 ### Improved

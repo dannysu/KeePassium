@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018-2022 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -15,28 +15,30 @@ protocol PasswordGeneratorCoordinatorDelegate: AnyObject {
 final class PasswordGeneratorCoordinator: Coordinator {
     var childCoordinators = [Coordinator]()
     var dismissHandler: CoordinatorDismissHandler?
-    
+
     weak var context: AnyObject?
     weak var delegate: PasswordGeneratorCoordinatorDelegate?
-    
+
     public private(set) var generatedPassword = ""
-    
+
     private let router: NavigationRouter
     private let firstVC: UIViewController
     private var passGenVC: PasswordGeneratorVC?
     private var quickSheetVC: PasswordGeneratorQuickSheetVC?
-    
+    private let hasTarget: Bool
+
     private let passwordGenerator = PasswordGenerator()
     private let passphraseGenerator = PassphraseGenerator()
-    
-    init(router: NavigationRouter, quickMode: Bool) {
+
+    init(router: NavigationRouter, quickMode: Bool, hasTarget: Bool) {
         self.router = router
+        self.hasTarget = hasTarget
         if quickMode {
             let quickModeVC = PasswordGeneratorQuickSheetVC()
             self.quickSheetVC = quickModeVC
             firstVC = quickModeVC
         } else {
-            let fullModeVC = PasswordGeneratorVC.instantiateFromStoryboard()
+            let fullModeVC = PasswordGeneratorVC.make(standaloneMode: !hasTarget)
             self.passGenVC = fullModeVC
             firstVC = fullModeVC
             prepareFullModeGenerator(fullModeVC)
@@ -44,12 +46,12 @@ final class PasswordGeneratorCoordinator: Coordinator {
         quickSheetVC?.delegate = self
         passGenVC?.delegate = self
     }
-    
+
     deinit {
         assert(childCoordinators.isEmpty)
         removeAllChildCoordinators()
     }
-    
+
     func start() {
         setupDismissButton()
         router.push(firstVC, animated: true, onPop: { [weak self] in
@@ -58,26 +60,26 @@ final class PasswordGeneratorCoordinator: Coordinator {
             self.dismissHandler?(self)
         })
     }
-    
+
     private func setupDismissButton() {
         guard router.navigationController.topViewController == nil else {
             return
         }
-        
+
         let closeButton = UIBarButtonItem(
             systemItem: .close,
-            primaryAction: UIAction() { [weak self] _ in
+            primaryAction: UIAction { [weak self] _ in
                 self?.dismiss()
             },
             menu: nil)
         firstVC.navigationItem.leftBarButtonItem = closeButton
     }
-    
+
     private func prepareFullModeGenerator(_ passGenVC: PasswordGeneratorVC) {
         passGenVC.config = Settings.current.passwordGeneratorConfig
         passGenVC.mode = Settings.current.passwordGeneratorConfig.lastMode
     }
-    
+
     private func dismiss() {
         router.pop(viewController: firstVC, animated: true)
     }
@@ -98,19 +100,16 @@ extension PasswordGeneratorCoordinator {
             requirements = config.basicModeConfig.toRequirements()
             generator = passwordGenerator
             isPassphrase = false
-            break
         case .custom:
             requirements = config.customModeConfig.toRequirements()
             generator = passwordGenerator
             isPassphrase = false
-            break
         case .passphrase:
             requirements = config.passphraseModeConfig.toRequirements()
             generator = passphraseGenerator
             isPassphrase = true
-            break
         }
-        
+
         do {
             let password = try generator.generate(with: requirements) 
             generatedPassword = password
@@ -124,8 +123,8 @@ extension PasswordGeneratorCoordinator {
             viewController.showError(error)
         }
     }
-    
-    private func performCopyToClipboard(in viewController: UIViewController) {
+
+    private func performCopyToClipboard(toastHost: UIView? = nil, in viewController: UIViewController) {
         let clipboardTimeout = TimeInterval(Settings.current.clipboardTimeout.seconds)
         Clipboard.general.insert(text: generatedPassword, timeout: clipboardTimeout)
         HapticFeedback.play(.copiedToClipboard)
@@ -135,14 +134,15 @@ extension PasswordGeneratorCoordinator {
                 argument: NSAttributedString(
                     string: LString.titleCopiedToClipboard,
                     attributes: [.accessibilitySpeechQueueAnnouncement: true]
-                )    
+                )
             )
         } else {
             viewController.showNotification(
                 LString.titleCopiedToClipboard,
-                image: UIImage.get(.docOnDoc)?
-                    .applyingSymbolConfiguration(.init(weight: .light))?
-                    .withTintColor(.green, renderingMode: .alwaysTemplate),
+                image: .symbol(.docOnDoc),
+                in: toastHost,
+                position: (toastHost != nil) ? .center : .top,
+                hidePrevious: true,
                 duration: 1)
         }
     }
@@ -152,7 +152,7 @@ extension PasswordGeneratorCoordinator: PasswordGeneratorDelegate {
     func didChangeConfig(_ config: PasswordGeneratorParams, in viewController: PasswordGeneratorVC) {
         Settings.current.passwordGeneratorConfig = config
     }
-    
+
     func shouldGeneratePassword(
         mode: PasswordGeneratorMode,
         config: PasswordGeneratorParams,
@@ -164,25 +164,24 @@ extension PasswordGeneratorCoordinator: PasswordGeneratorDelegate {
             HapticFeedback.play(.passwordGenerated)
         }
     }
-    
+
     func didChangeMode(_ mode: PasswordGeneratorMode, in viewController: PasswordGeneratorVC) {
         let config = Settings.current.passwordGeneratorConfig
         config.lastMode = mode
         Settings.current.passwordGeneratorConfig = config
-        
+
         generate(mode: mode, config: config, animated: false, viewController: viewController)
     }
-    
+
     func didPressDone(in viewController: PasswordGeneratorVC) {
         delegate?.didAcceptPassword(generatedPassword, in: self)
         dismiss()
     }
-    
+
     func didPressCopyToClipboard(in viewController: PasswordGeneratorVC) {
         performCopyToClipboard(in: viewController)
-        dismiss()
     }
-    
+
     func didPressWordlistInfo(wordlist: PassphraseWordlist, in viewController: PasswordGeneratorVC) {
         let urlOpener = URLOpener(viewController)
         urlOpener.open(url: wordlist.sourceURL)
@@ -190,15 +189,18 @@ extension PasswordGeneratorCoordinator: PasswordGeneratorDelegate {
 }
 
 extension PasswordGeneratorCoordinator: PasswordGeneratorQuickSheetDelegate {
-    func didSelectItem(_ text: String, in viewController: PasswordGeneratorQuickSheetVC) {
-        guard let delegate = delegate else {
-            didPressCopy(text, in: viewController)
-            return
+    func didSelectItem(_ text: String, view: UIView?, in viewController: PasswordGeneratorQuickSheetVC) {
+        if hasTarget {
+            delegate?.didAcceptPassword(text, in: self)
+            dismiss()
+        } else {
+            didPressCopy(text, inView: view, in: viewController)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [self] in
+                dismiss()
+            }
         }
-        delegate.didAcceptPassword(text, in: self)
-        dismiss()
     }
-    
+
     func shouldGenerateText(
         mode: QuickRandomTextMode,
         in viewController: PasswordGeneratorQuickSheetVC
@@ -216,21 +218,24 @@ extension PasswordGeneratorCoordinator: PasswordGeneratorQuickSheetDelegate {
         }
         return result
     }
-    
-    func didPressCopy(_ text: String, in viewController: PasswordGeneratorQuickSheetVC) {
+
+    func didPressCopy(_ text: String, inView parent: UIView?, in viewController: PasswordGeneratorQuickSheetVC) {
         generatedPassword = text
-        performCopyToClipboard(in: viewController)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.dismiss()
-        }
+        performCopyToClipboard(toastHost: parent, in: viewController)
     }
-    
+
     func didRequestFullMode(in viewController: PasswordGeneratorQuickSheetVC) {
         assert(passGenVC == nil, "Already in full mode?")
-        let fullModeVC = PasswordGeneratorVC.instantiateFromStoryboard()
+        let fullModeVC = PasswordGeneratorVC.make(standaloneMode: !hasTarget)
         fullModeVC.delegate = self
         self.passGenVC = fullModeVC
         prepareFullModeGenerator(fullModeVC)
+        if let sheet = viewController.sheetPresentationController {
+            sheet.animateChanges {
+                sheet.selectedDetentIdentifier = .large
+            }
+        }
+
         router.push(fullModeVC, animated: true, onPop: { [weak self] in
             self?.passGenVC = nil
             self?.quickSheetVC?.refresh()

@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -22,4 +22,9 @@ extension LString {
         bundle: Bundle.framework,
         value: "Press Esc for Touch ID",
         comment: "Hint/call to action about keyboard shortcut")
+    public static let orgRequiresStrongerPasscode = NSLocalizedString(
+        "[AppLock/Passcode/orgRequiresStonger]",
+        bundle: Bundle.framework,
+        value: "Your organization requires a more complex passcode.",
+        comment: "Notification for business users when they set up too weak app protection passcode.")
 }

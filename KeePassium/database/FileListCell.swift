@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -25,16 +25,16 @@ class FileListCellFactory {
 
 class FileInfoAccessoryButton: UIButton {
     required init() {
-        super.init(frame: CGRect(x: 0, y: 0, width: 25, height: 25))
-        setImage(UIImage(asset: .fileInfoCellAccessory), for: .normal)
-        contentMode = .scaleAspectFill
+        super.init(frame: .zero)
+        setImage(.symbol(.ellipsis), for: .normal)
+        contentMode = .scaleAspectFit
         accessibilityLabel = LString.actionShowDetails
+        sizeToFit()
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("Not implemented")
     }
 }
-
 
 class FileListCell: UITableViewCell {
     @IBOutlet weak var fileIconView: UIImageView!
@@ -50,8 +50,8 @@ class FileListCell: UITableViewCell {
             accessoryButton.showsMenuAsPrimaryAction = (newValue != nil)
         }
     }
-    var accessoryTapHandler: ((FileListCell)->())? 
-    
+    var accessoryTapHandler: ((FileListCell) -> Void)? 
+
     fileprivate(set) var fileType: FileType!
 
     override func awakeFromNib() {
@@ -60,31 +60,29 @@ class FileListCell: UITableViewCell {
         accessoryButton = FileInfoAccessoryButton()
         setupCell()
     }
-    
+
     private func setupCell() {
-        if #available(iOS 13, *) {
-            spinner.style = .medium
-        }
+        spinner.style = .medium
         accessoryView = accessoryButton
         accessoryButton.addTarget(
             self,
             action: #selector(didPressAccessoryButton(button:)),
             for: .touchUpInside)
     }
-    
+
     @objc
     private func didPressAccessoryButton(button: UIButton) {
         accessoryTapHandler?(self)
     }
-    
+
     public func showInfo(from urlRef: URLReference) {
         fileNameLabel?.text = urlRef.visibleFileName
-        
+
         if let error = urlRef.error {
             showFileError(error, for: urlRef)
             return
         }
-        
+
         urlRef.getCachedInfo(canFetch: false) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -95,9 +93,11 @@ class FileListCell: UITableViewCell {
             }
         }
     }
-    
+
     private func showFileInfo(_ fileInfo: FileInfo, for urlRef: URLReference) {
-        fileIconView?.image = urlRef.getIcon(fileType: fileType)
+        let iconSymbol = urlRef.getIconSymbol(fileType: fileType)
+        fileIconView?.image = .symbol(iconSymbol)
+        fileIconView?.sizeToFit()
         if let modificationDate = fileInfo.modificationDate {
             let dateString = DateFormatter.localizedString(
                 from: modificationDate,
@@ -109,18 +109,22 @@ class FileListCell: UITableViewCell {
         }
         fileDetailLabel?.textColor = UIColor.auxiliaryText
     }
-    
+
     private func showFileError(_ error: FileAccessError?, for urlRef: URLReference) {
+        let iconSymbol = urlRef.getIconSymbol(fileType: fileType)
         guard let error = error else {
             self.fileDetailLabel?.text = "..."
-            self.fileIconView?.image = urlRef.getIcon(fileType: self.fileType)
+            self.fileIconView?.image = .symbol(iconSymbol)
+            self.fileIconView?.sizeToFit()
             return
         }
         self.fileDetailLabel?.text = error.localizedDescription
         self.fileDetailLabel?.textColor = UIColor.errorMessage
-        self.fileIconView?.image = urlRef.getIcon(fileType: self.fileType)
+        self.fileIconView?.image = .symbol(iconSymbol)
+        self.fileIconView?.sizeToFit()
+        sizeToFit()
     }
-    
+
     var isAnimating: Bool {
         get { spinner.isAnimating }
         set {

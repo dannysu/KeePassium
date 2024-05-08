@@ -1,17 +1,18 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
 //  by the Free Software Foundation: https://www.gnu.org/licenses/).
 //  For commercial licensing, please contact the author.
 
-import UIKit
 import KeePassiumLib
+import UIKit
 
 protocol DatabaseCreatorDelegate: AnyObject {
     func didPressCancel(in databaseCreatorVC: DatabaseCreatorVC)
-    func didPressContinue(in databaseCreatorVC: DatabaseCreatorVC)
+    func didPressSaveToFiles(in databaseCreatorVC: DatabaseCreatorVC)
+    func didPressSaveToServer(in databaseCreatorVC: DatabaseCreatorVC)
     func didPressErrorDetails(in databaseCreatorVC: DatabaseCreatorVC)
     func didPressPickKeyFile(
         in databaseCreatorVC: DatabaseCreatorVC,
@@ -22,7 +23,11 @@ protocol DatabaseCreatorDelegate: AnyObject {
     func shouldDismissPopovers(in databaseCreatorVC: DatabaseCreatorVC)
 }
 
-class DatabaseCreatorVC: UIViewController {
+class DatabaseCreatorVC: UIViewController, BusyStateIndicating {
+    enum DestinationType {
+        case files
+        case remoteServer
+    }
 
     public var databaseFileName: String { return fileNameField.text ?? "" }
     public var password: String { return passwordField.text ?? ""}
@@ -45,35 +50,35 @@ class DatabaseCreatorVC: UIViewController {
     @IBOutlet weak var passwordField: ProtectedTextField!
     @IBOutlet weak var keyFileField: ValidatingTextField!
     @IBOutlet weak var hardwareKeyField: ValidatingTextField!
-    @IBOutlet weak var continueButton: UIButton!
+    @IBOutlet weak var saveToFilesButton: UIButton!
+    @IBOutlet weak var saveToServerButton: UIButton!
     @IBOutlet weak var errorMessagePanel: UIView!
     @IBOutlet weak var errorLabel: UILabel!
-    @IBOutlet weak var keyboardLayoutConstraint: KeyboardLayoutConstraint!
     @IBOutlet weak var scrollView: UIScrollView!
-    
+
     weak var delegate: DatabaseCreatorDelegate?
 
     private var containerView: UIView {
         return navigationController?.view ?? self.view
     }
     private var progressOverlay: ProgressOverlay?
-    
+
     public static func create() -> DatabaseCreatorVC {
         return DatabaseCreatorVC.instantiateFromStoryboard()
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         navigationItem.title = LString.titleCreateDatabase
-        
-        view.backgroundColor = UIColor(patternImage: UIImage(asset: .backgroundPattern))
+
+        view.backgroundColor = ImageAsset.backgroundPattern.asColor()
         view.layer.isOpaque = false
 
         passwordField.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         keyFileField.maskedCorners = []
         hardwareKeyField.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        
+
         #if targetEnvironment(macCatalyst)
         keyFileField.cursor = .arrow
         hardwareKeyField.cursor = .arrow
@@ -85,50 +90,38 @@ class DatabaseCreatorVC: UIViewController {
         passwordField.delegate = self
         keyFileField.delegate = self
         hardwareKeyField.delegate = self
-        
+
         hardwareKeyField.placeholder = LString.noHardwareKey
-        
+
         passwordField.accessibilityLabel = LString.fieldPassword
         keyFileField.accessibilityLabel = LString.fieldKeyFile
         hardwareKeyField.accessibilityLabel = LString.fieldHardwareKey
-        
+
         passwordField.becomeFirstResponder()
+        setupSaveToServerButton()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        updateKeyboardLayoutConstraints()
+    private func setupSaveToServerButton() {
+        var config = UIButton.Configuration.borderedTinted()
+        config.title = LString.actionSaveToServer
+        config.cornerStyle = .medium
+        config.image = .symbol(.network)
+        config.preferredSymbolConfigurationForImage = .init(scale: .medium)
+        config.imagePadding = 8
+        saveToServerButton.configuration = config
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        DispatchQueue.main.async {
-            self.updateKeyboardLayoutConstraints()
-        }
-    }
-    
-    private func updateKeyboardLayoutConstraints() {
-        let view = containerView
-        if let window = view.window {
-            let viewTop = view.convert(view.frame.origin, to: window).y
-            let viewHeight = view.frame.height
-            let windowHeight = window.frame.height
-            let viewBottomOffset = windowHeight - (viewTop + viewHeight)
-            keyboardLayoutConstraint.viewOffset = viewBottomOffset
-        }
-    }
-    
+
     @discardableResult
     override func becomeFirstResponder() -> Bool {
         return passwordField.becomeFirstResponder()
     }
-    
+
     private func showKeyFile(_ keyFileRef: URLReference?) {
         guard let keyFileRef = keyFileRef else {
             keyFileField.text = nil
             return
         }
-        
+
         if keyFileRef.hasError {
             keyFileField.text = keyFileRef.error?.localizedDescription
             keyFileField.textColor = .errorMessage
@@ -138,61 +131,75 @@ class DatabaseCreatorVC: UIViewController {
         }
         hideErrorMessage(animated: true)
     }
-    
-    func showErrorMessage(_ message: String, haptics: HapticFeedback.Kind?, animated: Bool) {
+
+    func indicateState(isBusy: Bool) {
+        saveToFilesButton.isEnabled = !isBusy
+        saveToServerButton.isEnabled = !isBusy
+    }
+
+    func showErrorMessage(_ message: String, haptics: HapticFeedback.Kind) {
         Diag.error(message)
         UIAccessibility.post(notification: .announcement, argument: message)
-        
-        var toastStyle = ToastStyle()
-        toastStyle.backgroundColor = .warningMessage
-        toastStyle.imageSize = CGSize(width: 29, height: 29)
-        toastStyle.displayShadow = false
-        let toastAction = ToastAction(
-            title: LString.actionShowDetails,
-            handler: { [weak self] in
-                self?.didPressErrorDetails()
-            }
-        )
-        let toastView = view.toastViewForMessage(
-            message,
-            title: nil,
-            image: UIImage.get(.exclamationMarkTriangle),
-            action: toastAction,
-            style: toastStyle
-        )
-        view.showToast(toastView, duration: 5, position: .top, action: toastAction, completion: nil)
+        HapticFeedback.play(haptics)
+
+        showNotification(message, image: .symbol(.exclamationMarkTriangle))
         StoreReviewSuggester.registerEvent(.trouble)
     }
-    
+
     func hideErrorMessage(animated: Bool) {
         view.hideToast()
     }
-    
-    
-    @IBAction func didPressCancel(_ sender: Any) {
+}
+
+extension DatabaseCreatorVC {
+    @IBAction private func didPressCancel(_ sender: Any) {
         delegate?.didPressCancel(in: self)
     }
-    
+
     private func didPressErrorDetails() {
         hideErrorMessage(animated: true)
         delegate?.didPressErrorDetails(in: self)
     }
-    
-    @IBAction func didPressContinue(_ sender: Any) {
-        let hasPassword = passwordField.text?.isNotEmpty ?? false
+
+    private func verifyEnteredKey() -> Bool {
+        let password = passwordField.text ?? ""
+        guard ManagedAppConfig.shared.isAcceptable(databasePassword: password) else {
+            Diag.warning("Database password strength does not meet organization's requirements")
+            showNotification(
+                LString.orgRequiresStrongerDatabasePassword,
+                title: nil,
+                image: .symbol(.managedParameter)?.withTintColor(.iconTint, renderingMode: .alwaysOriginal),
+                hidePrevious: true,
+                duration: 3
+            )
+            return false
+        }
+
+        let hasPassword = password.isNotEmpty
         let hasKeyFile = keyFile != nil
         let hasYubiKey = yubiKey != nil
-        guard hasPassword || hasKeyFile || hasYubiKey else {
-            showErrorMessage(
-                NSLocalizedString(
-                    "[Database/Create] Please enter a password or choose a key file.",
-                    value: "Please enter a password or choose a key file.",
-                    comment: "Hint shown when both password and key file are empty."),
-                haptics: .wrongPassword,
-                animated: true)
-            return
+        if hasPassword || hasKeyFile || hasYubiKey {
+            return true
         }
-        delegate?.didPressContinue(in: self)
+        showErrorMessage(
+            NSLocalizedString(
+                "[Database/Create] Please enter a password or choose a key file.",
+                value: "Please enter a password or choose a key file.",
+                comment: "Hint shown when both password and key file are empty."),
+            haptics: .wrongPassword)
+        return false
+    }
+
+    @IBAction private func didPressSaveToFiles(_ sender: Any) {
+        if verifyEnteredKey() {
+            delegate?.didPressSaveToFiles(in: self)
+        }
+    }
+
+    @IBAction private func didPressSaveToServer(_ sender: Any) {
+        if verifyEnteredKey() {
+            delegate?.didPressSaveToServer(in: self)
+        }
     }
 }
 
@@ -235,7 +242,7 @@ extension DatabaseCreatorVC: UITextFieldDelegate {
         }
         return true
     }
-    
+
     func textFieldDidBeginEditing(_ textField: UITextField) {
         guard UIDevice.current.userInterfaceIdiom != .phone else {
             return
@@ -261,7 +268,7 @@ extension DatabaseCreatorVC: UITextFieldDelegate {
             }
         }
     }
-    
+
     func textField(
         _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
@@ -272,11 +279,18 @@ extension DatabaseCreatorVC: UITextFieldDelegate {
         }
         return true
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == self.passwordField {
-            didPressContinue(textField)
+            didPressSaveToFiles(textField)
         }
         return true
     }
+}
+
+extension LString {
+    public static let orgRequiresStrongerDatabasePassword = NSLocalizedString(
+        "[Database/Create/orgRequiresStronger]",
+        value: "Your organization requires a more complex database password.",
+        comment: "Notification for business users when they set up too weak database password.")
 }

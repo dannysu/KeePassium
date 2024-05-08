@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -12,15 +12,19 @@ protocol HardwareKeyPickerDelegate: AnyObject {
     func didSelectKey(_ yubiKey: YubiKey?, in picker: HardwareKeyPicker)
 }
 
+private final class HardwareKeyPickerCell: UITableViewCell {
+    static let reuseIdentifier = "HardwareKeyPickerCell"
+}
+
 class HardwareKeyPicker: UITableViewController, Refreshable {
     weak var delegate: HardwareKeyPickerDelegate?
-    
+
     public var selectedKey: YubiKey? {
         didSet { refresh() }
     }
-    
+
     public let dismissablePopoverDelegate = DismissablePopover(leftButton: .cancel, rightButton: nil)
-    
+
     private let nfcKeys: [YubiKey] = [
         YubiKey(interface: .nfc, slot: .slot1),
         YubiKey(interface: .nfc, slot: .slot2)]
@@ -33,13 +37,13 @@ class HardwareKeyPicker: UITableViewController, Refreshable {
 
     private enum Section {
         private static let macOSValues: [Section] = [.noHardwareKey, .yubiKeyUSB]
-        private static let iOSValues: [Section] = [.noHardwareKey, .yubiKeyNFC, .yubiKeyMFI]
-        
+        private static let iOSValues: [Section] = [.noHardwareKey, .yubiKeyNFC, .yubiKeyMFI, .yubiKeyUSB]
+
         case noHardwareKey
         case yubiKeyNFC
         case yubiKeyMFI
         case yubiKeyUSB
-        
+
         static var allValues: [Section] {
             if ProcessInfo.isRunningOnMac {
                 return Section.macOSValues
@@ -47,68 +51,88 @@ class HardwareKeyPicker: UITableViewController, Refreshable {
                 return Section.iOSValues
             }
         }
-        var title: String? {
-            switch self {
-            case .noHardwareKey:
-                return nil
-            case .yubiKeyNFC:
-                return "NFC"
-            case .yubiKeyMFI:
-                return "Lightning"
-            case .yubiKeyUSB:
-                return "USB"
-            }
-        }
     }
     private var isNFCAvailable = false
     private var isMFIAvailable = false
     private var isUSBAvailable = false
-    
+    private var isMFIoverUSB = false
+    private var requiresPremium = true
+
     override var canBecomeFirstResponder: Bool { true }
-    
-    
+
+
+    public static func make() -> HardwareKeyPicker {
+        return HardwareKeyPicker()
+    }
+
+    private init() {
+        super.init(style: .insetGrouped)
+
+        title = LString.titleHardwareKeys
+        tableView.estimatedSectionHeaderHeight = 18
+        tableView.register(
+            HardwareKeyPickerCell.self,
+            forCellReuseIdentifier: HardwareKeyPickerCell.reuseIdentifier
+        )
+        addTableFooterButton()
+
+        tableView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        tableView.removeObserver(self, forKeyPath: "contentSize")
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tableView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
 
-        #if MAIN_APP
         isNFCAvailable = ChallengeResponseManager.instance.supportsNFC
         isMFIAvailable = ChallengeResponseManager.instance.supportsMFI
         isUSBAvailable = ChallengeResponseManager.instance.supportsUSB
-        #elseif AUTOFILL_EXT
-        isNFCAvailable = false
-        isMFIAvailable = false
-        isUSBAvailable = false
-        #endif
+        isMFIoverUSB = ChallengeResponseManager.instance.supportsMFIoverUSB
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        tableView.removeObserver(self, forKeyPath: "contentSize")
-        super.viewWillDisappear(animated)
+
+    private func addTableFooterButton() {
+        var config = UIButton.Configuration.plain()
+        config.buttonSize = .small
+        config.title = LString.actionLearnMore
+        let learnMoreButton = UIButton(configuration: config, primaryAction: UIAction { [weak self] _ in
+            guard let self else { return }
+            URLOpener(self).open(url: URL.AppHelp.yubikeySetup)
+        })
+
+        tableView.tableFooterView = learnMoreButton
+        learnMoreButton.setNeedsLayout()
+        learnMoreButton.layoutIfNeeded()
+        learnMoreButton.frame.size = learnMoreButton.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        tableView.tableFooterView = learnMoreButton
     }
-    
+
     override func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
-        context: UnsafeMutableRawPointer?)
-    {
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         var preferredSize = tableView.contentSize
-        if #available(iOS 13, *) {
-            preferredSize.width = 400
-        }
+        preferredSize.width = 400
         self.preferredContentSize = preferredSize
     }
-    
+
     func refresh() {
+        requiresPremium = !PremiumManager.shared.isAvailable(feature: .canUseHardwareKeys)
         tableView.reloadData()
     }
-    
-    
+
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return Section.allValues.count
     }
-    
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section.allValues[section] {
         case .noHardwareKey:
@@ -121,67 +145,89 @@ class HardwareKeyPicker: UITableViewController, Refreshable {
             return usbKeys.count
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return Section.allValues[section].title
+        switch Section.allValues[section] {
+        case .noHardwareKey:
+            return nil
+        case .yubiKeyNFC:
+            return LString.hardwareKeyPortNFC
+        case .yubiKeyMFI:
+            if isMFIoverUSB {
+                return LString.hardwareKeyPortLightningOverUSBC
+            } else {
+                return LString.hardwareKeyPortLightning
+            }
+        case .yubiKeyUSB:
+            return LString.hardwareKeyPortUSB
+        }
     }
-    
+
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         switch Section.allValues[section] {
         case .noHardwareKey:
-            if AppGroup.isAppExtension {
-                return LString.hardwareKeyNotAvailableInAutoFill
-            }
+            return nil
         case .yubiKeyNFC:
             guard #available(iOS 13, *) else {
                 return LString.iOSVersionTooOldForHardwareKey
             }
-        default:
-            break
+            if AppGroup.isAppExtension {
+                return LString.theseHardwareKeyNotAvailableInAutoFill
+            }
+        case .yubiKeyMFI:
+            if isMFIoverUSB {
+                return LString.hardwareKeyRequiresUSBtoLightningAdapter
+            }
+        case .yubiKeyUSB:
+            if ProcessInfo.isCatalystApp {
+                if AppGroup.isAppExtension {
+                    return LString.theseHardwareKeyNotAvailableInAutoFill
+                } else {
+                    return nil
+                }
+            }
+            if ProcessInfo.isiPadAppOnMac {
+                return LString.usbUnavailableIPadAppOnMac
+            }
+            return LString.usbHardwareKeyNotSupported
         }
         return super.tableView(tableView, titleForFooterInSection: section)
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: HardwareKeyPickerCell.reuseIdentifier,
+            for: indexPath)
 
         let key: YubiKey?
+        var showPremiumBadge = requiresPremium
+        let isEnabled: Bool
         switch Section.allValues[indexPath.section] {
         case .noHardwareKey:
             key = nil
-            cell.setEnabled(true)
-            cell.isUserInteractionEnabled = true
+            isEnabled = true
+            showPremiumBadge = false
         case .yubiKeyNFC:
             key = nfcKeys[indexPath.row]
-            cell.setEnabled(isNFCAvailable)
-            cell.isUserInteractionEnabled = isNFCAvailable
+            isEnabled = isNFCAvailable
+            showPremiumBadge = showPremiumBadge && isNFCAvailable
         case .yubiKeyMFI:
             key = mfiKeys[indexPath.row]
-            cell.setEnabled(isMFIAvailable)
-            cell.isUserInteractionEnabled = isMFIAvailable
+            isEnabled = isMFIAvailable
+            showPremiumBadge = showPremiumBadge && isMFIAvailable
         case .yubiKeyUSB:
             key = usbKeys[indexPath.row]
-            cell.setEnabled(isUSBAvailable)
-            cell.isUserInteractionEnabled = isUSBAvailable
+            isEnabled = isUSBAvailable
+            showPremiumBadge = showPremiumBadge && isUSBAvailable
         }
-        cell.textLabel?.text = getKeyDescription(key)
+        cell.textLabel?.textColor = .primaryText
+        cell.textLabel?.text = key?.localizedDescription ?? LString.noHardwareKey
+        cell.imageView?.image = showPremiumBadge ? UIImage.premiumBadge : nil
         cell.accessoryType = (key == selectedKey) ? .checkmark : .none
+        cell.setEnabled(isEnabled)
         return cell
     }
-    
-    private func getKeyDescription(_ key: YubiKey?) -> String {
-        guard let key = key else {
-            return LString.noHardwareKey
-        }
-        
-        let result = String.localizedStringWithFormat(
-            LString.yubikeySlotNTemplate,
-            key.slot.number
-        )
-        return result
-    }
-    
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch Section.allValues[indexPath.section] {
         case .noHardwareKey:
@@ -202,8 +248,7 @@ extension HardwareKeyPicker: UIPopoverPresentationControllerDelegate {
     func presentationController(
         _ controller: UIPresentationController,
         viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle
-        ) -> UIViewController?
-    {
+    ) -> UIViewController? {
         if style != .popover {
             let navVC = controller.presentedViewController as? UINavigationController
             let cancelButton = UIBarButtonItem(
@@ -214,7 +259,7 @@ extension HardwareKeyPicker: UIPopoverPresentationControllerDelegate {
         }
         return nil // "keep existing"
     }
-    
+
     @objc func dismissPopover() {
         dismiss(animated: true, completion: nil)
     }

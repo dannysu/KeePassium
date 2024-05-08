@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -9,7 +9,7 @@
 import KeePassiumLib
 
 protocol KeyFilePickerDelegate: AnyObject {
-    func didPressAddKeyFile(at popoverAnchor: PopoverAnchor, in keyFilePicker: KeyFilePickerVC)
+    func didPressImportKeyFile(at popoverAnchor: PopoverAnchor, in keyFilePicker: KeyFilePickerVC)
     func didSelectFile(_ selectedFile: URLReference?, in keyFilePicker: KeyFilePickerVC)
     func didPressEliminate(
         keyFile: URLReference,
@@ -19,86 +19,137 @@ protocol KeyFilePickerDelegate: AnyObject {
         for keyFile: URLReference,
         at popoverAnchor: PopoverAnchor,
         in keyFilePicker: KeyFilePickerVC)
-    func didPressBrowse(at popoverAnchor: PopoverAnchor, in keyFilePicker: KeyFilePickerVC)
+    func didPressUseKeyFile(at popoverAnchor: PopoverAnchor, in keyFilePicker: KeyFilePickerVC)
+    func didPressCreateKeyFile(at popoverAnchor: PopoverAnchor, in keyFilePicker: KeyFilePickerVC)
 }
 
 final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable {
     private enum CellID {
         static let noKeyFile = "NoKeyFileCell"
         static let keyFile = "KeyFileCell"
-        static let browseKeyFile = "BrowseKeyFileCell"
     }
     private enum Section: Int {
         case fixedOptions = 0
         case knownFiles = 1
     }
 
-    @IBOutlet weak var addKeyFileBarButton: UIBarButtonItem!
-    
+    @IBOutlet private weak var addKeyFileBarButton: UIBarButtonItem!
+
     weak var delegate: KeyFilePickerDelegate?
 
-    var keyFileRefs = [URLReference]()
-    
+    private var keyFileRefs = [URLReference]()
+
     private let fileInfoReloader = FileInfoReloader()
     private var fileKeeperNotifications: FileKeeperNotifications!
 
     override var canBecomeFirstResponder: Bool { true }
-    
-    
+
+
     public static func create() -> KeyFilePickerVC {
         let vc = KeyFilePickerVC.instantiateFromStoryboard()
         return vc
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         fileKeeperNotifications = FileKeeperNotifications(observer: self)
-        
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
-        self.refreshControl = refreshControl
-        
+
+        setupTableView()
+        setupAddKeyFileBarButton()
+
         refresh()
-        
+
         clearsSelectionOnViewWillAppear = true
     }
-    
+
+    private func setupTableView() {
+        if ProcessInfo.isRunningOnMac {
+            let refreshButton = UIBarButtonItem(
+                barButtonSystemItem: .refresh,
+                target: self,
+                action: #selector(refresh)
+            )
+            navigationItem.rightBarButtonItems?.append(refreshButton)
+        }
+
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+
+        tableView.delegate = self
+        tableView.dataSource = self
+    }
+
+    private func setupAddKeyFileBarButton() {
+        let popoverAnchor = PopoverAnchor(barButtonItem: addKeyFileBarButton)
+        addKeyFileBarButton.primaryAction = nil
+        let createMenu = UIMenu(options: [.displayInline], children: [
+            UIAction(
+                title: LString.actionCreateKeyFile,
+                image: .symbol(.plus),
+                handler: { [weak self] _ in
+                    guard let self = self else { return }
+                    delegate?.didPressCreateKeyFile(at: popoverAnchor, in: self)
+                }
+            )
+        ])
+        addKeyFileBarButton.menu = UIMenu.make(children: [
+            UIAction(
+                title: LString.importKeyFileAction,
+                subtitle: LString.importKeyFileDescription,
+                image: .symbol(.folderBadgePlus),
+                handler: { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.didPressImportKeyFile(at: popoverAnchor, in: self)
+                }
+            ),
+            UIAction(
+                title: LString.useKeyFileAction,
+                subtitle: LString.useKeyFileDescription,
+                image: .symbol(.folder),
+                handler: { [weak self] _ in
+                    guard let self = self else { return }
+                    delegate?.didPressUseKeyFile(at: popoverAnchor, in: self)
+                }
+            ),
+            createMenu,
+        ])
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         tableView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         fileKeeperNotifications.startObserving()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         tableView.removeObserver(self, forKeyPath: "contentSize")
         super.viewWillDisappear(animated)
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         fileKeeperNotifications.stopObserving()
         super.viewDidDisappear(animated)
     }
-    
+
     override func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
-        context: UnsafeMutableRawPointer?)
-    {
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         var preferredSize = tableView.contentSize
-        if #available(iOS 13, *) {
-            preferredSize.width = 400
-        }
+        preferredSize.width = 400
         self.preferredContentSize = preferredSize
     }
 
-    
+
     @objc
     private func didPullToRefresh() {
         if !tableView.isDragging {
@@ -106,7 +157,7 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
             refresh()
         }
     }
-    
+
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if refreshControl?.isRefreshing ?? false {
             refreshControl?.endRefreshing()
@@ -114,11 +165,12 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
         }
     }
 
+    @objc
     func refresh() {
         keyFileRefs = FileKeeper.shared.getAllReferences(fileType: .keyFile, includeBackup: false)
         fileInfoReloader.getInfo(
             for: keyFileRefs,
-            update: { [weak self] (ref) in
+            update: { [weak self] _ in
                 self?.tableView.reloadData()
             },
             completion: { [weak self] in
@@ -127,14 +179,14 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
         )
         tableView.reloadData()
     }
-    
+
     fileprivate func sortFileList() {
         let sortOrder = Settings.current.filesSortOrder
         keyFileRefs.sort { return sortOrder.compare($0, $1) }
         tableView.reloadData()
     }
-    
-    
+
+
     func setBusyIndicatorVisible(_ visible: Bool) {
         if visible {
             view.makeToastActivity(.center)
@@ -142,7 +194,7 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
             view.hideToastActivity()
         }
     }
-    
+
 
     private func getFileForRow(at indexPath: IndexPath) -> URLReference? {
         switch Section(rawValue: indexPath.section)! {
@@ -155,7 +207,7 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
             return keyFileRefs[indexPath.row]
         }
     }
-    
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         if keyFileRefs.isEmpty {
             return 1
@@ -167,7 +219,7 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section(rawValue: section)! {
         case .fixedOptions:
-            return 2
+            return 1
         case .knownFiles:
             return keyFileRefs.count
         }
@@ -184,23 +236,19 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
             return makeKeyFileCell(at: indexPath)
         }
     }
-    
+
     private func makeFixedOptionsCell(at indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.row {
         case 0:
             return tableView.dequeueReusableCell(
                 withIdentifier: CellID.noKeyFile,
                 for: indexPath)
-        case 1:
-            return tableView.dequeueReusableCell(
-                withIdentifier: CellID.browseKeyFile,
-                for: indexPath)
         default:
             assertionFailure("No such cell")
             return UITableViewCell()
         }
     }
-    
+
     private func makeKeyFileCell(at indexPath: IndexPath) -> UITableViewCell {
         let keyFileRef = keyFileRefs[indexPath.row]
         let cell = FileListCellFactory.dequeueReusableCell(
@@ -210,18 +258,18 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
             for: .keyFile)
         cell.showInfo(from: keyFileRef)
         cell.isAnimating = keyFileRef.isRefreshingInfo
-        cell.accessoryTapHandler = { [weak self, indexPath] cell in
+        cell.accessoryTapHandler = { [weak self, indexPath] _ in
             guard let self = self else { return }
             self.tableView(self.tableView, accessoryButtonTappedForRowWith: indexPath)
         }
         return cell
     }
-    
+
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return getFileForRow(at: indexPath) != nil
     }
-    
-    
+
+
     override func tableView(
         _ tableView: UITableView,
         accessoryButtonTappedForRowWith indexPath: IndexPath
@@ -240,9 +288,6 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
         switch (Section(rawValue: indexPath.section)!, indexPath.row) {
         case (.fixedOptions, 0):
             delegate?.didSelectFile(nil, in: self)
-        case (.fixedOptions, 1):
-            tableView.deselectRow(at: indexPath, animated: true)
-            didPressBrowseKeyFile()
         case (.knownFiles, _):
             let fileRef = getFileForRow(at: indexPath)
             delegate?.didSelectFile(fileRef, in: self)
@@ -250,28 +295,7 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
             assertionFailure("Unexpected row selected")
         }
     }
-    
-    @IBAction func didPressAddKeyFile(_ sender: Any) {
-        let popoverAnchor = PopoverAnchor(barButtonItem: addKeyFileBarButton)
-        delegate?.didPressAddKeyFile(at: popoverAnchor, in: self)
-    }
-    
-    private func didPressBrowseKeyFile() {
-        let popoverAnchor = PopoverAnchor(
-            tableView: tableView,
-            at: IndexPath(row: 1, section: Section.fixedOptions.rawValue))
-        delegate?.didPressBrowse(at: popoverAnchor, in: self)
-    }
-    
-    func didPressEliminateFile(at indexPath: IndexPath) {
-        guard let fileRef = getFileForRow(at: indexPath) else {
-            assertionFailure()
-            return
-        }
-        let popoverAnchor = PopoverAnchor(tableView: tableView, at: indexPath)
-        delegate?.didPressEliminate(keyFile: fileRef, at: popoverAnchor, in: self)
-    }
-    
+
     override func getContextActionsForRow(
         at indexPath: IndexPath,
         forSwipe: Bool
@@ -279,7 +303,7 @@ final class KeyFilePickerVC: TableViewControllerWithContextActions, Refreshable 
         guard let fileRef = getFileForRow(at: indexPath) else {
             return []
         }
-        
+
         let destructiveActionTitle = DestructiveFileAction.get(for: fileRef.location).title
         let destructiveAction = ContextualAction(
             title: destructiveActionTitle,
@@ -305,12 +329,25 @@ extension KeyFilePickerVC: FileKeeperObserver {
         guard fileType == .keyFile else { return }
         refresh()
     }
-    
+
     func fileKeeper(didRemoveFile urlRef: URLReference, fileType: FileType) {
         guard fileType == .keyFile else { return }
         refresh()
     }
-    
+
     func fileKeeperHasPendingOperation() {
+    }
+}
+
+extension KeyFilePickerVC {
+    override var keyCommands: [UIKeyCommand]? {
+        return [
+            UIKeyCommand(
+                action: #selector(refresh),
+                input: "r",
+                modifierFlags: [.command],
+                discoverabilityTitle: LString.actionRefreshList
+            )
+        ]
     }
 }

@@ -40,8 +40,8 @@
 /* Class = "UILabel"; text = "MIT license"; ObjectID = "daJ-ma-jhe"; */
 "daJ-ma-jhe.text" = "Licenza MIT";
 
-/* Class = "UILabel"; text = "MIT license"; ObjectID = "dMv-Zw-y7y"; */
-"dMv-Zw-y7y.text" = "Licenza MIT";
+/* Class = "UILabel"; text = "MIT license"; ObjectID = "Erq-Zz-P0N"; */
+"Erq-Zz-P0N.text" = "Licenza MIT";
 
 /* Class = "UILabel"; text = "Custom permissive license"; ObjectID = "EWy-OI-IxL"; */
 "EWy-OI-IxL.text" = "Licenza permissiva personalizzata";
@@ -71,7 +71,7 @@
 "JbR-nf-D9o.headerTitle" = "Politica sulla privacy";
 
 /* Class = "UILabel"; text = "Public domain"; ObjectID = "JgR-60-OMp"; */
-"JgR-60-OMp.text" = "Dominio Pubblico";
+"JgR-60-OMp.text" = "Dominio pubblico";
 
 /* Class = "UILabel"; text = "LGPL license"; ObjectID = "JjJ-GT-eoX"; */
 "JjJ-GT-eoX.text" = "Licenza LGPL";
@@ -83,7 +83,7 @@
 "Kdg-Hz-XOQ.text" = "Fancy deboss pattern di Daniel Beaton";
 
 /* Class = "UILabel"; text = "Passphrase wordlists by EFF"; ObjectID = "kvO-9B-1Sy"; */
-"kvO-9B-1Sy.text" = "Lista delle frasi segrete dell'EFF";
+"kvO-9B-1Sy.text" = "Liste vocaboli per frasi segrete dell'EFF";
 
 /* Class = "UILabel"; text = "MIT license"; ObjectID = "KWA-h1-ddu"; */
 "KWA-h1-ddu.text" = "Licenza MIT";
@@ -130,6 +130,9 @@
 /* Class = "UILabel"; text = "Linecons by Andrian Valeanu"; ObjectID = "SOX-Re-yl9"; */
 "SOX-Re-yl9.text" = "Linecons di Andrian Valeanu";
 
+/* Class = "UILabel"; text = "zxcvbn-ios by Dropbox"; ObjectID = "SUh-L1-IvF"; */
+"SUh-L1-IvF.text" = "zxcvbn-ios di Dropbox";
+
 /* Class = "UILabel"; text = "Contact Support"; ObjectID = "TOl-DA-gYc"; Note = "Action: contact us"; */
 "TOl-DA-gYc.text" = "Contatta il supporto";
 
@@ -138,9 +141,6 @@
 
 /* Class = "UILabel"; text = "Leave an App Store review."; ObjectID = "uiw-Qh-pNp"; Note = "Second part of the 'Do you like what you see? / Leave an App Store review.\""; */
 "uiw-Qh-pNp.text" = "Lascia una recensione sull'App Store.";
-
-/* Class = "UILabel"; text = "KeyboardLayoutConstraint by James Tang"; ObjectID = "vg0-6M-OIq"; */
-"vg0-6M-OIq.text" = "KeyboardLayoutConstraint di James Tang";
 
 /* Class = "UILabel"; text = "Nuvola icons by David Vignoni"; ObjectID = "VuB-ng-Uii"; */
 "VuB-ng-Uii.text" = "Icone Nuvola di David Vignoni";

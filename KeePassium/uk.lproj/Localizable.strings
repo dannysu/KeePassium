@@ -4,6 +4,9 @@
 /* Hint shown when both password and key file are empty. */
 "[Database/Create] Please enter a password or choose a key file." = "Введіть пароль або виберіть файл-ключ.";
 
+/* Notification for business users when they set up too weak database password. */
+"[Database/Create/orgRequiresStronger]" = "Ваша організація вимагає використовувати складніший пароль для бази паролів.";
+
 /* Note for a sample entry */
 "[Database/Create/TemplateEntry/notes] You can also store some notes, if you like." = "Тут можна залишити нотатки.";
 
@@ -23,7 +26,7 @@
 "[Database/Create/TemplateGroup/title] Finance" = "Фінанси";
 
 /* Predefined group in a new database */
-"[Database/Create/TemplateGroup/title] General" = "Загальні";
+"[Database/Create/TemplateGroup/title] General" = "Загальне";
 
 /* Predefined group in a new database */
 "[Database/Create/TemplateGroup/title] Internet" = "Інтернет";
@@ -43,12 +46,153 @@
 /* Title of a dialog for renaming an attached file */
 "[Entry/Files/Rename/title] Rename File" = "Перейменувати файл";
 
+/* Title of entry viewer's tab with files attached to the entry */
+"[Entry/Tab/Files/title]" = "Файли";
+
+/* Title of entry viewer's tab with the entry's main information */
+"[Entry/Tab/General/title]" = "Загальне";
+
+/* Title of entry viewer's tab with previous revisions of the entry */
+"[Entry/Tab/History/title]" = "Історія";
+
+/* Title of entry viewer's tab with advanced/secondary properties */
+"[Entry/Tab/More/title]" = "Більше";
+
 /* Menu title. For example: `About KeePassium`. [appName: String] */
 "[Menu/About/title]" = "Про програму %@";
 
 /* Menu title: app settings */
 "[Menu/Preferences/title]" = "Налаштування…";
 
+/* Action/button */
+"[Onboarding/AddExistingDatabase/action]" = "Додати свою базу паролів";
+
+/* Action/button to set up the App Protection feature. Not a call to action. */
+"[Onboarding/AppProtection/activate]" = "Активувати захист додатку";
+
+/* Text in the App Protection onboarding screen. */
+"[Onboarding/AppProtection/text1]" = "KeePassium — це ваше сховище. Захист додатка гарантує, що ніхто, крім вас, його не відкриє.";
+
+/* Title of the App Protection onboarding screen */
+"[Onboarding/AppProtection/title]" = "Лише для ваших очей";
+
+/* Action/button */
+"[Onboarding/CreateNewDatabase/action]" = "Створити нову базу";
+
+/* Text in the Data Encryption intro screen */
+"[Onboarding/DataEncryption/text1]" = "Ваш сейф — це зашифрована база паролів.";
+
+/* Text in the Data Encryption intro screen */
+"[Onboarding/DataEncryption/text2]" = "Ви можете зберігати бази паролів у вашій улюбленій хмарі або локально на пристрої.";
+
+/* Title of the Data Encryption intro screen */
+"[Onboarding/DataEncryption/title]" = "Шифрування даних";
+
+/* Text in the introductory onboarding screen. */
+"[Onboarding/Intro/text1]" = "KeePassium зберігає ваші паролі й інші конфіденційні дані надійно зашифрованими.";
+
+/* Text in the introductory onboarding screen. */
+"[Onboarding/Intro/text2]" = "Без реклами й відстеження.";
+
+/* Text in the introductory onboarding screen. */
+"[Onboarding/Intro/text3]" = "Ми нічого про вас не знаємо.";
+
+/* Text in the introductory onboarding screen. */
+"[Onboarding/Intro/text4]" = "Ваші дані належать вам.";
+
+/* Title of the introductory onboarding screen. */
+"[Onboarding/Intro/title]" = "Ласкаво просимо";
+
+/* Text in the Security intro screen */
+"[Onboarding/Security/text1]" = "Ваша інформація зашифрована в сейфі (базі паролів). Сейфи зберігаються в сховищі (KeePassium).";
+
+/* Text in the Security intro screen */
+"[Onboarding/Security/text2]" = "Сховище й сейф мають різні ключі, які відомі лише вам.";
+
+/* Title of the Security intro screen */
+"[Onboarding/Security/title]" = "Максимальна безпека";
+
+/* Action to skip selected item/items in future password audits. */
+"[PasswordAudit/Action/Exclude]" = "Виключити з перевірки";
+
+/* Status message: password audit in progress */
+"[PasswordAudit/Auditing/status]" = "Перевірка паролів";
+
+/* Error message after a failed password audit request [message: String]. */
+"[PasswordAudit/Error/text]" = "Сталася помилка під час обміну даними із сервісом HIBP. %@";
+
+/* Description of the password audit results, where a number appears next to each password. */
+"[PasswordAudit/ExposureCount/description]" = "Число показує скільки разів пароль було знайдено у відомих витоках даних.";
+
+/* Description of the Password Audit function. */
+"[PasswordAudit/Intro/text]" = "Ваші паролі перевіряються в онлайновій базі даних витоків паролів у безпечний і конфіденційний спосіб.\n\nKeePassium надішле інформацію, обчислену на основі ваших паролів — своєрідну часткову контрольну суму — сервісу [Have I Been Pwned](https://haveibeenpwned.com). Сервіс надасть у відповідь детальну інформацію про зламані паролі зі схожими контрольними сумами. Потім програма порівняє детальні контрольні суми локально на пристрої і визначить, які з ваших паролів знаходяться в зоні ризику.\n\nВаші фактичні паролі ніколи не надаються онлайновим сервісам.\n[Дізнатися більше…](%@)";
+
+/* Result of a password audit. */
+"[PasswordAudit/Results/allGood]" = "Гарна новина! Жоден із ваших паролів не було розкрито під час відомих витоків даних.";
+
+/* Title of a list with passwords that are known to have been exposed in online breaches. */
+"[PasswordAudit/Results/title]" = "Зламані паролі";
+
+/* Action/button: intiate password audit */
+"[PasswordAudit/Start/action]" = "Почати перевірку";
+
+/* Title of a screen to check which passwords are known to be compromised. */
+"[PasswordAudit/title]" = "Перевірка паролів";
+
+/* Password quality description. For example: `Password quality: Weak`. [level: String] */
+"[PasswordQuality/description]" = "Якість пароля: %@";
+
+/* Almost good password quality */
+"[PasswordQuality/Level] Almost good" = "Майже хороший";
+
+/* Good password quality */
+"[PasswordQuality/Level] Good" = "Хороший";
+
+/* Very good password quality */
+"[PasswordQuality/Level] Very good" = "Дуже хороший";
+
+/* Very weak password quality */
+"[PasswordQuality/Level] Very weak" = "Дуже слабкий";
+
+/* Weak password quality */
+"[PasswordQuality/Level] Weak" = "Слабкий";
+
+/* Password quality description. For example: `Very good (234 bits of entropy)`. [level: String, formattedBitCount: String] */
+"[PasswordQuality/LevelWithEntropy/description]" = "%1$@ (%2$@ ентропії)";
+
 /* Action/button to make password visible as plain-text */
 "[ProtectedTextField] Show Password" = "Показати пароль";
+
+/* Title of the confirmation dialog for `Delete` action for several items */
+"[Selection/Delete/confirmation]" = "Видалити вибране?";
+
+/* Title of the confirmation dialog for `Exclude from audit` action for several items */
+"[Selection/ExcludeFromAudit/confirmation]" = "Вилучити вибране з перевірки паролів?";
+
+/* Action/button to create a new item tag */
+"[Tags/Create/action]" = "Створити тег";
+
+/* Call to action/hint inside a text input */
+"[Tags/Create/placeholder]" = "Введіть назву тегу";
+
+/* Title of the tag creation dialog */
+"[Tags/Create/title]" = "Новий тег";
+
+/* Status message with a call to action */
+"[Tags/None/placeholder]" = "У базі паролів немає тегів. Ви можете їх додати.";
+
+/* Status message: tag search result is empty */
+"[Tags/Search/emptyResult]" = "Відповідних тегів не знайдено.";
+
+/* Title of a list with all the tags existing in the database. */
+"[Tags/Section/All]" = "Усі теги";
+
+/* Title of a list with tags used by parent groups. */
+"[Tags/Section/Inherited]" = "Успадковані теги";
+
+/* Title of a list with tags chosen by the user for a specific entry or group. */
+"[Tags/Section/Selected]" = "Вибрані теги";
+
+/* Title: the number of times a tag is encountered in the database. */
+"[Tags/UsageCount/title]" = "Кількість використань";
 

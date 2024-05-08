@@ -43,11 +43,32 @@
 /* Title of a dialog for renaming an attached file */
 "[Entry/Files/Rename/title] Rename File" = "Cambiar nombre del archivo";
 
+/* Title of entry viewer's tab with files attached to the entry */
+"[Entry/Tab/Files/title]" = "Archivos";
+
+/* Title of entry viewer's tab with the entry's main information */
+"[Entry/Tab/General/title]" = "General";
+
+/* Title of entry viewer's tab with previous revisions of the entry */
+"[Entry/Tab/History/title]" = "Historial";
+
+/* Title of entry viewer's tab with advanced/secondary properties */
+"[Entry/Tab/More/title]" = "Más";
+
 /* Menu title. For example: `About KeePassium`. [appName: String] */
 "[Menu/About/title]" = "Acerca de %@";
 
 /* Menu title: app settings */
 "[Menu/Preferences/title]" = "Preferencias…";
+
+/* Action/button */
+"[Onboarding/AddExistingDatabase/action]" = "Añadir base de datos existente";
+
+/* Action/button to set up the App Protection feature. Not a call to action. */
+"[Onboarding/AppProtection/activate]" = "Activada protección de aplicaciones";
+
+/* Action/button */
+"[Onboarding/CreateNewDatabase/action]" = "Crear base de datos nueva";
 
 /* Action/button to make password visible as plain-text */
 "[ProtectedTextField] Show Password" = "Mostrar contraseña";

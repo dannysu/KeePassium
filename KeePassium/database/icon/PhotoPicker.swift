@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -9,14 +9,14 @@
 //  Created by Igor Kulman on 19.03.2021.
 
 import Foundation
-import PhotosUI
 import KeePassiumLib
+import PhotosUI
 
 struct PhotoPickerImage {
     var image: UIImage
     var name: String?
-    
-    public static func from(_ info: [UIImagePickerController.InfoKey : Any]) -> PhotoPickerImage? {
+
+    public static func from(_ info: [UIImagePickerController.InfoKey: Any]) -> PhotoPickerImage? {
         guard let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
         else {
             return nil
@@ -24,7 +24,7 @@ struct PhotoPickerImage {
         let imageURL = info[UIImagePickerController.InfoKey.imageURL] as? URL
         return PhotoPickerImage(image: originalImage, name: imageURL?.lastPathComponent)
     }
-    
+
     public static func from(_ image: UIImage?, name: String?) -> PhotoPickerImage? {
         guard let image = image else {
             return nil
@@ -33,7 +33,7 @@ struct PhotoPickerImage {
     }
 }
 
-typealias PhotoPickerCompletion = (Result<PhotoPickerImage?, Error>) ->Void
+typealias PhotoPickerCompletion = (Result<PhotoPickerImage?, Error>) -> Void
 
 protocol PhotoPicker {
     func pickImage(from viewController: UIViewController, completion: @escaping PhotoPickerCompletion)
@@ -42,13 +42,9 @@ protocol PhotoPicker {
 final class PhotoPickerFactory {
 
     static func makePhotoPicker() -> PhotoPicker {
-        if #available(iOS 14, *) {
-            return PHPickerViewControllerPhotoPicker()
-        } else {
-            return UIImagePickerControllerPhotoPicker(sourceType: .savedPhotosAlbum)
-        }
+        return PHPickerViewControllerPhotoPicker()
     }
-    
+
     static func makeCameraPhotoPicker() -> PhotoPicker {
         return UIImagePickerControllerPhotoPicker(sourceType: .camera)
     }
@@ -89,20 +85,19 @@ private final class UIImagePickerControllerPhotoPicker:
 
     func imagePickerController(
         _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any])
-    {
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
         imagePicker.dismiss(animated: true) { [weak self] in
             let pickedImage = PhotoPickerImage.from(info)
             self?.completion?(.success(pickedImage))
         }
     }
-    
+
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         completion?(.success(nil))
     }
 }
 
-@available(iOS 14, *)
 private final class PHPickerViewControllerPhotoPicker:
     NSObject,
     PhotoPicker,
@@ -118,7 +113,7 @@ private final class PHPickerViewControllerPhotoPicker:
         configuration.filter = .images
         picker = PHPickerViewController(configuration: configuration)
         super.init()
-        
+
         picker.delegate = self
         picker.presentationController?.delegate = self
     }
@@ -165,7 +160,7 @@ private final class PHPickerViewControllerPhotoPicker:
             }
         }
     }
-    
+
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         completion?(.success(nil))
     }

@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 //
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -21,24 +21,24 @@ final class TipBoxVC: UIViewController {
     @IBOutlet private weak var spinner: UIActivityIndicatorView!
     @IBOutlet private weak var statusLabel: UILabel!
     @IBOutlet private weak var thankYouLabel: UILabel!
-    
+
     public weak var delegate: TipBoxDelegate?
-    
+
     private var products = [SKProduct]()
     private var purchaseButtons = [UIButton]() 
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         navigationItem.title = LString.tipBoxTitle3
         descriptionLabel.attributedText = getDescription()
         thankYouLabel.text = LString.tipBoxThankYou
         setStatus(busy: false, text: nil, animated: false)
-        
+
         updatePurchaseButtons()
         delegate?.didFinishLoading(self)
     }
-    
+
     public func setStatus(busy: Bool, text: String?, animated: Bool) {
         view.isUserInteractionEnabled = !busy
         statusLabel.text = text
@@ -66,7 +66,7 @@ final class TipBoxVC: UIViewController {
             }
         )
     }
-    
+
     public func setThankYou(visible: Bool) {
         let shouldHide = !visible
         guard thankYouLabel.isHidden != shouldHide else { 
@@ -87,21 +87,21 @@ final class TipBoxVC: UIViewController {
             completion: nil
         )
     }
-    
+
     public func setProducts(_ products: [SKProduct]) {
         self.products = products
         if isViewLoaded {
             updatePurchaseButtons()
         }
     }
-    
+
     private func updatePurchaseButtons() {
         buttonsStackView.arrangedSubviews.forEach {
             buttonsStackView.removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
         purchaseButtons.removeAll()
-        
+
         let buttonTitles = products.map { $0.localizedPrice }
         for buttonTitle in buttonTitles {
             let button = makePurchaseButton(buttonTitle)
@@ -109,27 +109,18 @@ final class TipBoxVC: UIViewController {
             purchaseButtons.append(button)
         }
     }
-    
+
     private func makePurchaseButton(_ title: String) -> UIButton {
-        let button = UIButton(frame: .zero)
-        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
-        button.titleLabel?.lineBreakMode = .byWordWrapping
-        button.titleLabel?.numberOfLines = 1
-        button.setTitleColor(UIColor.actionTint, for: .normal)
-        button.borderColor = .actionTint
-        button.borderWidth = 1
-        button.cornerRadius = 10
-        button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-        button.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
-        button.widthAnchor
-            .constraint(greaterThanOrEqualToConstant: 70)
-            .setPriority(.required)
-            .activate()
-        button.setTitle(title, for: .normal)
+        var buttonConfig = UIButton.Configuration.filled()
+        buttonConfig.title = title
+        buttonConfig.titleLineBreakMode = .byWordWrapping
+        buttonConfig.titlePadding = 8
+        buttonConfig.background.cornerRadius = 10
+        let button = UIButton(configuration: buttonConfig)
         button.addTarget(self, action: #selector(didPressPurchaseButton(_:)), for: .touchUpInside)
         return button
     }
-    
+
     @objc
     private func didPressPurchaseButton(_ sender: UIButton) {
         guard let buttonIndex = purchaseButtons.firstIndex(of: sender) else {
@@ -147,7 +138,7 @@ final class TipBoxVC: UIViewController {
     }
 }
 
-extension TipBoxVC {    
+extension TipBoxVC {
     private func getDescription() -> NSAttributedString {
         let lines = TestHelper.getCurrent(from: [
             [LString.tipBoxDescription1, LString.tipBoxCallToAction1],
@@ -157,7 +148,7 @@ extension TipBoxVC {
         let text = lines.joined(separator: "\n")
         return makeAttributedString(text: text)
     }
-    
+
     private func makeAttributedString(text: String) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .natural
@@ -165,9 +156,9 @@ extension TipBoxVC {
         paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.paragraphSpacing = 6.0
         paragraphStyle.paragraphSpacingBefore = 6.0
-        
+
         let font = UIFont.preferredFont(forTextStyle: .body)
-        
+
         let attributedText = NSMutableAttributedString(
             string: text,
             attributes: [
@@ -175,13 +166,11 @@ extension TipBoxVC {
                 NSAttributedString.Key.paragraphStyle: paragraphStyle
             ]
         )
-        if #available(iOS 13, *) {
-            attributedText.addAttribute(
-                .foregroundColor,
-                value: UIColor.primaryText,
-                range: NSRange(0..<attributedText.length)
-            )
-        }
+        attributedText.addAttribute(
+            .foregroundColor,
+            value: UIColor.primaryText,
+            range: NSRange(0..<attributedText.length)
+        )
         return attributedText
     }
 }

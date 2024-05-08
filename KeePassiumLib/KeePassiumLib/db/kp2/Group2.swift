@@ -1,5 +1,5 @@
 //  KeePassium Password Manager
-//  Copyright © 2018–2023 Andrei Popleteev <info@keepassium.com>
+//  Copyright © 2018–2024 KeePassium Labs <info@keepassium.com>
 // 
 //  This program is free software: you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License version 3 as published
@@ -17,20 +17,13 @@ public class Group2: Group {
     public var lastTopVisibleEntryUUID: UUID
     public var usageCount: UInt32
     public var locationChangedTime: Date
-    public var previousParentGroupUUID: UUID 
-    public var tags: String 
-    public var customData: CustomData2 
-    
-    override public var isIncludeEntriesInSearch: Bool {
-        if let isSearchingEnabled = isSearchingEnabled {
-            return isSearchingEnabled
-        }
-        guard let parent2 = parent as? Group2 else {
-            return true
-        }
-        return parent2.isIncludeEntriesInSearch
+    public var previousParentGroupUUID: UUID
+    public var customData: CustomData2
+
+    override public var isIncludeChildrenInSearch: Bool {
+        return resolvingIsSearchingEnabled()
     }
-    
+
     override init(database: Database?) {
         isExpanded = true
         customIconUUID = UUID.ZERO
@@ -41,14 +34,14 @@ public class Group2: Group {
         usageCount = 0
         locationChangedTime = Date.now
         previousParentGroupUUID = UUID.ZERO
-        tags = ""
         customData = CustomData2(database: database)
         super.init(database: database)
+        tags = []
     }
     deinit {
         erase()
     }
-    
+
     override public func erase() {
         super.erase()
         isExpanded = true
@@ -60,16 +53,16 @@ public class Group2: Group {
         usageCount = 0
         locationChangedTime = Date.now
         previousParentGroupUUID.erase()
-        tags = ""
+        tags.erase()
         customData.erase()
     }
-    
+
     override public func clone(makeNewUUID: Bool) -> Group {
         let copy = Group2(database: database)
         apply(to: copy, makeNewUUID: makeNewUUID)
         return copy
     }
-    
+
     override public func apply(to target: Group, makeNewUUID: Bool) {
         super.apply(to: target, makeNewUUID: makeNewUUID)
         guard let targetGroup2 = target as? Group2 else {
@@ -89,36 +82,56 @@ public class Group2: Group {
         targetGroup2.tags = tags
         targetGroup2.customData = customData.clone()
     }
-    
+
+    public func resolvingIsSearchingEnabled() -> Bool {
+        if let isSearchingEnabled { // nil means "check parent"
+            return isSearchingEnabled
+        }
+        guard let parent2 = parent as? Group2 else {
+            return true
+        }
+        return parent2.resolvingIsSearchingEnabled()
+    }
+
+    public func resolvingIsAutoTypeEnabled() -> Bool {
+        if let isAutoTypeEnabled { // nil means "check parent"
+            return isAutoTypeEnabled
+        }
+        guard let parent2 = parent as? Group2 else {
+            return true
+        }
+        return parent2.resolvingIsAutoTypeEnabled()
+    }
+
     override public func createEntry(detached: Bool = false) -> Entry {
         let newEntry = Entry2(database: database)
         newEntry.uuid = UUID()
         newEntry.isDeleted = self.isDeleted
-        
+
         if iconID != Group.defaultIconID && iconID != Group.defaultOpenIconID {
             newEntry.iconID = self.iconID
         }
         newEntry.customIconUUID = self.customIconUUID
-        
+
         if !detached {
             self.add(entry: newEntry)
         }
         return newEntry
     }
-    
+
     override public func createGroup(detached: Bool = false) -> Group {
         let newGroup = Group2(database: database)
         newGroup.uuid = UUID()
         newGroup.iconID = self.iconID
         newGroup.customIconUUID = self.customIconUUID
         newGroup.isDeleted = self.isDeleted
-        
+
         if !detached {
             self.add(group: newGroup)
         }
         return newGroup
     }
-    
+
     override public func touch(_ mode: DatabaseItem.TouchMode, updateParents: Bool = true) {
         usageCount += 1
         super.touch(mode, updateParents: updateParents)
@@ -129,7 +142,7 @@ public class Group2: Group {
         super.move(to: newGroup)
         self.locationChangedTime = Date.now
     }
-    
+
     func load(
         xml: AEXMLElement,
         formatVersion: Database2.FormatVersion,
@@ -139,15 +152,15 @@ public class Group2: Group {
     ) throws {
         assert(xml.name == Xml2.group)
         Diag.verbose("Loading XML: group")
-        
+
         let parent = self.parent
         erase()
         self.parent = parent
-        
+
         let db2: Database2 = database as! Database2
         let meta: Meta2 = db2.meta
         var isRecycleBin = false
-        
+
         for tag in xml.children {
             switch tag.name {
             case Xml2.uuid:
@@ -182,13 +195,13 @@ public class Group2: Group {
             case Xml2.lastTopVisibleEntry:
                 self.lastTopVisibleEntryUUID = UUID(base64Encoded: tag.value) ?? UUID.ZERO
             case Xml2.previousParentGroup:
-                assert(formatVersion >= .v4_1)
+                assert(formatVersion.supports(.previousParentGroup))
                 self.previousParentGroupUUID = UUID(base64Encoded: tag.value) ?? UUID.ZERO
             case Xml2.tags:
-                assert(formatVersion >= .v4_1)
-                self.tags = tag.value ?? ""
+                assert(formatVersion.supports(.groupTags))
+                self.tags = parseItemTags(xml: tag)
             case Xml2.customData:
-                assert(formatVersion >= .v4)
+                assert(formatVersion.supports(.customData))
                 try customData.load(
                     xml: tag,
                     streamCipher: streamCipher,
@@ -227,7 +240,7 @@ public class Group2: Group {
             deepSetDeleted(true)
         }
     }
-    
+
     private func parseTimestamp(
         value: String?,
         tag: String,
@@ -246,11 +259,11 @@ public class Group2: Group {
         }
         return time
     }
-    
+
     func loadTimes(xml: AEXMLElement, timeParser: Database2XMLTimeParser) throws {
         assert(xml.name == Xml2.times)
         Diag.verbose("Loading XML: group times")
-        
+
         for tag in xml.children {
             switch tag.name {
             case Xml2.lastModificationTime:
@@ -293,7 +306,7 @@ public class Group2: Group {
             }
         }
     }
-    
+
     func toXml(
         formatVersion: Database2.FormatVersion,
         streamCipher: StreamCipher,
@@ -310,7 +323,7 @@ public class Group2: Group {
                 name: Xml2.customIconUUID,
                 value: customIconUUID.base64EncodedString())
         }
-        
+
         let xmlTimes = AEXMLElement(name: Xml2.times)
         xmlTimes.addChild(
             name: Xml2.creationTime,
@@ -340,7 +353,7 @@ public class Group2: Group {
         xmlGroup.addChild(
             name: Xml2.defaultAutoTypeSequence,
             value: defaultAutoTypeSequence)
-        
+
         if let isAutoTypeEnabled = self.isAutoTypeEnabled {
             xmlGroup.addChild(
                 name: Xml2.enableAutoType,
@@ -348,7 +361,7 @@ public class Group2: Group {
         } else {
             xmlGroup.addChild(name: Xml2.enableAutoType, value: Xml2.null)
         }
-        
+
         if let isSearchingEnabled = self.isSearchingEnabled {
             xmlGroup.addChild(
                 name: Xml2.enableSearching,
@@ -361,19 +374,24 @@ public class Group2: Group {
             name: Xml2.lastTopVisibleEntry,
             value: lastTopVisibleEntryUUID.base64EncodedString())
 
-        if formatVersion >= .v4_1 {
+        if formatVersion.supports(.previousParentGroup) {
             if previousParentGroupUUID != UUID.ZERO {
                 xmlGroup.addChild(
                     name: Xml2.previousParentGroup,
                     value: previousParentGroupUUID.base64EncodedString())
             }
-            xmlGroup.addChild(name: Xml2.tags, value: tags)
         }
-        
-        if formatVersion >= .v4 && !customData.isEmpty{
+
+        if formatVersion.supports(.groupTags) {
+            xmlGroup.addChild(name: Xml2.tags, value: itemTagsToString(tags))
+        }
+
+        if formatVersion.supports(.customData),
+           !customData.isEmpty
+        {
             xmlGroup.addChild(customData.toXml(timeFormatter: timeFormatter))
         }
-        
+
         for entry in entries {
             let entry2 = entry as! Entry2
             let entryXML = try entry2.toXml(

@@ -10,6 +10,12 @@
 /* Call to action: perform accessibilty `activate` action to listen to text/content. */
 "[Accessibility/activateToListen]" = "Активируйте, чтобы прослушать.";
 
+/* Short name of the default/system font. For example: `Font: Default` */
+"[Appearance/DefaultFont/shortTitle]" = "Стандартный";
+
+/* Title of a setting option: font */
+"[Appearance/Font/title]" = "Шрифт";
+
 /* Title of a setting option: font size */
 "[Appearance/TextSize/title]" = "Размер текста";
 
@@ -42,6 +48,9 @@
 
 /* Type of keyboard to show for App Lock passcode: digits only (PIN code). */
 "[AppLock/Passcode/KeyboardType/title] Numeric" = "Цифровая";
+
+/* Notification for business users when they set up too weak app protection passcode. */
+"[AppLock/Passcode/orgRequiresStonger]" = "Ваша организация требует использовать более сложный код доступа.";
 
 /* Hint/call to action about keyboard shortcut */
 "[AppLock/Passcode/pressEscForTouchID]" = "Нажмите Esc для Touch ID";
@@ -136,8 +145,62 @@
 /* Action: add/import an image as a custom icon */
 "[Database/CustomIcon/add]" = "Добавить свой значок";
 
+/* Action: download icon of a website */
+"[Database/CustomIcon/DownloadFavicon/action]" = "Загрузить значок сайта";
+
+/* Action/button to download favicons of websites mentioned in selected entries. */
+"[Database/CustomIcon/DownloadFavicons/action]" = "Загрузка значков сайтов";
+
+/* Report of favicon download results. */
+"[Database/CustomIcon/DownloadFavicons/stats]" = "Обработано записей: %1$d\nОбновлено значков: %2$d";
+
+/* Status message: multiple website favicons are being downloaded */
+"[Database/CustomIcon/DownloadFavicons/status]" = "Загрузка значков сайтов";
+
+/* Status message: a website favicon is being downloaded */
+"[Database/CustomIcon/DownloadOneFavicon/status]" = "Загрузка значка сайта";
+
 /* Message to confirm deletion of a database file. (This deletes the file itself) */
 "[Database/Delete/Confirm/text] Delete database file?\n Make sure you have a backup." = "Удалить файл базы паролей?\nУбедитесь, что у вас есть резервная копия.";
+
+/* Action to modify database encryption settings. */
+"[Database/EncryptionSettings/Change/action]" = "Изменить настройки шифрования";
+
+/* Parameter name in database encryption settings. Example: 'Encryption Algorithm: AES-256' */
+"[Database/EncryptionSettings/dataCipher]" = "Алгоритм шифрования";
+
+/* Parameter name in database encryption settings. Defines the number of times/iterations a calculation (transform) should be executed. Example: 'Transform Rounds: 100' */
+"[Database/EncryptionSettings/iterations]" = "Циклов преобразования";
+
+/* Parameter name in database encryption settings. This is a term, see https://en.wikipedia.org/wiki/Key_derivation_function. Example: 'Key Derivation Function: Argon2' */
+"[Database/EncryptionSettings/kdf]" = "Функция формирования ключа";
+
+/* Parameter name in database encryption settings. Defines the amount of memory that should be used by an algorithm. Example: 'Memory Usage: 16 MB' */
+"[Database/EncryptionSettings/memory]" = "Использование памяти";
+
+/* Warning for too high value of the `Memory usage` parameter in database encryption settings. */
+"[Database/EncryptionSettings/memoryAutoFillWarning]" = "Высокие требования к памяти могут сделать эту базу несовместимой с функцией автозаполнения паролей.";
+
+/* Action/button button in database encryption settings. Resets the settings to recommended values. */
+"[Database/EncryptionSettings/reset]" = "Восстановить рекомендуемые настройки";
+
+/* Parameter name in database encryption settings. Defines the number of computations to run in parallel/simultaneously. Example: 'Parallelism: 2 threads' */
+"[Database/EncryptionSettings/threads]" = "Параллелизм";
+
+/* Title: database encryption settings. */
+"[Database/EncryptionSettings/title]" = "Настройки шифрования";
+
+/* Info message when changing database file format. */
+"[Database/FormatVersion/Conversion/allDataPreserved]" = "Все ваши данные будут сохранены.";
+
+/* Info message when the app needs to change database file format. [oldFormat, newFormat: String] */
+"[Database/FormatVersion/Upgrade/text]" = "Необходимо обновить формат базы данных (с %1$@ на %2$@). Может потребоваться обновить другие приложения, использующие эту базу данных.";
+
+/* Title of an info message when the app needs to change database file format. */
+"[Database/FormatVersion/Upgrade/title]" = "Прежде чем продолжить";
+
+/* Status of a database item (entry or group) after it was edited. */
+"[Database/Item/Edited/state]" = "Изменено";
 
 /* Notification when user tries to copy data from KDBX to older KDB database. */
 "[Database/LesserTargetFormat/warning]" = "Это старый формат базы данных, некоторые данные могут быть потеряны.";
@@ -175,6 +238,9 @@
 /* Status message: loading a database */
 "[Database/Loading/Status] Loading..." = "Загрузка...";
 
+/* Action/button: change master key of a database. */
+"[Database/MasterKey/Change/action]" = "Сменить мастер-ключ";
+
 /* Notification after changing database master key */
 "[Database/MasterKey/changed] Master key successfully changed" = "Мастер-ключ успешно изменён";
 
@@ -202,6 +268,9 @@
 /* Title of a warning message, shown after opening a problematic database */
 "[Database/Opened/Warning/title] Your database is ready, but there was an issue." = "База паролей готова, но есть проблема.";
 
+/* Title of a list with database-related actions (e.g. lock database, change master key, etc) */
+"[Database/Operations/title]" = "Операции с базой данных";
+
 /* Status message: preparing database print preview. */
 "[Database/Print/preparingPreview]" = "Подготовка просмотра…";
 
@@ -226,8 +295,17 @@
 /* Suggested solution/call to action when intermediate sync app fails. */
 "[Database/RecommendRemote/callToAction]" = "Попробуйте подключиться к удалённому хранилищу прямо из KeePassium.";
 
+/* Action/button */
+"[Database/Reload/action]" = "Перезагрузить базу данных";
+
 /* Message to confirm removal of database file from the app. (This keeps the file, but removes its reference from the app.) */
 "[Database/Remove/Confirm/text] Remove database from the list?\n The file will remain intact and you can add it again later." = "Убрать базу паролей из списка?\nФайл останется нетронутым, вы сможете добавить его позже.";
+
+/* Action/button to save the current database. */
+"[Database/Save/action] Save Database" = "Сохранить базу паролей";
+
+/* Action/button to save file to a remote server. */
+"[Database/SaveToServer/action]" = "Сохранить на сервер";
 
 /* Status message: finished saving a database */
 "[Database/Saving/Status] Done" = "Готово";
@@ -463,6 +541,9 @@
 /* Notification/confirmation message */
 "[Diagnostics] Diagnostic log has been copied to clipboard." = "Журнал диагностики скопирован в буфер обмена.";
 
+/* Action: select a different icon for an item */
+"[EditEntry/Icon/change]" = "Сменить значок";
+
 /* Action: choose a username from a list */
 "[EditEntry/UserName/choose]" = "Выбрать";
 
@@ -499,6 +580,12 @@
 /* Action: copy a reference to the selected entry field to clipboard */
 "[Entry/Field/CopyReference/action]" = "Скопировать ссылку на поле";
 
+/* Action: display text using large font */
+"[Entry/Field/LargeType/action]" = "Показать крупным шрифтом";
+
+/* Name of an entry field */
+"[Entry/Field/name] Icon" = "Значок";
+
 /* Name of an entry field */
 "[Entry/Field/name] Notes" = "Заметки";
 
@@ -513,6 +600,9 @@
 
 /* Name of an entry field */
 "[Entry/Field/name] User Name" = "Имя";
+
+/* Name of an entry field */
+"[Entry/Field/tags] Tags" = "Теги";
 
 /* Status message: loading file to be attached to an entry */
 "[Entry/Files/Add] Loading attachment file" = "Загрузка прикреплённого файла";
@@ -565,6 +655,9 @@
 /* Error message shown when there's internal inconsistency in KeePassium. */
 "[FileAccessError/internalError]" = "Внутренняя ошибка KeePassium. Пожалуйста, сообщите нам об этом.";
 
+/* Error message: organization's IT administrator has forbidden access to a data storage location. */
+"[FileAccessError/ManagedAccessDenied/title]" = "Доступ к этому хранилищу отключён вашей организацией.";
+
 /* Error message: network access is forbidden by system or app settings. */
 "[FileAccessError/NetworkAccessDenied/generic]" = "Сетевой доступ заблокирован в настройках.";
 
@@ -582,6 +675,12 @@
 
 /* Suggestion for error recovery */
 "[FileAccessError/OneDriveReadOnly/recoverySuggestion]" = "Используйте функцию экспорта, чтобы сохранить файл в другом месте.";
+
+/* Error message for file with an expired access permission [fileName: String]. */
+"[FileAccessError/PermissionRequired/reason]" = "KeePassium требуется разрешение на доступ к '%@'.";
+
+/* Action/button for error recovery */
+"[FileAccessError/PermissionRequired/recoveryAction]" = "Выберите файл заново, чтобы разрешить доступ";
 
 /* Error message: storage provider app (e.g. Google Drive) does not respond to requests (quickly enough). */
 "[FileAccessError/Timeout/genericFileProvider]" = "Хранилище файлов не отвечает.";
@@ -640,6 +739,9 @@
 /* Localized name of the storage service: Boxcryptor (https://boxcryptor.com) */
 "[FileProvider/Boxcryptor/name]" = "Boxcryptor";
 
+/* Localized name of the storage service: Cryptomator (https://cryptomator.org) */
+"[FileProvider/Cryptomator/name]" = "Cryptomator";
+
 /* Localized name of the storage service: Dropbox (https://dropbox.com) */
 "[FileProvider/Dropbox/name]" = "Dropbox";
 
@@ -651,6 +753,9 @@
 
 /* Localized name of the storage service iCloud Drive (https://icloud.com/iclouddrive) */
 "[FileProvider/iCloud Drive/name]" = "iCloud Drive";
+
+/* Localized name of the storage service: MagentaCLOUD (https://www.telekom.de/zubuchoptionen/magenta-cloud) */
+"[FileProvider/MagentaCloud/name]" = "MagentaCLOUD";
 
 /* Localized name of the storage service: MEGA (https://mega.nz) */
 "[FileProvider/Mega.nz/name]" = "MEGA.nz";
@@ -672,6 +777,9 @@
 
 /* Localized name of the storage service: pCloud (https://pcloud.com) */
 "[FileProvider/pCloud/name]" = "pCloud";
+
+/* Localized name of the storage service: Proton Drive (https://proton.me/drive) */
+"[FileProvider/ProtonDrive/name]" = "Proton Drive";
 
 /* Localized name of the storage service: QNAP Qfile (https://apps.apple.com/app/qfile/id526330408) */
 "[FileProvider/qnapQFile/name]" = "Qfile";
@@ -781,6 +889,9 @@
 /* Action/button to export an item to another app */
 "[Generic] Export" = "Экспорт";
 
+/* Action/button shown below error messages. Tapping the button will start the fixing/repairing workflow described in the error message. */
+"[Generic] Fix this" = "Исправить это";
+
 /* Action/button to view more help/info about some topic */
 "[Generic] Learn more" = "Подробнее…";
 
@@ -829,6 +940,12 @@
 /* Checkbox/Button to show a text field in its full size */
 "[Generic] Show more" = "Развернуть";
 
+/* Action/button to skip the current step and proceed with the next one */
+"[Generic] Skip" = "Пропустить";
+
+/* Action/button to select some items in a list. */
+"[Generic/Action/SelectItems]" = "Выбрать";
+
 /* Message to confirm deletion of an item. */
 "[Generic/ConfirmDelete/title] Are you sure?" = "Вы уверены?";
 
@@ -862,6 +979,9 @@
 /* Title of a list with predefined quick-choice values (for example: 'Presets: 1 week, 1 months, 1 year') */
 "[Generic/Presets]" = "Предустановки";
 
+/* Action: refresh list of items, usually files */
+"[Generic/RefreshList/action]" = "Обновить список";
+
 /* Title of a search field (a noun, not verb) */
 "[Generic/Search/title]" = "Поиск";
 
@@ -873,6 +993,9 @@
 
 /* Title of an warning message */
 "[Generic/title] Warning" = "Внимание";
+
+/* Warning message template. Swap the icon and message for right-to-left languages. */
+"[Generic/WarningWithIcon/template]" = "⚠️ %@";
 
 /* VoiceOver description of a group [groupTitle: String, itemCount: Int] */
 "[Group/a11y/description]" = "%@, группа";
@@ -894,6 +1017,9 @@
 
 /* Title of the confirmation dialog for `Empty Recycle Bin` action */
 "[Group/RecycleBin/Empty/confirmTitle]" = "Окончательно удалить всё в Корзине?";
+
+/* Title of an input field for group name */
+"[GroupEditor/Name/placeholder]" = "Название группы";
 
 /* An option in Group Viewer settings. Example: 'Sort Order: By Creation Date (New..Old)' */
 "[GroupSortOrder/longTitle] By Creation Date (New..Old)" = "По дате создания (новые..старые)";
@@ -922,11 +1048,26 @@
 /* Name of an input field which shows selected hardware key */
 "[HardwareKey/Field/title]" = "Аппаратный ключ";
 
+/* Connector type for older Apple devices, used through a USB adapter. https://en.wikipedia.org/wiki/Lightning_(connector) */
+"[HardwareKey/Interface/LightningViaUSBAdapter]" = "Lightning (через USB-адаптер)";
+
+/* A notice for hardware keys that need an adapter for physical connection to device. */
+"[HardwareKey/LightningOverUSB/RequiresAdapter]" = "Требуется адаптер Apple USB-C to Lightning";
+
 /* A notification that NFC (Near Field Communication) interface is not supported by the current iOS version. */
 "[HardwareKey/NFC/OS too old]" = "Для NFC требуется iOS 13 или более новая версия.";
 
 /* Master key/unlock option: don't use hardware keys */
 "[HardwareKey/None] No Hardware Key" = "Без аппаратного ключа";
+
+/* Title of a list with possible hardware key connections */
+"[HardwareKey/Picker/title]" = "Аппаратные ключи";
+
+/* Information notice. 'Challenge-response' is a glossary term. */
+"[HardwareKey/USB/chalRespNotSupported]" = "Это устройство не поддерживает аутентификацию вызов-ответ по USB соединению.";
+
+/* Information notice */
+"[HardwareKey/USB/iPadAppOnMac]" = "USB соединение недоступно, поскольку это iPad-приложение в среде macOS. Используйте нативное приложение для Mac.";
 
 /* Master key/unlock option: use given slot of YubiKey */
 "[HardwareKey/YubiKey/Slot] YubiKey Slot #%d" = "YubiKey слот %d";
@@ -946,6 +1087,45 @@
 /* Notification that an archived/historical item (e.g entry) has been successfully restored */
 "[Item/History/Restored]" = "Предыдущая версия восстановлена";
 
+/* Title of a list with advanced/expert-level properties of a database item (e.g. entry) */
+"[Item/Properties/Advanced/title]" = "Дополнительно";
+
+/* Possible value of the `Password AutoFill` setting. For example: 'Password AutoFill: Allowed' */
+"[Item/Properties/AutoFill/allowed]" = "Разрешено";
+
+/* Possible value of the `Password AutoFill` setting. For example: 'Password AutoFill: Disabled' */
+"[Item/Properties/AutoFill/disabled]" = "Отключено";
+
+/* Title of a setting: whether the item (e.g. entry) should be used in AutoFill feature. App-specific setting for KeePassXC. */
+"[Item/Properties/AutoFill/KeePassXC/title]" = "Автозаполнение паролей (KeePassXC)";
+
+/* Title of a setting: whether the item (e.g. entry) should be used in AutoFill feature */
+"[Item/Properties/AutoFill/title]" = "Автозаполнение паролей";
+
+/* Default value of an item property. For example: 'Password Audit: Inherit from parent group (Allowed)'. [inheritedValue: String] */
+"[Item/Properties/inheritedValue]" = "Наследовать от родительской группы (%@)";
+
+/* Possible value of the `Password Audit` setting. For example: 'Password Audit: Allowed' */
+"[Item/Properties/PasswordAudit/allowed]" = "Разрешён";
+
+/* Possible value of the `Password Audit` setting. For example: 'Password Audit: Disabled' */
+"[Item/Properties/PasswordAudit/disabled]" = "Отключён";
+
+/* Title of a setting: whether the item (e.g. entry) should be included in password audit */
+"[Item/Properties/PasswordAudit/title]" = "Аудит паролей";
+
+/* Possible value of the `Search` setting. Example: 'Search: Allowed' */
+"[Item/Properties/Search/allowed]" = "Разрешён";
+
+/* Possible value of the `Search` setting, when the item should be excluded from search results. Example: 'Search: Disabled' */
+"[Item/Properties/Search/disabled]" = "Отключён";
+
+/* Title of a setting: whether the item (e.g. entry) should be considered during search. Example: 'Search: Allowed' */
+"[Item/Properties/Search/title] Search" = "Поиск";
+
+/* Title of a list with item (e.g. entry) properties/settings, such as searchability, auto-typing, etc */
+"[Item/Properties/title]" = "Свойства";
+
 /* Name of an entry/group category (visual style): default one, like in KeePass */
 "[ItemCategory] Default (KeePass)" = "По умолчанию (KeePass)";
 
@@ -964,14 +1144,32 @@
 /* Error message about system keychain. */
 "[KeychainError/unexpectedFormat] Keychain error: unexpected data format" = "Ошибка при работе со связкой ключей: неожиданный формат данных";
 
+/* Action: create new key file. */
+"[KeyFile/Create/action]" = "Создать ключевой файл";
+
+/* Default name for new key files. Should match the `key file` term in the glossary. */
+"[KeyFile/Create/defaultName]" = "keyfile.dat";
+
 /* Message to confirm deletion of a key file. */
 "[KeyFile/Delete/Confirm/text] Delete key file?\n Make sure you have a backup." = "Удалить ключевой файл?\nУбедитесь, что у вас есть резервная копия.";
 
 /* Name of an input field which shows selected key file */
 "[KeyFile/Field/title]" = "Ключевой файл";
 
+/* Action: import/add a key file into the app. `Key file` is a glossary term. */
+"[KeyFile/Import/action]" = "Импортировать ключевой файл";
+
+/* Description of the `Import Key File` action. */
+"[KeyFile/Import/actionDescription]" = "Добавить файл в приложение";
+
 /* Message to confirm removal of a key file from the app. (This keeps the file, but removes its reference from the app.) */
 "[KeyFile/Remove/Confirm/text] Remove key file from the list?\n The file will remain intact and you can add it again later." = "Убрать ключевой файл из списка?\nФайл останется нетронутым, вы сможете добавить его позже.";
+
+/* Action: use a key file at its storage location, without importing to the app. */
+"[KeyFile/Use/action]" = "Выбрать ключевой файл";
+
+/* Description of the `Select Key File` action. */
+"[KeyFile/Use/actionDescription]" = "Использовать без добавления";
 
 /* Error message when the key file is misformatted or damaged */
 "[KeyFileError/Corrupted/title]" = "Ключевой файл повреждён";
@@ -1121,7 +1319,7 @@
 "[PasswordGenerator/Wordlist/EFFLarge/title]" = "Большой список EFF (7776 слов)";
 
 /* Name of a wordlist for passphrase generator. `EFF` is an organization name. */
-"[PasswordGenerator/Wordlist/EFFShort/title]" = "Малый список EFF (1296 слов)";
+"[PasswordGenerator/Wordlist/EFFShort/title]" = "Малый список EFF №%d (1296 слов)";
 
 /* List of words to be used for a passphrase. */
 "[PasswordGenerator/Wordlist/title]" = "Список слов";
@@ -1161,6 +1359,9 @@
 
 /* List of premium benefits/advantages */
 "[Premium/Benefits/Negative/header] " = "Что вы упускаете";
+
+/* Title of a premium feature */
+"[Premium/Benefits/PasswordAudit/title]" = "Проверьте пароли";
 
 /* List of premium benefits/advantages */
 "[Premium/Benefits/Positive/header] " = "Что вы получите";
@@ -1256,7 +1457,7 @@
 "[Premium/status] Valid forever" = "Навсегда";
 
 /* Status when the user has a premium version */
-"[Premium/Status/title]" = "Полная версия";
+"[Premium/Status/title]" = "Премиум версия";
 
 /* Subscription conditions */
 "[Premium/Subscription/Legal/text]" = "Оплата будет снята с вашего аккаунта Apple ID после подтверждения покупки. \n\nПодписка автоматически возобновляется, если не отменена минимум за 24 часа до конца текущего периода. Плата за продление подписки будет снята с вашего аккаунта в течение суток до окончания текущего периода. \n\nВы можете изменить или отменить подписки, зайдя в настройки своего аккаунта в App Store после покупки.";
@@ -1345,6 +1546,12 @@
 /* Title of a premium feature: ability to use multiple databases (In Title Case) */
 "[PremiumFeature/MultiDB/title] Multiple Databases" = "Несколько баз паролей";
 
+/* Description/call to action for the `Password Audit` premium feature. */
+"[PremiumFeature/PasswordAudit/description]" = "Узнайте, были ли обнародованы какие-либо ваши пароли из-за утечек данных.";
+
+/* Title of a premium feature: discover which passwords are known to be compromized */
+"[PremiumFeature/PasswordAudit/title]" = "Аудит паролей";
+
 /* Description/advertisement for the `Preview Attachments` premium feature */
 "[PremiumFeature/Preview/description] Preview images and documents directly in the app, in the premium version." = "Просматривайте изображения и документы прямо в премиум-версии программы.";
 
@@ -1404,6 +1611,9 @@
 
 /* Action: authenticate to OneDrive account */
 "[RemoteConnection/SignIn/OneDrive/action]" = "Войти в OneDrive";
+
+/* Error description: the user should manually sign in to their OneDrive account */
+"[RemoteConnection/SignIn/OneDrive/authorizationRequried]" = "Необходимо повторно войти в OneDrive.";
 
 /* No comment provided by engineer. */
 "[RemoteConnection/SignIn/PrivateMode/description]" = "Открыть страницу входа в браузере в режиме инкогнито";
@@ -1473,6 +1683,9 @@
 
 /* Title of AutoFill settings screen */
 "[Settings/AutoFill/title]" = "Автозаполнение паролей";
+
+/* No comment provided by engineer. */
+"[Settings/AutoFill/UnavailableInIntune/description]" = "Автозаполнение недоступно в KeePassium для Intune.";
 
 /* Title of an option: automatically use the single best match found by AutoFill search */
 "[Settings/AutoFill/UsePerfectMatch/title]" = "Автоматически подставлять идеальный вариант";
@@ -1567,6 +1780,9 @@
 /* Title of list view configuration screen */
 "[Settings/ListSettings/title]" = "Вид списка";
 
+/* Notification when corporate user tries to change an app setting controlled by organization's IT department. */
+"[Settings/Managed/notification]" = "Этим параметром управляет ваша организация.";
+
 /* Confirmation dialog message */
 "[Settings/NetworkAccess/Confirmation/text]" = "Разрешить KeePassium устанавливать сетевые подключения к внешним службам?";
 
@@ -1584,6 +1800,9 @@
 
 /* Setting option: the app is permitted to use online features */
 "[Settings/NetworkAccessMode/Online/title]" = "Разрешить доступ к сети";
+
+/* Action/button which resets some settings to their default state. */
+"[Settings/RestoreDefaults/action]" = "Сбросить настройки";
 
 /* Section title in settings */
 "[Settings/Search/title]" = "Поиск";
