@@ -76,6 +76,13 @@ KeePassium is [available on the App Store](https://apps.apple.com/us/app/id14351
 
 To build your own binary, download the project and open it in Xcode 10.2 (or above). All the dependencies are already included.
 
+- Open `KeePassium.xcworkspace`
+- Select "KeePassium Pro" build target
+- From the menu: Product -> Archive
+- From Archives, "Distribute App" for Debugging
+- Choose App Thining option for the particular device
+- Plug in device and then drag & drop the IPA onto the device in Finder
+
 
 ## Is it free?
 
