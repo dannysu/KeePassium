@@ -21,7 +21,7 @@ protocol NewsItem: AnyObject {
 }
 
 extension NewsItem {
-    var userDefaultsKey: String { return "com.keepassium.news." + key }
+    var userDefaultsKey: String { return "com.dannysu.keepassium.news." + key }
 
     var isHidden: Bool {
         get {

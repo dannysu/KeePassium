@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <managedAppConfiguration>
   <version>1</version>
-  <bundleId>com.keepassium.intune</bundleId>
+  <bundleId>com.dannysu.keepassium.intune</bundleId>
   <dict>
     <integer keyName="configVersion">
       <defaultValue>
@@ -770,13 +770,13 @@
           <option value="net.box.BoxNet.documentPickerFileProvider">
             <language value="en-US">Box (via Files integration)</language>
           </option>
-          <option value="com.keepassium.fileprovider.dropbox">
+          <option value="com.dannysu.keepassium.fileprovider.dropbox">
             <language value="en-US">Dropbox (direct connection)</language>
           </option>
           <option value="com.getdropbox.Dropbox.FileProvider">
             <language value="en-US">Dropbox (via Files integration)</language>
           </option>
-          <option value="com.keepassium.fileprovider.googledrive">
+          <option value="com.dannysu.keepassium.fileprovider.googledrive">
             <language value="en-US">Google Drive (direct connection)</language>
           </option>
           <option value="com.google.Drive.FileProviderExtension">
@@ -788,7 +788,7 @@
           <option value="com.apple.CloudDocs.MobileDocumentsFileProvider">
             <language value="en-US">iCloud Drive (before iOS 16.5; via Files integration)</language>
           </option>
-          <option value="com.keepassium.fileprovider.onedrive">
+          <option value="com.dannysu.keepassium.fileprovider.onedrive">
             <language value="en-US">OneDrive (direct connection)</language>
           </option>
           <option value="com.microsoft.skydrive.onedrivefileprovider">
@@ -800,7 +800,7 @@
           <option value="com.apple.filesystems.UserFS.FileProvider">
             <language value="en-US">USB storage (via Files integration)</language>
           </option>
-          <option value="com.keepassium.fileprovider.webdav">
+          <option value="com.dannysu.keepassium.fileprovider.webdav">
             <language value="en-US">WebDAV (direct connection)</language>
           </option>
         </options>

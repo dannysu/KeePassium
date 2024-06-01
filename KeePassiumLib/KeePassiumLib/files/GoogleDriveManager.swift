@@ -41,7 +41,7 @@ final public class GoogleDriveManager: NSObject, RemoteDataSourceManager {
 
     private static let backgroundQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.keepassium.GoogleDriveManager"
+        queue.name = "com.dannysu.keepassium.GoogleDriveManager"
         queue.qualityOfService = .userInitiated
         queue.maxConcurrentOperationCount = 4
         return queue

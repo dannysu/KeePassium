@@ -12,7 +12,7 @@ import MSAL
 
 final class MSALOneDriveAuthProvider: OneDriveAuthProvider {
     typealias CompletionHandler = (Result<OAuthToken, RemoteError>) -> Void
-    internal static let redirectURI = "msauth.com.keepassium.intune://auth"
+    internal static let redirectURI = "msauth.com.dannysu.keepassium.intune://auth"
 
     private let msalApplication: MSALPublicClientApplication?
     private let msalInitializationError: RemoteError?
