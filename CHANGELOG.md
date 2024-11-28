@@ -1,5 +1,81 @@
 #CHANGELOG
 
+## [1.54.155] - 2024-11-14
+
+### Added
+
+- AutoFill: Sign in using existing passkeys (#297)
+- AutoFill: Insert any field to any input via context menu (iOS 18+) (#396)
+- AutoFill: Fill out OTP codes (iOS 18+)
+
+### Changed
+
+- This version requires at least iOS 17 / macOS 14
+- Org: Updated to MSAL 1.6.1 and Intune SDK 20.1.2
+
+### Improved
+
+- Protecting key file field like a password [thanks, Jason]
+- Added possibility to download favicons for selected entries (#320)
+- Added possibility to delete unused custom icons
+- Replaced Entry Viewer tab titles with icons
+- Folder lists are sorted for all direct connections now
+- Entry Viewer indicates presence of attachments in Files tab [thanks, u/gripe_and_complain]
+- Removed post-AutoFill popups with OTP codes as redundant
+- Updated all translations [thanks, everyone]
+- Org: New parameters for managed AppConfig: `allowAppProtection`, `minimumAppPasscodeLength`, `minimumDatabasePasswordLength`, `allowDatabasePrint`, `allowDatabaseEncryptionSettings`, and default KDF settings [thanks, S.G.]
+- Org: Managed parameter `allowedFileProviders` can be defined as string [thanks, S.G.]
+- Org: OneDrive Personal and Business can be allowed/blocked separately [thanks, S.G.]
+
+### Fixed
+
+- macOS: AutoFill dialog could get stuck in a blank state (#392)
+- macOS: Tag selection/deselection did not work properly
+- AutoFill could load databases twice sometimes
+- Incorrect processing on `otpauth` URIs
+- Enforce strength checks on new app passcode and DB passwords (KEE-01-001)
+- Warn about risks of bulk favicon download (KEE-01-002)
+- Enforce reasonable KDF parameter limits (KEE-01-003)
+
+
+## [1.53.154] - 2024-09-12
+
+### Added
+
+- Support for linked databases aka AutoOpen (#202) [thanks, everyone]
+- Support for extended search syntax (closes #190 and #383) [thanks, everyone]
+- Detecting external DB changes on app activation (related #373)
+- Ability to hide local files from iOS Files / macOS Finder [thanks, everyone]
+- Added OTP overview mode in smart group (closes #8) [thanks, everyone]
+
+### Improved
+
+- Allow entry field references in free version, no longer a premium feature
+- Refined DB viewer and DB picker toolbars and menus
+- New parameters for managed AppConfig: `allowFaviconDownload` and `allowPasswordAudit` [thanks, I.R.]
+- Possibility to disable copy-to-clipboard via managed AppConfig
+- Added presets to Smart Group Editor
+- macOS: Propose app reset if launching with Ctrl pressed
+- Enable cache fallback for local DBs (#381) [thanks, Andreas]
+- AutoFill: notify user if main app's dir unavailable (closes #381) [thanks, Andreas]
+- Improved AutoFill setup workflow
+- Updated all translations [thanks, everyone]
+- Minor UI improvements here and there
+
+### Fixed
+
+- macOS: Copying of URLs (fixes #384) [thanks, Johannes]
+- macOS: Printing in "Designed for iPad" builds [thanks, Bernhard]
+- Processing WebDAV file lists without namespaces [thanks, D.J.]
+- Some toolbar buttons were untranslated in VoiceOver mode [thanks, Michael]
+- Org: Ignore local files if local storage is forbidden via AppConfig [thanks, I.R.]
+- Enforcing clipboard timeout also in text fields' menus
+- macOS: DB saving after drag-and-drop reorder and bulk operations
+- Wrapping of long group titles in DB viewer (regression in 1.53.152)
+- macOS: fixed entry selection (regression in 1.53.153)
+- DB viewer could crash when deleting in mutli-select mode
+
+
 ## [1.53.153] - 2024-07-20
 
 ### Fixed

@@ -1,6 +1,9 @@
 /* Title of the app history (changelog) screen */
 "[AppHistory/title]" = "Що нового";
 
+/* Notification when user tries to set up too weak an app protection passcode. */
+"[AppLock/weakPasscodeWarning]" = "Цей код доступу легко вгадати. Спробуйте ввести складніший.";
+
 /* Hint shown when both password and key file are empty. */
 "[Database/Create] Please enter a password or choose a key file." = "Введіть пароль або виберіть файл-ключ.";
 
@@ -36,6 +39,21 @@
 
 /* Predefined `Operating system` group in a new database */
 "[Database/Create/TemplateGroup/title] OS" = "Система";
+
+/* Notification when user sets up too weak a database password. */
+"[Database/Create/weakPasswordWarning]" = "Цей пароль легко вгадати. Спробуйте ввести складніший.";
+
+/* Description of favicon downloader feature. 'Doing this' refers to downloading favicons. */
+"[Database/DownloadFavicons/warning]" = "Якщо ви робите це в публічній або контрольованій мережі, список вебсайтів, де у вас є обліковий запис, може стати загальнодоступним.";
+
+/* Warning that one key derivation function (KDF) should be preferred to another. Example: 'AES-KDF is considered weak. Use Argon2id instead.' */
+"[Database/KDF/consideredWeak]" = "%1$@ вважається слабким. Натомість використайте %2$@.";
+
+/* Notification message about encryption settings. */
+"[Database/KDF/tooSlow]" = "Ці налаштування можуть бути занадто повільними для деяких пристроїв.";
+
+/* Call to action when encryption settings are too weak. */
+"[Database/KDF/tooWeak]" = "Змініть налаштування для покращення захисту даних.";
 
 /* Confirmation message to replace an existing entry attachment with a new one. */
 "[Entry/Files/Add] Replace existing attachment?" = "Замінити існуючий файл?";
@@ -75,6 +93,18 @@
 
 /* Title of the App Protection onboarding screen */
 "[Onboarding/AppProtection/title]" = "Лише для ваших очей";
+
+/* Action/button to set up the Password AutoFill feature. Not a call to action. */
+"[Onboarding/AutoFill/activate]" = "Увімкнути Автозаповнення";
+
+/* Text in the Password AutoFill onboarding screen. */
+"[Onboarding/AutoFill/text1]" = "Завдяки автозаповненню ви можете вводити дані на сторінках входу одним натисканням кнопки.";
+
+/* Text in the Password AutoFill onboarding screen. */
+"[Onboarding/AutoFill/text2]" = "Щоб почати, активуйте автозаповнення паролів у налаштуваннях системи.";
+
+/* Title of the Password AutoFill onboarding screen */
+"[Onboarding/AutoFill/title]" = "Автозаповнення паролів";
 
 /* Action/button */
 "[Onboarding/CreateNewDatabase/action]" = "Створити нову базу";
@@ -180,6 +210,12 @@
 
 /* Title of the tag creation dialog */
 "[Tags/Create/title]" = "Новий тег";
+
+/* Question to confirm global deletion */
+"[Tags/Delete/Confirm/message]" = "Видалити цей тег з усіх груп і записів?";
+
+/* Title of a dialog for editing a tag */
+"[Tags/Edit/title]" = "Редагування тегу";
 
 /* Status message with a call to action */
 "[Tags/None/placeholder]" = "У базі паролів немає тегів. Ви можете їх додати.";

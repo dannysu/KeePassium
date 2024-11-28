@@ -76,6 +76,7 @@ final class EntryFieldEditorCoordinator: Coordinator {
         }
 
         fieldEditorVC = EntryFieldEditorVC.instantiateFromStoryboard()
+        fieldEditorVC.title = isCreationMode ? LString.titleNewEntry : LString.titleEntry
 
         entry.touch(.accessed)
         (fields, tagsField) = setupFields(entry: entry)
@@ -84,7 +85,7 @@ final class EntryFieldEditorCoordinator: Coordinator {
         fieldEditorVC.fields = fields
         fieldEditorVC.entryIcon = UIImage.kpIcon(forEntry: entry)
         fieldEditorVC.allowsCustomFields = entry.isSupportsExtraFields
-        fieldEditorVC.allowsFaviconDownload = database is Database2
+        fieldEditorVC.supportsFaviconDownload = database is Database2
         fieldEditorVC.itemCategory = ItemCategory.get(for: entry)
         fieldEditorVC.shouldFocusOnTitleField = isCreationMode
     }
@@ -199,7 +200,6 @@ final class EntryFieldEditorCoordinator: Coordinator {
         addChildCoordinator(passGenCoordinator)
     }
 
-    @available(iOS 14, *)
     private func makeUserNameGeneratorMenu(for field: EditableField) -> UIMenu {
         let applyUserName: UIActionHandler = { action in
             field.value = action.title

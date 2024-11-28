@@ -17,7 +17,61 @@ extension ManagedAppConfig {
         getIntIfLicensed(.minimumAppPasscodeEntropy)
     }
 
+    public var minimumAppPasscodeLength: Int? {
+        getIntIfLicensed(.minimumAppPasscodeLength)
+    }
+
     public var minimumDatabasePasswordEntropy: Int? {
         getIntIfLicensed(.minimumDatabasePasswordEntropy)
+    }
+
+    public var minimumDatabasePasswordLength: Int? {
+        getIntIfLicensed(.minimumDatabasePasswordLength)
+    }
+
+    public var isPasswordAuditAllowed: Bool {
+        return getBoolIfLicensed(.allowPasswordAudit) ?? true
+    }
+
+    public var isFaviconDownloadAllowed: Bool {
+        return getBoolIfLicensed(.allowFaviconDownload) ?? true
+    }
+
+    public var isDatabaseEncryptionSettingsAllowed: Bool {
+        return getBoolIfLicensed(.allowDatabaseEncryptionSettings) ?? true
+    }
+
+    public var isDatabasePrintAllowed: Bool {
+        return getBoolIfLicensed(.allowDatabasePrint) ?? true
+    }
+
+    public var isHideAppProtectionReminder: Bool? {
+        guard isAppProtectionAllowed else {
+            return true
+        }
+        return getBoolIfLicensed(.hideAppLockSetupReminder)
+    }
+
+    public var isAppProtectionAllowed: Bool {
+        return getBoolIfLicensed(.allowAppProtection) ?? true
+    }
+
+    var kdfType: EncryptionSettings.KDFType? {
+        guard let kdfTypeString = getStringIfLicensed(.kdfType) else {
+            return nil
+        }
+        return EncryptionSettings.KDFType.make(form: kdfTypeString)
+    }
+
+    var kdfIterations: Int? {
+        return getIntIfLicensed(.kdfIterations)
+    }
+
+    var kdfMemoryInBytes: Int? {
+        return getIntIfLicensed(.kdfMemory)
+    }
+
+    var kdfParallelism: Int? {
+        return getIntIfLicensed(.kdfParallelism)
     }
 }

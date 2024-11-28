@@ -42,7 +42,6 @@ final class MainCoordinator: Coordinator {
     private var databaseViewerCoordinator: DatabaseViewerCoordinator?
 
     private let watchdog: Watchdog
-    private let localNotifications = LocalNotifications()
     private let mainWindow: UIWindow
     fileprivate var appCoverWindow: UIWindow?
     fileprivate var appLockWindow: UIWindow?
@@ -77,8 +76,6 @@ final class MainCoordinator: Coordinator {
 
         rootSplitVC.viewControllers = [primaryNavVC, placeholderNavVC]
 
-        UNUserNotificationCenter.current().delegate = localNotifications
-
         watchdog = Watchdog.shared
         watchdog.delegate = self
 
@@ -87,10 +84,8 @@ final class MainCoordinator: Coordinator {
         window.rootViewController = rootSplitVC
 
         #if targetEnvironment(macCatalyst)
-        if #available(macCatalyst 16.0, *) { 
-            let titlebar = UIApplication.shared.currentScene?.titlebar
-            titlebar?.titleVisibility = .hidden
-        }
+        let titlebar = UIApplication.shared.currentScene?.titlebar
+        titlebar?.titleVisibility = .hidden
         #endif
     }
 
@@ -100,8 +95,12 @@ final class MainCoordinator: Coordinator {
         removeAllChildCoordinators()
     }
 
-    func start(hasIncomingURL: Bool) {
+    func start(hasIncomingURL: Bool, proposeReset: Bool) {
         Diag.info(AppInfo.description)
+        guard !proposeReset else {
+            showAppResetPrompt()
+            return
+        }
         PremiumManager.shared.startObservingTransactions()
 
         FileKeeper.shared.delegate = self
@@ -127,7 +126,7 @@ final class MainCoordinator: Coordinator {
 
         #if INTUNE
         setupIntune()
-        guard let currentUser = IntuneMAMEnrollmentManager.instance().enrolledAccount(),
+        guard let currentUser = IntuneMAMEnrollmentManager.instance().enrolledAccountId(),
               !currentUser.isEmpty
         else {
             Diag.debug("Intune account missing, starting enrollment")
@@ -138,6 +137,22 @@ final class MainCoordinator: Coordinator {
         #endif
 
         runAfterStartTasks()
+    }
+
+    private func showAppResetPrompt() {
+        Diag.info("Proposing app reset")
+        let alert = UIAlertController(
+            title: AppInfo.name,
+            message: LString.confirmAppReset,
+            preferredStyle: .alert
+        )
+        alert.addAction(title: LString.actionResetApp, style: .destructive, preferred: false) { [weak self] _ in
+            self?.resetApp()
+        }
+        alert.addAction(title: LString.actionCancel, style: .cancel) { [weak self] _ in
+            self?.start(hasIncomingURL: false, proposeReset: false)
+        }
+        getPresenterForModals().present(alert, animated: true)
     }
 
     private func runAfterStartTasks() {
@@ -208,7 +223,7 @@ extension MainCoordinator {
         Diag.debug("Starting Intune enrollment")
         let enrollmentManager = IntuneMAMEnrollmentManager.instance()
         enrollmentManager.delegate = enrollmentDelegate
-        enrollmentManager.loginAndEnrollAccount(enrollmentManager.enrolledAccount())
+        enrollmentManager.loginAndEnrollAccount(enrollmentManager.enrolledAccountId())
     }
 
     private func showIntuneMessageAndRestartEnrollment(_ message: String) {
@@ -224,12 +239,12 @@ extension MainCoordinator {
     }
 
     @objc private func applyIntuneAppConfig() {
-        guard let enrolledUser = IntuneMAMEnrollmentManager.instance().enrolledAccount() else {
+        guard let enrolledUserId = IntuneMAMEnrollmentManager.instance().enrolledAccountId() else {
             assertionFailure("There must be an enrolled account by now")
             Diag.warning("No enrolled account found")
             return
         }
-        let config = IntuneMAMAppConfigManager.instance().appConfig(forIdentity: enrolledUser)
+        let config = IntuneMAMAppConfigManager.instance().appConfig(forAccountId: enrolledUserId)
         ManagedAppConfig.shared.setIntuneAppConfig(config.fullData)
     }
 
@@ -369,6 +384,18 @@ extension MainCoordinator {
 }
 
 extension MainCoordinator {
+
+    private func resetApp() {
+        Keychain.shared.reset()
+        UserDefaults.eraseAppGroupShared()
+        FileKeeper.shared.deleteBackupFiles(
+            olderThan: -TimeInterval.infinity,
+            keepLatest: false,
+            completionQueue: .main
+        ) { [weak self] in
+            self?.start(hasIncomingURL: false, proposeReset: false)
+        }
+    }
 
     private func setDatabase(
         _ databaseRef: URLReference?,
@@ -582,7 +609,7 @@ extension MainCoordinator {
 
     private func reloadDatabase(
         _ databaseFile: DatabaseFile,
-        originalRef: URLReference,
+        targetRef: URLReference,
         from databaseViewerCoordinator: DatabaseViewerCoordinator
     ) {
         let context = DatabaseReloadContext(for: databaseFile.database)
@@ -595,7 +622,25 @@ extension MainCoordinator {
             animated: true
         ) { [weak self] in
             guard let self else { return }
-            setDatabase(originalRef, autoOpenWith: context)
+            setDatabase(targetRef, autoOpenWith: context)
+        }
+    }
+
+    private func switchToDatabase(
+        _ fileRef: URLReference,
+        key: CompositeKey,
+        in databaseViewerCoordinator: DatabaseViewerCoordinator
+    ) {
+        let context = DatabaseReloadContext(key: key)
+
+        isReloadingDatabase = true
+        databaseViewerCoordinator.closeDatabase(
+            shouldLock: false,
+            reason: .userRequest,
+            animated: true
+        ) { [weak self] in
+            guard let self else { return }
+            setDatabase(fileRef, autoOpenWith: context)
         }
     }
 }
@@ -804,7 +849,7 @@ extension MainCoordinator: WatchdogDelegate {
 
     func mustCloseDatabase(_ sender: Watchdog, animate: Bool) {
         databaseViewerCoordinator?.closeDatabase(
-            shouldLock: Settings.current.premiumIsLockDatabasesOnTimeout,
+            shouldLock: Settings.current.isLockDatabasesOnTimeout,
             reason: .databaseTimeout,
             animated: animate,
             completion: nil
@@ -1089,6 +1134,14 @@ extension MainCoordinator: DatabaseViewerCoordinatorDelegate {
         originalRef: URLReference,
         in coordinator: DatabaseViewerCoordinator
     ) {
-        reloadDatabase(databaseFile, originalRef: originalRef, from: coordinator)
+        reloadDatabase(databaseFile, targetRef: originalRef, from: coordinator)
+    }
+
+    func didPressSwitchTo(
+        databaseRef: URLReference,
+        compositeKey: CompositeKey,
+        in coordinator: DatabaseViewerCoordinator
+    ) {
+        switchToDatabase(databaseRef, key: compositeKey, in: coordinator)
     }
 }

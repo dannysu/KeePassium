@@ -1,6 +1,9 @@
 /* Title of the app history (changelog) screen */
 "[AppHistory/title]" = "Novedades";
 
+/* Notification when user tries to set up too weak an app protection passcode. */
+"[AppLock/weakPasscodeWarning]" = "Este código de acceso es fácil de adivinar. Intenta introducir uno más seguro.";
+
 /* Hint shown when both password and key file are empty. */
 "[Database/Create] Please enter a password or choose a key file." = "Introduzca una contraseña o elija un archivo de clave.";
 
@@ -36,6 +39,21 @@
 
 /* Predefined `Operating system` group in a new database */
 "[Database/Create/TemplateGroup/title] OS" = "Sistema operativo";
+
+/* Notification when user sets up too weak a database password. */
+"[Database/Create/weakPasswordWarning]" = "Esta contraseña es fácil de adivinar. Intenta introducir una más segura.";
+
+/* Description of favicon downloader feature. 'Doing this' refers to downloading favicons. */
+"[Database/DownloadFavicons/warning]" = "Hacer esto en una red pública o supervisada puede exponer la lista de sitios web donde tiene una cuenta.";
+
+/* Warning that one key derivation function (KDF) should be preferred to another. Example: 'AES-KDF is considered weak. Use Argon2id instead.' */
+"[Database/KDF/consideredWeak]" = "%1$@ se considera débil. Usa %2$@ en su lugar.";
+
+/* Notification message about encryption settings. */
+"[Database/KDF/tooSlow]" = "Estos ajustes pueden ser demasiado lentos para algunos dispositivos.";
+
+/* Call to action when encryption settings are too weak. */
+"[Database/KDF/tooWeak]" = "Aumente los ajustes para una protección de datos óptima.";
 
 /* Confirmation message to replace an existing entry attachment with a new one. */
 "[Entry/Files/Add] Replace existing attachment?" = "¿Reemplazar el archivo adjunto existente?";
@@ -75,6 +93,18 @@
 
 /* Title of the App Protection onboarding screen */
 "[Onboarding/AppProtection/title]" = "Solo para sus ojos";
+
+/* Action/button to set up the Password AutoFill feature. Not a call to action. */
+"[Onboarding/AutoFill/activate]" = "Activar «Autorrelleno»";
+
+/* Text in the Password AutoFill onboarding screen. */
+"[Onboarding/AutoFill/text1]" = "Con Autorrelleno puedes avanzar rápidamente por las páginas de inicio de sesión con solo pulsar un botón.";
+
+/* Text in the Password AutoFill onboarding screen. */
+"[Onboarding/AutoFill/text2]" = "Para empezar, activa Autorrellenar contraseña en los ajustes del sistema.";
+
+/* Title of the Password AutoFill onboarding screen */
+"[Onboarding/AutoFill/title]" = "Autorrelleno de contraseña";
 
 /* Action/button */
 "[Onboarding/CreateNewDatabase/action]" = "Crear base de datos nueva";
@@ -180,6 +210,12 @@
 
 /* Title of the tag creation dialog */
 "[Tags/Create/title]" = "Nueva etiqueta";
+
+/* Question to confirm global deletion */
+"[Tags/Delete/Confirm/message]" = "¿Eliminar esta etiqueta de todos los grupos y entradas?";
+
+/* Title of a dialog for editing a tag */
+"[Tags/Edit/title]" = "Editar etiqueta";
 
 /* Status message with a call to action */
 "[Tags/None/placeholder]" = "No hay etiquetas en la base de datos, añada algunas.";

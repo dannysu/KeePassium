@@ -62,6 +62,9 @@ final class SettingsVC: UITableViewController, Refreshable {
         static let premiumStatus = IndexPath(row: 1, section: premiumSectionIndex)
         static let manageSubscription = IndexPath(row: 2, section: premiumSectionIndex)
 
+        static let accessControlSectionIndex = 4
+        static let appProtection = IndexPath(row: 0, section: accessControlSectionIndex)
+
         static let supportSectionIndex = 7
         static let tipBoxCell = IndexPath(row: 1, section: supportSectionIndex)
     }
@@ -92,6 +95,8 @@ final class SettingsVC: UITableViewController, Refreshable {
         super.viewDidLoad()
         clearsSelectionOnViewWillAppear = true
 
+        title = LString.titleSettings
+
         if BusinessModel.type == .prepaid || LicenseManager.shared.hasActiveBusinessLicense() {
             isPremiumSectionHidden = true
             premiumSectionFooter = nil
@@ -99,6 +104,9 @@ final class SettingsVC: UITableViewController, Refreshable {
             setCellVisibility(premiumStatusCell, isHidden: true)
             setCellVisibility(manageSubscriptionCell, isHidden: true)
             setCellVisibility(tipBoxCell, isHidden: true)
+        }
+        if !ManagedAppConfig.shared.isAppProtectionAllowed {
+            setCellVisibility(appSafetyCell, isHidden: true)
         }
     }
 
@@ -185,6 +193,8 @@ final class SettingsVC: UITableViewController, Refreshable {
                 hiddenIndexPaths.insert(CellIndexPath.premiumStatus)
             case manageSubscriptionCell:
                 hiddenIndexPaths.insert(CellIndexPath.manageSubscription)
+            case appSafetyCell:
+                hiddenIndexPaths.insert(CellIndexPath.appProtection)
             case tipBoxCell:
                 hiddenIndexPaths.insert(CellIndexPath.tipBoxCell)
             default:
@@ -198,6 +208,8 @@ final class SettingsVC: UITableViewController, Refreshable {
                 hiddenIndexPaths.remove(CellIndexPath.premiumStatus)
             case manageSubscriptionCell:
                 hiddenIndexPaths.remove(CellIndexPath.manageSubscription)
+            case appSafetyCell:
+                hiddenIndexPaths.remove(CellIndexPath.appProtection)
             case tipBoxCell:
                 hiddenIndexPaths.remove(CellIndexPath.tipBoxCell)
             default:
@@ -391,7 +403,8 @@ final class SettingsVC: UITableViewController, Refreshable {
              .version96,
              .version99,
              .version120,
-             .version139:
+             .version139,
+             .version154:
             premiumStatusText = ""
             assertionFailure("Cannot be subscribed to a version purchase")
         case .donationSmall,

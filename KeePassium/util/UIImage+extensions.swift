@@ -39,6 +39,7 @@ public enum SymbolName: String {
     public static let premiumBenefitQuickAutoFill = Self.bolt
     public static let premiumBenefitBusinessClouds = Self.briefcase
     public static let premiumBenefitPasswordAudit = Self.networkBadgeShield
+    public static let premiumBenefitLinkedDatabases = Self.squareOnSquare
     public static let premiumBenefitSupport = Self.questionmarkBubble
     public static let premiumBenefitShiny = Self.faceSmiling
 
@@ -49,6 +50,7 @@ public enum SymbolName: String {
     case onboardingFaceID = "onboarding-faceid"
     case onboardingTouchID = "onboarding-touchid"
     case onboardingOpticID = "onboarding-opticid"
+    case onboardingAutoFill = "onboarding-autofill"
 
     case antCircle = "ant.circle"
     case arrowLeftAndRight = "arrow.left.and.right"
@@ -77,6 +79,7 @@ public enum SymbolName: String {
     case dieFace3 = "die.face.3"
     case docOnDoc = "doc.on.doc"
     case docBadgePlus = "doc.badge.plus"
+    case docTextMagnifyingGlass = "doc.text.magnifyingglass"
     case ellipsis = "ellipsis"
     case ellipsisCircle = "ellipsis.circle"
     case externalLink = "external-link" 
@@ -90,6 +93,7 @@ public enum SymbolName: String {
     case folder = "folder"
     case folderBadgePlus = "folder.badge.plus"
     case folderGridBadgePlus = "square.grid.3x1.folder.badge.plus"
+    case gear = "gear"
     case gearshape2 = "gearshape.2"
     case globe = "globe"
     case heart = "heart"
@@ -113,6 +117,8 @@ public enum SymbolName: String {
     case networkBadgeShield = "network.badge.shield"
     case nosign = "nosign"
     case noteText = "note.text"
+    case paperclip = "paperclip"
+    case paperclipBadgeEllipsis = "paperclip.badge.ellipsis"
     case pencil = "pencil"
     case person = "person"
     case person2BadgeGearshape = "person.2.badge.gearshape"
@@ -132,6 +138,7 @@ public enum SymbolName: String {
     case squareAndPencil = "square.and.pencil"
     case squareAndArrowDown = "square.and.arrow.down"
     case squareAndArrowUp = "square.and.arrow.up"
+    case squareOnSquare = "square.on.square"
     case textformat = "textformat"
     case touchID = "touchid"
     case trash = "trash"
@@ -168,7 +175,11 @@ extension UIImage {
 
 extension UIImage {
 
-    public static func symbol(_ symbolName: SymbolName?, tint: UIColor? = nil) -> UIImage? {
+    public static func symbol(
+        _ symbolName: SymbolName?,
+        tint: UIColor? = nil,
+        accessibilityLabel: String? = nil
+    ) -> UIImage? {
         guard let symbolName else {
             return nil
         }
@@ -178,6 +189,9 @@ extension UIImage {
 
         if let tint {
             result = result?.withTintColor(tint, renderingMode: .alwaysOriginal)
+        }
+        if let accessibilityLabel {
+            result?.accessibilityLabel = accessibilityLabel
         }
         return result
     }
@@ -211,10 +225,6 @@ extension UIImage {
     }
 
     func withGradientUnderlay() -> UIImage? {
-        guard #available(iOS 13, *) else {
-            return self
-        }
-
         UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
         guard let context = UIGraphicsGetCurrentContext() else {
             return nil

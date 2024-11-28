@@ -20,7 +20,7 @@ protocol ViewableField: AnyObject {
 
     var value: String? { get }
     var resolvedValue: String? { get }
-    var decoratedValue: String? { get }
+    var decoratedResolvedValue: String? { get }
 
     var isProtected: Bool { get }
 
@@ -48,9 +48,10 @@ class BasicViewableField: ViewableField {
     weak var field: EntryField?
 
     var internalName: String { return field?.name ?? "" }
+    var visibleName: String { return field?.visibleName ?? "" }
     var value: String? { return field?.value }
     var resolvedValue: String? { return field?.resolvedValue }
-    var decoratedValue: String? { return field?.premiumDecoratedValue }
+    var decoratedResolvedValue: String? { return field?.decoratedResolvedValue }
     var isProtected: Bool { return field?.isProtected ?? false }
     var isFixed: Bool {
         guard let field else { return false }
@@ -64,19 +65,6 @@ class BasicViewableField: ViewableField {
     var isHeightConstrained: Bool
 
     var isEditable: Bool { return true }
-
-    var visibleName: String {
-        switch internalName {
-        case EntryField.title: return LString.fieldTitle
-        case EntryField.userName: return LString.fieldUserName
-        case EntryField.password: return LString.fieldPassword
-        case EntryField.url: return LString.fieldURL
-        case EntryField.notes: return LString.fieldNotes
-        case EntryField.tags: return LString.fieldTags
-        default:
-            return internalName
-        }
-    }
 
     convenience init(field: EntryField, isValueHidden: Bool) {
         self.init(fieldOrNil: field, isValueHidden: isValueHidden)
@@ -116,7 +104,7 @@ class TOTPViewableField: DynamicViewableField {
     override var resolvedValue: String? {
         return value
     }
-    override var decoratedValue: String? {
+    override var decoratedResolvedValue: String? {
         return value
     }
 

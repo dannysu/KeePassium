@@ -6,70 +6,6 @@
 //  by the Free Software Foundation: https://www.gnu.org/licenses/).
 //  For commercial licensing, please contact the author.
 
-public struct SearchQuery {
-    public enum Word {
-        private static let separator = ":" as Character
-        private static let tagPrefix = "tag"
-
-        case text(Substring)
-        case tag(Substring)
-
-        static func from(text: String) -> [Self] {
-            let queryWords = text.split(separator: " " as Character)
-            return queryWords.map { word in
-                let subwords = word
-                    .split(separator: separator, maxSplits: 1)
-                    .map { $0.trimmingCharacters(in: .whitespaces) }
-                guard subwords.count == 2,
-                      subwords[0].lowercased() == tagPrefix
-                else {
-                    return .text(word)
-                }
-                guard let index = subwords[1].firstIndex(where: { !$0.isWhitespace }) else {
-                    return .text(word)
-                }
-                let tag = subwords[1].suffix(from: index)
-                return .tag(tag)
-            }
-        }
-    }
-
-    public let includeSubgroups: Bool
-    public let includeDeleted: Bool
-    public let includeFieldNames: Bool
-    public let includeProtectedValues: Bool
-    public let includePasswords: Bool
-    public let excludeGroupUUID: UUID?
-    public let compareOptions: String.CompareOptions
-    public let flattenGroups: Bool
-
-    public let text: String
-    public let textWords: [Word]
-
-    public init(
-        includeSubgroups: Bool,
-        includeDeleted: Bool,
-        includeFieldNames: Bool,
-        includeProtectedValues: Bool,
-        includePasswords: Bool,
-        excludeGroupUUID: UUID?,
-        compareOptions: String.CompareOptions,
-        flattenGroups: Bool,
-        text: String
-    ) {
-        self.includeSubgroups = includeSubgroups
-        self.includeDeleted = includeDeleted
-        self.includeFieldNames = includeFieldNames
-        self.includeProtectedValues = includeProtectedValues
-        self.includePasswords = includePasswords
-        self.excludeGroupUUID = excludeGroupUUID
-        self.compareOptions = compareOptions
-        self.flattenGroups = flattenGroups
-        self.text = text
-        self.textWords = Word.from(text: text)
-    }
-}
-
 open class Database: Eraseable {
     public internal(set) var root: Group?
 
@@ -126,14 +62,24 @@ open class Database: Eraseable {
     }
 
     public func count(includeGroups: Bool = true, includeEntries: Bool = true) -> Int {
-        var result = 0
-        if let root = self.root {
-            var groups = [Group]()
-            var entries = [Entry]()
-            root.collectAllChildren(groups: &groups, entries: &entries)
-            result += includeGroups ? groups.count : 0
-            result += includeEntries ? entries.count : 0
+        guard let root else {
+            assertionFailure()
+            return 0
         }
+        var result = 0
+        root.applyToAllChildren(
+            includeSelf: false,
+            groupHandler: { _ in
+                if includeGroups {
+                    result += 1
+                }
+            },
+            entryHandler: { _ in
+                if includeEntries {
+                    result += 1
+                }
+            }
+        )
         return result
     }
 

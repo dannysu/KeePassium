@@ -8,7 +8,6 @@
 
 import KeePassiumLib
 
-@available(iOS 13, *)
 enum MenuIdentifier {
     static let databaseFileMenu = UIMenu.Identifier("com.dannysu.keepassium.menu.databaseFileMenu")
     static let databaseItemsMenu = UIMenu.Identifier("com.dannysu.keepassium.menu.databaseItemsMenu")
@@ -38,20 +37,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let incomingURL: URL? = launchOptions?[.url] as? URL
         let hasIncomingURL = incomingURL != nil
 
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            window.makeKeyAndVisible()
-            mainCoordinator = MainCoordinator(window: window)
-            mainCoordinator.start(hasIncomingURL: hasIncomingURL)
-        } else {
-            mainCoordinator = MainCoordinator(window: window)
-            mainCoordinator.start(hasIncomingURL: hasIncomingURL)
-            window.makeKeyAndVisible()
-        }
-
-        self.window = window
-
+        var proposeAppReset = false
         #if targetEnvironment(macCatalyst)
         loadMacUtilsPlugin()
+        if let macUtils, macUtils.isControlKeyPressed() {
+            proposeAppReset = true
+        }
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(sceneWillDeactivate),
@@ -59,6 +50,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             object: nil
         )
         #endif
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            window.makeKeyAndVisible()
+            mainCoordinator = MainCoordinator(window: window)
+            mainCoordinator.start(hasIncomingURL: hasIncomingURL, proposeReset: proposeAppReset)
+        } else {
+            mainCoordinator = MainCoordinator(window: window)
+            mainCoordinator.start(hasIncomingURL: hasIncomingURL, proposeReset: proposeAppReset)
+            window.makeKeyAndVisible()
+        }
+
+        self.window = window
 
         return true
     }
@@ -78,6 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
 
         AppGroup.applicationShared = application
+        Swizzler.swizzle()
 
         SettingsMigrator.processAppLaunch(with: Settings.current)
     }
@@ -151,7 +155,6 @@ extension AppDelegate {
         }
     }
 
-    @available(iOS 13, *)
     override func buildMenu(with builder: UIMenuBuilder) {
         guard builder.system == UIMenuSystem.main else {
             return
@@ -202,7 +205,7 @@ extension AppDelegate {
         builder.insertSibling(preferencesMenu, afterMenu: .about)
 
         let createDatabaseMenuItem = UIKeyCommand(
-            title: LString.actionCreateDatabase,
+            title: LString.titleNewDatabase,
             action: #selector(createDatabase),
             input: "n",
             modifierFlags: [.command, .shift])
@@ -224,12 +227,12 @@ extension AppDelegate {
         )
 
         let createEntryMenuItem = UIKeyCommand(
-            title: LString.actionCreateEntry,
+            title: LString.titleNewEntry,
             action: #selector(createEntry),
             input: "n",
             modifierFlags: [.command])
         let createGroupMenuItem = UIKeyCommand(
-            title: LString.actionCreateGroup,
+            title: LString.titleNewGroup,
             action: #selector(createGroup),
             input: "g",
             modifierFlags: [.command])

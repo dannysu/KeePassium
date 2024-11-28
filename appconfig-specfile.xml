@@ -1,0 +1,1163 @@
+<?xml version="1.0"?>
+<managedAppConfiguration>
+  <version>1</version>
+  <bundleId>com.dannysu.keepassium.ios</bundleId>
+  <dict>
+    <integer keyName="configVersion">
+      <defaultValue>
+        <value>1</value>
+      </defaultValue>
+    </integer>
+    <string keyName="license"></string>
+    <string keyName="licenseSeatID">
+      <defaultValue>
+        <deviceVariable value="serialNumber"></deviceVariable>
+      </defaultValue>
+    </string>
+    <string keyName="supportEmail">
+      <defaultValue>
+        <value>org-support@keepassium.com</value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="autoUnlockLastDatabase">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="rememberDatabaseKey">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="rememberDatabaseFinalKey">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="keepKeyFileAssociations">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="keepHardwareKeyAssociations">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="lockAllDatabasesOnFailedPasscode">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="appLockTimeout">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="lockAppOnLaunch">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="lockDatabasesOnReboot">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="databaseLockTimeout">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="clipboardTimeout">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="useUniversalClipboard">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="hideProtectedFields">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="showBackupFiles">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="backupDatabaseOnSave">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="backupKeepingDuration">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="excludeBackupFilesFromSystemBackup">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="enableQuickTypeAutoFill">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="allowNetworkAccess">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="allowPasswordAudit">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="allowFaviconDownload">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="allowDatabaseEncryptionSettings">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="allowAppProtection">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="allowDatabasePrint">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <stringArray keyName="allowedFileProviders">
+      <constraint nullable="true"></constraint>
+    </stringArray>
+    <stringArray keyName="requireAppPasscodeSet">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </stringArray>
+    <integer keyName="minimumAppPasscodeEntropy">
+      <defaultValue>
+        <value>0</value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </integer>
+    <integer keyName="minimumAppPasscodeLength">
+      <constraint nullable="true" min="1"></constraint>
+    </integer>
+    <integer keyName="minimumDatabasePasswordEntropy">
+      <defaultValue>
+        <value>0</value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </integer>
+    <integer keyName="minimumDatabasePasswordLength">
+      <constraint nullable="true" min="1"></constraint>
+    </integer>
+    <string keyName="kdfType">
+      <constraint nullable="true"></constraint>
+    </string>
+    <string keyName="protectKeyFileInput">
+      <defaultValue>
+        <value></value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </string>
+    <integer keyName="kdfIterations">
+      <defaultValue>
+        <value>1</value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </integer>
+    <integer keyName="kdfMemory">
+      <defaultValue>
+        <value>8388608</value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </integer>
+    <integer keyName="kdfParallelism">
+      <defaultValue>
+        <value>1</value>
+      </defaultValue>
+      <constraint nullable="true"></constraint>
+    </integer>
+  </dict>
+  <presentation defaultLocale="en-US">
+    <field keyName="configVersion" type="hidden">
+    </field>
+    <fieldGroup>
+      <name>
+        <language value="en-US">Licensing</language>
+      </name>
+      <field keyName="license" type="input">
+        <label>
+          <language value="en-US">License key</language>
+        </label>
+        <description>
+          <language value="en-US">Contact sales@keepassium.com to get one.</language>
+        </description>
+      </field>
+      <field keyName="licenseSeatID" type="select">
+        <label>
+          <language value="en-US">License seat identifier</language>
+        </label>
+        <description>
+          <language value="en-US">Associates the license to the specific device or user. Select device-based and user-based variable as appropriate for your environment.</language>
+        </description>
+        <options>
+          <option value="none">
+            <language value="en-US">None (site license)</language>
+          </option>
+          <option value="${userUID}" selected="true">
+            <language value="en-US">Ivanti: User login ID</language>
+          </option>
+          <option value="${deviceSN}">
+            <language value="en-US">Ivanti: Device's serial number</language>
+          </option>
+          <option value="$SERIALNUMBER">
+            <language value="en-US">JAMF Pro: Device's serial number</language>
+          </option>
+          <option value="$USERNAME">
+            <language value="en-US">JAMF Pro: Username</language>
+          </option>
+          <option value="%UserId%">
+            <language value="en-US">JAMF School: User's internal ID</language>
+          </option>
+          <option value="%SerialNumber%">
+            <language value="en-US">JAMF School: Device’s serial number</language>
+          </option>
+          <option value="%serialNumber%">
+            <language value="en-US">MaaS360: Device's serial number</language>
+          </option>
+          <option value="{{serial_number}}">
+            <language value="en-US">SimpleMDM: Device's serial number</language>
+          </option>
+          <option value="{{accountid}}" selected="true">
+            <language value="en-US">Intune: User account ID</language>
+          </option>
+          <option value="{{serialnumberlast4digits}}">
+            <language value="en-US">Intune: Device serial number, last 4 digits</language>
+          </option>
+          <option value="{{deviceid}}">
+            <language value="en-US">Intune: Device ID</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="supportEmail" type="input">
+        <label>
+          <language value="en-US">Support email</language>
+        </label>
+        <description>
+          <language value="en-US">Overrides the default support email address in the app. Enter email of your company's in-house support team.</language>
+        </description>
+      </field>
+    </fieldGroup>
+    <fieldGroup>
+      <name>
+        <language value="en-US">App and data protection</language>
+      </name>
+      <field keyName="allowAppProtection" type="select">
+        <label>
+          <language value="en-US">Disable this to hide App Protection from onboarding and app settings. This is useful if PIN/biometric check is enforced by your MDM.</language>
+        </label>
+        <description>
+          <language value="en-US"></language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="requireAppPasscodeSet" type="select">
+        <label>
+          <language value="en-US">Require App Passcode</language>
+        </label>
+        <description>
+          <language value="en-US">Require that the user configures an app protection passcode. This is enforced by KeePassium, independently from PIN access that might be enforced by your MDM or the system.</language>
+        </description>
+        <options>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="minimumAppPasscodeEntropy" type="select">
+        <label>
+          <language value="en-US">Minimal complexity of App Passcode</language>
+        </label>
+        <description>
+          <language value="en-US">Minimal required complexity for user-defined app passcode. Entropy is estimated by Zxcvbn library. </language>
+        </description>
+        <options>
+          <option value="0">
+            <language value="en-US">0 bits (accept everything)</language>
+          </option>
+          <option value="10">
+            <language value="en-US">10 bits (a non-trivial 4-digit PIN)</language>
+          </option>
+          <option value="20">
+            <language value="en-US">20 bits (a non-trivial 6-digit PIN)</language>
+          </option>
+          <option value="30">
+            <language value="en-US">30 bits (approx. 8 letters)</language>
+          </option>
+          <option value="40">
+            <language value="en-US">40 bits (approx. 8 upper+lower+digits)</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="minimumAppPasscodeLength" type="input">
+        <label>
+          <language value="en-US">Minimal length of App Passcode</language>
+        </label>
+        <description>
+          <language value="en-US">Is enforced together with minimal complexity.</language>
+        </description>
+      </field>
+      <field keyName="minimumDatabasePasswordEntropy" type="select">
+        <label>
+          <language value="en-US">Minimal complexity of Database Passwords</language>
+        </label>
+        <description>
+          <language value="en-US">Minimal required complexity for user-defined database passwords. Is enforced on database creation and when changing the master key. Less complex passwords will be rejected. Entropy is estimated by Zxcvbn library. </language>
+        </description>
+        <options>
+          <option value="0">
+            <language value="en-US">0 bits (accept everything)</language>
+          </option>
+          <option value="10">
+            <language value="en-US">10 bits (a non-trivial 4-digit PIN)</language>
+          </option>
+          <option value="20">
+            <language value="en-US">20 bits (a non-trivial 6-digit PIN)</language>
+          </option>
+          <option value="30">
+            <language value="en-US">30 bits (approx. 8 letters)</language>
+          </option>
+          <option value="40">
+            <language value="en-US">40 bits (approx. 8 upper+lower+digits)</language>
+          </option>
+          <option value="60">
+            <language value="en-US">60 bits</language>
+          </option>
+          <option value="80">
+            <language value="en-US">80 bits</language>
+          </option>
+          <option value="100">
+            <language value="en-US">100 bits</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="minimumDatabasePasswordLength" type="input">
+        <label>
+          <language value="en-US">Minimal length of Database Passwords</language>
+        </label>
+        <description>
+          <language value="en-US">Is enforced together with minimal complexity.</language>
+        </description>
+      </field>
+      <field keyName="protectKeyFileInput" type="select">
+        <label>
+          <language value="en-US">Protect key file input field</language>
+        </label>
+        <description>
+          <language value="en-US">Hide the name of selected key file behind dots, like a password.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="allowDatabaseEncryptionSettings" type="select">
+        <label>
+          <language value="en-US">Allow viewing/editing database encryption settings</language>
+        </label>
+        <description>
+          <language value="en-US"></language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="allowDatabasePrint" type="select">
+        <label>
+          <language value="en-US">Allow printing complete database</language>
+        </label>
+        <description>
+          <language value="en-US">This parameter controls the "Print" menu in database viewer. Users still can select text and export it to a printer app via context menu.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+    </fieldGroup>
+
+    <fieldGroup>
+      <name>
+        <language value="en-US">App settings</language>
+      </name>
+      <field keyName="autoUnlockLastDatabase" type="select">
+        <label>
+          <language value="en-US">Auto-unlock last used database</language>
+        </label>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="rememberDatabaseKey" type="select">
+        <label>
+          <language value="en-US">Remember master keys</language>
+        </label>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="rememberDatabaseFinalKey" type="select">
+        <label>
+          <language value="en-US">Skip YubiKey scan when possible</language>
+        </label>
+        <description>
+          <language value="en-US">Sometimes KeePassium can cache database encryption keys and not require YubiKey scan. This setting controls whether such a behavior is allowed, or YubiKey scans must be enforced.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Skip when possible</language>
+          </option>
+          <option value="no">
+            <language value="en-US">Always require</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="keepKeyFileAssociations" type="select">
+        <label>
+          <language value="en-US">Remember the last used key file of each database</language>
+        </label>
+        <description>
+          <language value="en-US">Remember and automatically select key files last used with each database.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="keepHardwareKeyAssociations" type="select">
+        <label>
+          <language value="en-US">Remember the last used hardware key of each database</language>
+        </label>
+        <description>
+          <language value="en-US">Remember and automatically select hardware keys last used with each database.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="lockAllDatabasesOnFailedPasscode" type="select">
+        <label>
+          <language value="en-US">Lock databases after a failed App Protection passcode</language>
+        </label>
+        <description>
+          <language value="en-US">If the user enters an incorrect App Protection passcode once, the app would lock all the databases and clear any remembered master keys from keychain.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="appLockTimeout" type="select">
+        <label>
+          <language value="en-US">App protection timeout</language>
+        </label>
+        <description>
+          <language value="en-US">If not configured, the app will let the user decide.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="0">
+            <language value="en-US">Immediately when leaving the app</language>
+          </option>
+          <option value="3">
+            <language value="en-US">After 3 seconds</language>
+          </option>
+          <option value="15">
+            <language value="en-US">After 15 seconds</language>
+          </option>
+          <option value="30">
+            <language value="en-US">After 30 seconds</language>
+          </option>
+          <option value="60">
+            <language value="en-US">After 1 minute</language>
+          </option>
+          <option value="120">
+            <language value="en-US">After 2 minutes</language>
+          </option>
+          <option value="300">
+            <language value="en-US">After 5 minutes</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="lockAppOnLaunch" type="select">
+        <label>
+          <language value="en-US">Lock app on launch</language>
+        </label>
+        <description>
+          <language value="en-US">Enforces app protection when the app is first launched (after device restart), even if appLockTimeout has not expired yet.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="lockDatabasesOnReboot" type="select">
+        <label>
+          <language value="en-US">Lock databases on device restart</language>
+        </label>
+        <description>
+          <language value="en-US">Trigger database lock timeout after device reboot.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="databaseLockTimeout" type="select">
+        <label>
+          <language value="en-US">Database lock timeout</language>
+        </label>
+        <description>
+          <language value="en-US">Leave not configured to let the user decide.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="0">
+            <language value="en-US">Immediately</language>
+          </option>
+          <option value="5">
+            <language value="en-US">After 5 seconds</language>
+          </option>
+          <option value="15">
+            <language value="en-US">After 15 seconds</language>
+          </option>
+          <option value="30">
+            <language value="en-US">After 30 seconds</language>
+          </option>
+          <option value="60">
+            <language value="en-US">After 1 minute</language>
+          </option>
+          <option value="120">
+            <language value="en-US">After 2 minutes</language>
+          </option>
+          <option value="300">
+            <language value="en-US">After 5 minutes</language>
+          </option>
+          <option value="600">
+            <language value="en-US">After 10 minutes</language>
+          </option>
+          <option value="1800">
+            <language value="en-US">After 30 minutes</language>
+          </option>
+          <option value="3600">
+            <language value="en-US">After 1 hour</language>
+          </option>
+          <option value="7200">
+            <language value="en-US">After 2 hours</language>
+          </option>
+          <option value="14400">
+            <language value="en-US">After 4 hours</language>
+          </option>
+          <option value="28800">
+            <language value="en-US">After 8 hours</language>
+          </option>
+          <option value="86400">
+            <language value="en-US">After 24 hours</language>
+          </option>
+          <option value="172800">
+            <language value="en-US">After 48 hours</language>
+          </option>
+          <option value="604800">
+            <language value="en-US">After 7 days</language>
+          </option>
+          <option value="-1">
+            <language value="en-US">Never</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="clipboardTimeout" type="select">
+        <label>
+          <language value="en-US">Clipboard timeout</language>
+        </label>
+        <description>
+          <language value="en-US">Cleans up any values copied to clipboard after the configured time.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="0">
+            <language value="en-US">Disable cut/copy to clipboard</language>
+          </option>
+          <option value="10">
+            <language value="en-US">After 10 seconds</language>
+          </option>
+          <option value="20">
+            <language value="en-US">After 20 seconds</language>
+          </option>
+          <option value="30">
+            <language value="en-US">After 30 seconds</language>
+          </option>
+          <option value="60">
+            <language value="en-US">After 1 minute</language>
+          </option>
+          <option value="120">
+            <language value="en-US">After 2 minutes</language>
+          </option>
+          <option value="180">
+            <language value="en-US">After 3 minutes</language>
+          </option>
+          <option value="300">
+            <language value="en-US">After 5 minutes</language>
+          </option>
+          <option value="600">
+            <language value="en-US">After 10 minutes</language>
+          </option>
+          <option value="1200">
+            <language value="en-US">After 20 minutes</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="useUniversalClipboard" type="select">
+        <label>
+          <language value="en-US">Use universal clipboard</language>
+        </label>
+        <description>
+          <language value="en-US">Allows pasting to other Apple devices. Relies on iCloud infrastructure. Has a non-configurable timeout of about 2 minutes, predefined by Apple.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="hideProtectedFields" type="select">
+        <label>
+          <language value="en-US">Hide protected fields</language>
+        </label>
+        <description>
+          <language value="en-US">Require user to press a button to show protected values. If disabled, the app will show protected values in plain text by default.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="enableQuickTypeAutoFill" type="select">
+        <label>
+          <language value="en-US">Enable Quick AutoFill</language>
+        </label>
+        <description>
+          <language value="en-US"></language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+    </fieldGroup>
+    <fieldGroup>
+      <name>
+        <language value="en-US">Backup</language>
+      </name>
+      <field keyName="showBackupFiles" type="select">
+        <label>
+          <language value="en-US">Show backup files</language>
+        </label>
+        <description>
+          <language value="en-US"></language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="backupDatabaseOnSave" type="select">
+        <label>
+          <language value="en-US">Backup database on save</language>
+        </label>
+        <description>
+          <language value="en-US"></language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="backupKeepingDuration" type="select">
+        <label>
+          <language value="en-US">Delete backup files older than</language>
+        </label>
+        <description>
+          <language value="en-US">Does not affect the ".latest" backup file.</language>
+        </description>
+        <options>
+          <option value="" selected="true">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="31536000">
+            <language value="en-US">1 year</language>
+          </option>
+          <option value="15552000">
+            <language value="en-US">6 months</language>
+          </option>
+          <option value="5270400">
+            <language value="en-US">2 months</language>
+          </option>
+          <option value="2419200">
+            <language value="en-US">4 weeks</language>
+          </option>
+          <option value="604800">
+            <language value="en-US">1 week</language>
+          </option>
+          <option value="86400">
+            <language value="en-US">1 day</language>
+          </option>
+          <option value="14400">
+            <language value="en-US">4 hours</language>
+          </option>
+          <option value="3600">
+            <language value="en-US">1 hour</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="excludeBackupFilesFromSystemBackup" type="select">
+        <label>
+          <language value="en-US">Exclude backup files from system backup</language>
+        </label>
+        <description>
+          <language value="en-US"></language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+    </fieldGroup>
+    <fieldGroup>
+      <name>
+        <language value="en-US">Networking</language>
+      </name>
+      <field keyName="allowNetworkAccess" type="select">
+        <label>
+          <language value="en-US">Allow network access</language>
+        </label>
+        <description>
+          <language value="en-US">Required for network-dependent features, such as direct connections to online storage, password audit, and so on.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="allowPasswordAudit" type="select">
+        <label>
+          <language value="en-US">Allow password audit</language>
+        </label>
+        <description>
+          <language value="en-US">Here you can specifically disable the password audit tool (Have I Been Pwned). By default is allowed. Requires "Allow network access", otherwise has no effect.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="allowFaviconDownload" type="select">
+        <label>
+          <language value="en-US">Allow favicon download</language>
+        </label>
+        <description>
+          <language value="en-US">Here you can specifically disable the favicon download feature. By default is allowed. Requires "Allow network access", otherwise has no effect.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="yes">
+            <language value="en-US">Yes</language>
+          </option>
+          <option value="no">
+            <language value="en-US">No</language>
+          </option>
+        </options>
+      </field>
+    </fieldGroup>
+    <fieldGroup>
+      <name>
+        <language value="en-US">Storage providers</language>
+      </name>
+      <field keyName="allowedFileProviders" type="multiselect">
+        <label>
+          <language value="en-US">Allowed storage locations</language>
+        </label>
+        <description>
+          <language value="en-US">Here you can restrict file operations to only few allowed storage locations; other locations will be blocked.</language>
+        </description>
+        <options>
+          <option value="all" selected="true">
+            <language value="en-US">Allow all storage locations (overrides other options)</language>
+          </option>
+          <option value="com.apple.FileProvider.LocalStorage">
+            <language value="en-US">Local device storage</language>
+          </option>
+          <option value="net.box.BoxNet.documentPickerFileProvider">
+            <language value="en-US">Box (via Files integration)</language>
+          </option>
+          <option value="com.dannysu.keepassium.fileprovider.dropbox">
+            <language value="en-US">Dropbox (direct connection)</language>
+          </option>
+          <option value="com.getdropbox.Dropbox.FileProvider">
+            <language value="en-US">Dropbox (via Files integration)</language>
+          </option>
+          <option value="com.dannysu.keepassium.fileprovider.googledrive">
+            <language value="en-US">Google Drive (direct connection)</language>
+          </option>
+          <option value="com.google.Drive.FileProviderExtension">
+            <language value="en-US">Google Drive (via Files integration)</language>
+          </option>
+          <option value="com.apple.CloudDocs.iCloudDriveFileProvider">
+            <language value="en-US">iCloud Drive (via Files integration)</language>
+          </option>
+          <option value="com.apple.CloudDocs.MobileDocumentsFileProvider">
+            <language value="en-US">iCloud Drive (before iOS 16.5; via Files integration)</language>
+          </option>
+          <option value="com.dannysu.keepassium.fileprovider.onedrive">
+            <language value="en-US">OneDrive (direct connection)</language>
+          </option>
+          <option value="com.microsoft.skydrive.onedrivefileprovider">
+            <language value="en-US">OneDrive (via Files integration)</language>
+          </option>
+          <option value="com.apple.SMBClientProvider.FileProvider">
+            <language value="en-US">SMB share (via Files integration)</language>
+          </option>
+          <option value="com.apple.filesystems.UserFS.FileProvider">
+            <language value="en-US">USB storage (via Files integration)</language>
+          </option>
+          <option value="com.dannysu.keepassium.fileprovider.webdav">
+            <language value="en-US">WebDAV (direct connection)</language>
+          </option>
+        </options>
+      </field>
+    </fieldGroup>
+
+    <fieldGroup>
+      <name>
+        <language value="en-US">Default key derivation function (KDF)</language>
+      </name>
+      <field keyName="kdfType" type="select">
+        <label>
+          <language value="en-US">KDF type</language>
+        </label>
+        <description>
+          <language value="en-US">Type of the key derivation function. Applies to new databases and recommended encryption settings.</language>
+        </description>
+        <options>
+          <option value="">
+            <language value="en-US">(Not configured)</language>
+          </option>
+          <option value="argon2d">
+            <language value="en-US">Argon2d</language>
+          </option>
+          <option value="argon2id">
+            <language value="en-US">Argon2id</language>
+          </option>
+          <option value="aeskdf">
+            <language value="en-US">AES-KDF (not recommended)</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="kdfIterations" type="select">
+        <label>
+          <language value="en-US">KDF Iterations</language>
+        </label>
+        <description>
+          <language value="en-US">Requires "KDF type" to be set, otherwise has no effect.</language>
+        </description>
+        <options>
+          <option value="10">
+            <language value="en-US">10 (Argon2 default)</language>
+          </option>
+          <option value="50">
+            <language value="en-US">50</language>
+          </option>
+          <option value="100">
+            <language value="en-US">100</language>
+          </option>
+          <option value="200">
+            <language value="en-US">200</language>
+          </option>
+          <option value="500">
+            <language value="en-US">500</language>
+          </option>
+          <option value="1000">
+            <language value="en-US">1k</language>
+          </option>
+          <option value="10000">
+            <language value="en-US">10k</language>
+          </option>
+          <option value="100000">
+            <language value="en-US">100k</language>
+          </option>
+          <option value="1000000">
+            <language value="en-US">1M</language>
+          </option>
+          <option value="10000000">
+            <language value="en-US">10M</language>
+          </option>
+          <option value="100000000">
+            <language value="en-US">100M</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="kdfMemory" type="select">
+        <label>
+          <language value="en-US">KDF Memory</language>
+        </label>
+        <description>
+          <language value="en-US">Requires "KDF type" to be set, otherwise has no effect.</language>
+        </description>
+        <options>
+          <option value="1048576">
+            <language value="en-US">1 MB</language>
+          </option>
+          <option value="2097152">
+            <language value="en-US">2 MB</language>
+          </option>
+          <option value="4194304">
+            <language value="en-US">4 MB</language>
+          </option>
+          <option value="8388608"> 
+            <language value="en-US">8 MB (Argon2 default)</language>
+          </option>
+          <option value="16777216"> 
+            <language value="en-US">16 MB</language>
+          </option>
+          <option value="33554432"> 
+            <language value="en-US">32 MB (max for AutoFill)</language>
+          </option>
+          <option value="67108864"> 
+            <language value="en-US">64 MB</language>
+          </option>
+          <option value="134217728"> 
+            <language value="en-US">128 MB</language>
+          </option>
+          <option value="268435456"> 
+            <language value="en-US">256 MB</language>
+          </option>
+        </options>
+      </field>
+      <field keyName="kdfParallelism" type="select">
+        <label>
+          <language value="en-US">KDF Parallelism</language>
+        </label>
+        <description>
+          <language value="en-US">Requires "KDF type" to be set, otherwise has no effect.</language>
+        </description>
+        <options>
+          <option value="1">
+            <language value="en-US">1</language>
+          </option>
+          <option value="2">
+            <language value="en-US">2</language>
+          </option>
+          <option value="4">
+            <language value="en-US">4</language>
+          </option>
+          <option value="8"> 
+            <language value="en-US">8</language>
+          </option>
+        </options>
+      </field>
+    </fieldGroup>
+  </presentation>
+</managedAppConfiguration>

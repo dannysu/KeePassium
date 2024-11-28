@@ -21,6 +21,7 @@ public final class ManagedAppConfig: NSObject {
         case rememberDatabaseFinalKey
         case keepKeyFileAssociations
         case keepHardwareKeyAssociations
+        case protectKeyFileInput
         case lockAllDatabasesOnFailedPasscode
         case appLockTimeout
         case lockAppOnLaunch
@@ -39,8 +40,19 @@ public final class ManagedAppConfig: NSObject {
         case hideAppLockSetupReminder
         case allowedFileProviders
         case minimumAppPasscodeEntropy
+        case minimumAppPasscodeLength
         case minimumDatabasePasswordEntropy
+        case minimumDatabasePasswordLength
         case requireAppPasscodeSet
+        case allowPasswordAudit
+        case allowFaviconDownload
+        case allowDatabaseEncryptionSettings
+        case allowDatabasePrint
+        case allowAppProtection
+        case kdfType // "argon2d" | "argon2id" | "aeskdf" / [nil]
+        case kdfIterations
+        case kdfMemory
+        case kdfParallelism
     }
 
     private var currentConfig: [String: Any]? {
@@ -127,13 +139,15 @@ extension ManagedAppConfig {
     public func isManaged(key: Key) -> Bool {
         switch key {
         case .license,
-             .supportEmail:
+             .supportEmail,
+             .kdfType:
             return getString(key) != nil
         case .autoUnlockLastDatabase,
              .rememberDatabaseKey,
              .rememberDatabaseFinalKey,
              .keepKeyFileAssociations,
              .keepHardwareKeyAssociations,
+             .protectKeyFileInput,
              .lockAllDatabasesOnFailedPasscode,
              .lockAppOnLaunch,
              .lockDatabasesOnTimeout,
@@ -146,7 +160,12 @@ extension ManagedAppConfig {
              .enableQuickTypeAutoFill,
              .allowNetworkAccess,
              .hideAppLockSetupReminder,
-             .requireAppPasscodeSet:
+             .requireAppPasscodeSet,
+             .allowPasswordAudit,
+             .allowFaviconDownload,
+             .allowDatabaseEncryptionSettings,
+             .allowDatabasePrint,
+             .allowAppProtection:
             return getBool(key) != nil
         case .configVersion,
              .appLockTimeout,
@@ -154,10 +173,15 @@ extension ManagedAppConfig {
              .clipboardTimeout,
              .backupKeepingDuration,
              .minimumAppPasscodeEntropy,
-             .minimumDatabasePasswordEntropy:
+             .minimumAppPasscodeLength,
+             .minimumDatabasePasswordEntropy,
+             .minimumDatabasePasswordLength,
+             .kdfIterations,
+             .kdfMemory,
+             .kdfParallelism:
             return getInt(key) != nil
         case .allowedFileProviders:
-            return getStringArray(key) != nil
+            return getString(key) != nil || getStringArray(key) != nil
         }
     }
 
@@ -169,6 +193,29 @@ extension ManagedAppConfig {
         hasWarnedAboutMissingLicense = true
     }
 
+    internal func getStringIfLicensed(_ key: Key) -> String? {
+        let result: String?
+        switch key {
+        case .allowedFileProviders,
+             .kdfType:
+            result = getString(key)
+        default:
+            Diag.error("Key `\(key.rawValue)` is not a string, ignoring")
+            assertionFailure()
+            return nil
+        }
+
+        guard result != nil else {
+            return nil
+        }
+
+        guard LicenseManager.shared.hasActiveBusinessLicense() else {
+            warnAboutMissingLicenseOnce()
+            return nil
+        }
+        return result
+    }
+
     internal func getBoolIfLicensed(_ key: Key) -> Bool? {
         let result: Bool?
         switch key {
@@ -177,6 +224,7 @@ extension ManagedAppConfig {
              .rememberDatabaseFinalKey,
              .keepKeyFileAssociations,
              .keepHardwareKeyAssociations,
+             .protectKeyFileInput,
              .lockAllDatabasesOnFailedPasscode,
              .lockAppOnLaunch,
              .lockDatabasesOnTimeout,
@@ -189,7 +237,12 @@ extension ManagedAppConfig {
              .enableQuickTypeAutoFill,
              .allowNetworkAccess,
              .hideAppLockSetupReminder,
-             .requireAppPasscodeSet:
+             .requireAppPasscodeSet,
+             .allowPasswordAudit,
+             .allowFaviconDownload,
+             .allowDatabaseEncryptionSettings,
+             .allowDatabasePrint,
+             .allowAppProtection:
             result = getBool(key)
         default:
             Diag.error("Key `\(key.rawValue)` is not boolean, ignoring")
@@ -217,7 +270,12 @@ extension ManagedAppConfig {
              .clipboardTimeout,
              .backupKeepingDuration,
              .minimumAppPasscodeEntropy,
-             .minimumDatabasePasswordEntropy:
+             .minimumAppPasscodeLength,
+             .minimumDatabasePasswordEntropy,
+             .minimumDatabasePasswordLength,
+             .kdfIterations,
+             .kdfMemory,
+             .kdfParallelism:
             result = getInt(key)
         default:
             Diag.error("Key `\(key.rawValue)` is not an integer, ignoring.")
@@ -268,7 +326,7 @@ extension ManagedAppConfig {
 
     internal func isAllowed(_ fileProvider: FileProvider) -> Bool {
         if allowedFileProviders == nil {
-            allowedFileProviders = parseAllowedFileProviders()
+            allowedFileProviders = getAllowedFileProviders()
         }
         switch allowedFileProviders! {
         case .allowAll:
@@ -278,15 +336,34 @@ extension ManagedAppConfig {
         }
     }
 
-    private func parseAllowedFileProviders() -> FileProviderRestrictions {
-        guard let allowedProviderIDs = getStringArrayIfLicensed(.allowedFileProviders) else {
+    private func getAllowedFileProviders() -> FileProviderRestrictions {
+        let allowedFileProvidersString = getStringIfLicensed(.allowedFileProviders)
+        let allowedFileProvidersArray = getStringArrayIfLicensed(.allowedFileProviders)
+        if let allowedFileProvidersString {
+            if allowedFileProvidersArray != nil {
+                Diag.warning("Conflicting allowedFileProviders settings, using the string one.")
+            }
+            return parseAllowedFileProviders(fromString: allowedFileProvidersString)
+        } else if let allowedFileProvidersArray {
+            return parseAllowedFileProviders(fromArray: allowedFileProvidersArray)
+        } else {
             return .allowAll
         }
-        if allowedProviderIDs.contains(Self.fileProvidersAll) {
+    }
+
+    private func parseAllowedFileProviders(fromString string: String) -> FileProviderRestrictions {
+        let array = string
+            .components(separatedBy: [",", " "])
+            .filter { $0.isNotEmpty }
+        return parseAllowedFileProviders(fromArray: array)
+    }
+
+    private func parseAllowedFileProviders(fromArray array: [String]) -> FileProviderRestrictions {
+        if array.contains(Self.fileProvidersAll) {
             return .allowAll
         }
 
-        let allowedProviders = allowedProviderIDs.compactMap {
+        let allowedProviders = array.compactMap {
             FileProvider(rawValue: $0)
         }
         return .allowSome(Set(allowedProviders))
@@ -327,7 +404,7 @@ extension ManagedAppConfig {
             return nil
         }
         guard let result = Int(valueString) else {
-            Diag.warning("Managed value `\(key.rawValue)` is not an Int, ignoring it.")
+            Diag.warning("Managed value `\(key.rawValue)` is not an Int.")
             return nil
         }
         return result
@@ -338,7 +415,7 @@ extension ManagedAppConfig {
             return nil
         }
         guard let result = object as? [String] else {
-            Diag.warning("Managed value `\(key.rawValue)` is not a string array, ignoring it.")
+            Diag.warning("Managed value `\(key.rawValue)` is not a string array.")
             return nil
         }
         return result

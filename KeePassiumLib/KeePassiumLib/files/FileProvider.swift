@@ -26,7 +26,9 @@ public enum FileProvider: Hashable {
         "com.apple.CloudDocs.MobileDocumentsFileProvider": .iCloudDriveLegacy,
         "com.imagam.ifiles2.docsfileprovider": .imagamIFiles,
         "com.dannysu.keepassium.fileprovider.webdav": .keepassiumWebDAV,
-        "com.dannysu.keepassium.fileprovider.onedrive": .keepassiumOneDrive,
+        "com.dannysu.keepassium.fileprovider.onedrive": .keepassiumOneDriveLegacy,
+        "com.dannysu.keepassium.fileprovider.onedrive.personal": .keepassiumOneDrivePersonal,
+        "com.dannysu.keepassium.fileprovider.onedrive.business": .keepassiumOneDriveBusiness,
         "com.dannysu.keepassium.fileprovider.dropbox": .keepassiumDropbox,
         "com.dannysu.keepassium.fileprovider.googledrive": .keepassiumGoogleDrive,
         "mega.ios.MEGAPickerFileProvider": .megaNz,
@@ -67,7 +69,11 @@ public enum FileProvider: Hashable {
     case iCloudDriveLegacy
     case imagamIFiles
     case keepassiumWebDAV
-    case keepassiumOneDrive
+
+    case keepassiumOneDriveLegacy
+    case keepassiumOneDrivePersonal
+    case keepassiumOneDriveBusiness
+
     case keepassiumDropbox
     case keepassiumGoogleDrive
     case megaNz
@@ -171,8 +177,13 @@ public enum FileProvider: Hashable {
             return "iFiles"
         case .keepassiumWebDAV:
             return LString.connectionTypeWebDAV
-        case .keepassiumOneDrive:
+        case .keepassiumOneDriveLegacy:
+            assertionFailure("Unrecognized OneDrive type. Should be either Personal or Business instead")
             return LString.connectionTypeOneDrive
+        case .keepassiumOneDrivePersonal:
+            return LString.connectionTypeOneDrivePersonal
+        case .keepassiumOneDriveBusiness:
+            return LString.connectionTypeOneDriveForBusiness
         case .keepassiumDropbox:
             return LString.connectionTypeDropbox
         case .keepassiumGoogleDrive:
