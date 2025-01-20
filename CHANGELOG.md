@@ -1,5 +1,112 @@
 #CHANGELOG
 
+## [2.3.163] - 2025-01-17
+
+### Added
+
+- Use minus sign to exclude terms from search results (#401) [thanks, everyone]
+- iOS: Custom actions when device is shaken (see Data Protection settings)
+
+### Fixed
+
+- AutoFill: Opening of last-used database (#412) [thanks, everyone]
+- Preserve DB association for not-imported key files [thanks, Ken]
+- macOS: UI fixes in Premium Upgrade dialog (#418, #419) [thanks, vit9696]
+- macOS: Allow smaller app window [thanks, Luke] 
+- macOS: Settings menu text (#414) [thanks, Eitot]
+- Org: Crash when entering text [thanks, everyone]
+
+
+## [2.2.162] - 2024-12-22
+
+### Improved
+
+- Minor UI improvements
+
+
+## [2.2.161] - 2024-12-22
+
+### Removed
+
+- macOS: Removed QR-based OTP setup menu, otherwise Apple blocks the update.
+
+
+## [2.2.160] - 2024-12-20
+
+### Removed
+
+- macOS: Removed unused camera permission (since there is no QR scanner)
+
+
+## [2.1.159] - 2024-12-19
+
+### Improved
+
+- AutoFill: Create passkeys to an existing entry (#297) [thanks, everyone]
+- Updated IT, NL, zh-CN translations [thanks, everyone]
+
+### Fixed
+
+- AutoFill: Behavior when local DBs are unavailable (#381)
+- AutoFill: When appropriate, accept _either_ passkeys or passwords (#405) [thanks, bob-lobster]
+- AutoFill: Prevent passkey creation in read-only DBs (#404) [thanks, Jerroder]
+- AutoFill: Partial fix for QR-based passkey assertions (#408) [thanks, everyone]
+- It was impossible to enter a strong app passcode (regression in 1.54.155) (#409) [thanks, Jan and Yuri]
+- Enforce file timeouts on all direct connections (#398) [thanks, jasperweiss]
+- Some strings were shown untranslated [thanks, Francesco]
+- Replaced deprecated UIMenuController
+
+
+## [2.0.158] - 2024-12-12
+
+### Changed
+
+- Version bump to celebrate the official release of KeePassium for macOS.
+
+
+## [1.54.157] - 2024-12-09
+
+### Added 
+
+- macOS: Database export to CSV format (#262)
+- Search for passkeys (is:passkey) and large attachments (is:large)
+
+### Improved
+
+- AutoFill: faster Quick mode for remote databases, prefers local cache (#391) [thanks, jasperweiss]
+- AutoFill: Warn if not enough memory to save changes
+- Updated all translations [thanks, everyone]
+- Minor UI fixes here and there [thanks, everyone]
+
+### Fixed
+
+- AutoFill: passkey creation on iOS 17 / macOS 14
+- AutoFill: passkey creation when there is already a perfect match
+- AutoFill: Empty Caller ID when creating a passkey [thanks, jasperweiss]
+- AutoFill: Keyboard could cover Passkey creation dialog [thanks, jasperweiss]
+- Crash when changing group/entry icon on iOS 18 [thanks, everyone]
+- AutoFill setup messages updated for iOS 18
+- Possible crash when closing on iOS 18
+- Org: disable UI for storage locations blocked by AppConfig [thanks, S.G.]
+
+
+## [1.54.156] - 2024-11-28
+
+### Added
+
+- AutoFill: Create new passkeys (#297)
+
+### Improved
+
+- macOS: Main menu, toolbar and keyboard shortcuts
+- Org: Updated to MSAL 1.6.2 and Intune SDK 20.2.1
+
+### Fixed
+
+- macOS: can be built for Intel again (excluded yubikit-ios from macOS build)
+- Added iPhone 16, iPad Air 6/7 and iPad Pro 7 to YubiKit device recognition
+
+
 ## [1.54.155] - 2024-11-14
 
 ### Added

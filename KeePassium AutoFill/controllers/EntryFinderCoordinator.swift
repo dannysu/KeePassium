@@ -17,6 +17,12 @@ protocol EntryFinderCoordinatorDelegate: AnyObject {
     func didSelectText(_ text: String, in coordinator: EntryFinderCoordinator)
 
     func didPressReinstateDatabase(_ fileRef: URLReference, in coordinator: EntryFinderCoordinator)
+
+    func didPressCreatePasskey(
+        with params: PasskeyRegistrationParams,
+        target entry: Entry?,
+        presenter: UIViewController,
+        in coordinator: EntryFinderCoordinator)
 }
 
 final class EntryFinderCoordinator: Coordinator {
@@ -28,15 +34,17 @@ final class EntryFinderCoordinator: Coordinator {
     private let entryFinderVC: EntryFinderVC
 
     private let originalRef: URLReference
-    private let databaseFile: DatabaseFile
-    private let database: Database
+    let databaseFile: DatabaseFile
+    let database: Database
     private let loadingWarnings: DatabaseLoadingWarnings?
     private var announcements = [AnnouncementItem]()
 
     private var shouldAutoSelectFirstMatch: Bool = false
     private var serviceIdentifiers: [ASCredentialServiceIdentifier]
     private var passkeyRelyingParty: String?
+    private let passkeyRegistrationParams: PasskeyRegistrationParams?
     private let searchHelper = SearchHelper()
+    private var isSelectingPasskeyCreationTarget = false
 
     private let vcAnimationDuration = 0.3
 
@@ -49,6 +57,7 @@ final class EntryFinderCoordinator: Coordinator {
         loadingWarnings: DatabaseLoadingWarnings?,
         serviceIdentifiers: [ASCredentialServiceIdentifier],
         passkeyRelyingParty: String?,
+        passkeyRegistrationParams: PasskeyRegistrationParams?,
         autoFillMode: AutoFillMode?
     ) {
         self.router = router
@@ -58,6 +67,7 @@ final class EntryFinderCoordinator: Coordinator {
         self.loadingWarnings = loadingWarnings
         self.serviceIdentifiers = serviceIdentifiers
         self.passkeyRelyingParty = passkeyRelyingParty
+        self.passkeyRegistrationParams = passkeyRegistrationParams
         self.autoFillMode = autoFillMode
 
         entryFinderVC = EntryFinderVC.instantiateFromStoryboard()
@@ -110,24 +120,18 @@ extension EntryFinderCoordinator {
     }
 
     private func updateCallerID() {
-        if serviceIdentifiers.isEmpty {
-            entryFinderVC.callerID = nil
-            return
-        }
-
-        var callerID = serviceIdentifiers
-            .map { $0.identifier }
-            .joined(separator: " | ")
-        if let passkeyRelyingParty {
-            callerID += "\nrpID: \(passkeyRelyingParty)"
-        }
-        entryFinderVC.callerID = callerID
+        let serviceID = serviceIdentifiers.first?.identifier
+        entryFinderVC.callerID = serviceID ?? passkeyRelyingParty
     }
 
     private func showInitialMessages() {
-        if let loadingWarnings = loadingWarnings, !loadingWarnings.isEmpty {
+        if let loadingWarnings, !loadingWarnings.isEmpty {
             showLoadingWarnings(loadingWarnings)
             return
+        }
+
+        if let passkeyRegistrationParams {
+            showPasskeyRegistration(passkeyRegistrationParams)
         }
     }
 
@@ -148,13 +152,14 @@ extension EntryFinderCoordinator {
             database: database,
             serviceIdentifiers: serviceIdentifiers,
             passkeyRelyingParty: passkeyRelyingParty)
-        if results.isEmpty {
+        if results.isEmpty && autoFillMode != .passkeyRegistration {
             entryFinderVC.activateManualSearch(query: autoFillMode?.query)
             return
         }
 
         if let perfectMatch = results.perfectMatch,
-           Settings.current.autoFillPerfectMatch
+           Settings.current.autoFillPerfectMatch,
+           autoFillMode != .passkeyRegistration
         {
             delegate?.didSelectEntry(perfectMatch, in: self)
         } else {
@@ -169,6 +174,22 @@ extension EntryFinderCoordinator {
         searchResults.partialMatch = []
         entryFinderVC.setSearchResults(searchResults)
     }
+
+    private func showPasskeyRegistration(_ params: PasskeyRegistrationParams) {
+        guard !databaseFile.status.contains(.readOnly) else {
+            Diag.warning("Database is read-only, cancelling")
+            return
+        }
+        let creatorVC = PasskeyCreatorVC.make(with: params)
+        creatorVC.modalPresentationStyle = .pageSheet
+        creatorVC.delegate = self
+        if let sheet = creatorVC.sheetPresentationController {
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.prefersGrabberVisible = true
+            sheet.detents = creatorVC.detents()
+        }
+        router.present(creatorVC, animated: true, completion: nil)
+    }
 }
 
 extension EntryFinderCoordinator {
@@ -177,7 +198,13 @@ extension EntryFinderCoordinator {
         if databaseFile.status.contains(.localFallback) {
             announcements.append(makeFallbackDatabaseAnnouncement(for: entryFinderVC))
         }
-        if let qafAnnouncment = maybeMakeQuickAutoFillAnnouncment(for: entryFinderVC) {
+        if databaseFile.status.contains(.readOnly) {
+            announcements.append(makeReadOnlyDatabaseAnnouncement(for: entryFinderVC))
+        }
+
+        if announcements.isEmpty,
+           let qafAnnouncment = maybeMakeQuickAutoFillAnnouncment(for: entryFinderVC)
+        {
             announcements.append(qafAnnouncment)
         }
         entryFinderVC.refreshAnnouncements()
@@ -231,6 +258,17 @@ extension EntryFinderCoordinator {
         )
         return announcement
     }
+
+    private func makeReadOnlyDatabaseAnnouncement(
+        for viewController: EntryFinderVC
+    ) -> AnnouncementItem {
+        return AnnouncementItem(
+            title: nil,
+            body: LString.databaseIsReadOnly,
+            actionTitle: nil,
+            image: nil
+        )
+    }
 }
 
 extension EntryFinderCoordinator: EntryFinderDelegate {
@@ -248,7 +286,20 @@ extension EntryFinderCoordinator: EntryFinderDelegate {
     }
 
     func didSelectEntry(_ entry: Entry, in viewController: EntryFinderVC) {
-        delegate?.didSelectEntry(entry, in: self)
+        if isSelectingPasskeyCreationTarget {
+            guard let passkeyRegistrationParams else {
+                assertionFailure()
+                return
+            }
+            delegate?.didPressCreatePasskey(
+                with: passkeyRegistrationParams,
+                target: entry,
+                presenter: viewController,
+                in: self
+            )
+        } else {
+            delegate?.didSelectEntry(entry, in: self)
+        }
     }
 
     func didPressLockDatabase(in viewController: EntryFinderVC) {
@@ -262,6 +313,22 @@ extension EntryFinderCoordinator: EntryFinderDelegate {
             value = getUpdatedOTPValue(field, entry: entry)
         }
         delegate?.didSelectText(value, in: self)
+    }
+}
+
+extension EntryFinderCoordinator: PasskeyCreatorDelegate {
+    func didPressCreatePasskey(with params: PasskeyRegistrationParams, in viewController: PasskeyCreatorVC) {
+        viewController.dismiss(animated: true) { [self] in
+            delegate?.didPressCreatePasskey(with: params, target: nil, presenter: entryFinderVC, in: self)
+        }
+    }
+    func didPressAddPasskeyToEntry(
+        with params: PasskeyRegistrationParams,
+        in viewController: PasskeyCreatorVC
+    ) {
+        viewController.dismiss(animated: true)
+        isSelectingPasskeyCreationTarget = true
+        entryFinderVC.setPasskeyTargetSelectionMode()
     }
 }
 

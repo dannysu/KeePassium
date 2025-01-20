@@ -13,18 +13,7 @@ import IntuneMAMSwift
 import MSAL
 #endif
 
-final class MainCoordinator: Coordinator {
-    enum Action {
-        case showAboutScreen
-        case showAppSettings
-        case createDatabase
-        case openDatabase
-
-        case lockDatabase
-        case createEntry
-        case createGroup
-    }
-
+final class MainCoordinator: UIResponder, Coordinator {
     var childCoordinators = [Coordinator]()
 
     var dismissHandler: CoordinatorDismissHandler? {
@@ -63,6 +52,8 @@ final class MainCoordinator: Coordinator {
 
     private var isReloadingDatabase = false
 
+    private var toolbarDelegate: ToolbarDelegate?
+
     init(window: UIWindow) {
         self.mainWindow = window
         self.rootSplitVC = RootSplitVC()
@@ -77,6 +68,8 @@ final class MainCoordinator: Coordinator {
         rootSplitVC.viewControllers = [primaryNavVC, placeholderNavVC]
 
         watchdog = Watchdog.shared
+        super.init()
+
         watchdog.delegate = self
 
         rootSplitVC.delegate = self
@@ -84,10 +77,33 @@ final class MainCoordinator: Coordinator {
         window.rootViewController = rootSplitVC
 
         #if targetEnvironment(macCatalyst)
-        let titlebar = UIApplication.shared.currentScene?.titlebar
-        titlebar?.titleVisibility = .hidden
+        initMacUI()
         #endif
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleShakeGesture),
+            name: UIDevice.deviceDidShakeNotification,
+            object: nil)
     }
+
+#if targetEnvironment(macCatalyst)
+    private func initMacUI() {
+        guard let scene = UIApplication.shared.currentScene else {
+            assertionFailure()
+            return
+        }
+        let toolbar = NSToolbar(identifier: "main")
+        toolbarDelegate = ToolbarDelegate(mainCoordinator: self)
+        toolbar.delegate = toolbarDelegate
+        toolbar.displayMode = .iconOnly
+
+        let titlebar = scene.titlebar
+        titlebar?.toolbar = toolbar
+        titlebar?.toolbarStyle = .automatic
+        scene.sizeRestrictions?.minimumSize = CGSize(width: 400, height: 600)
+    }
+#endif
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -341,49 +357,6 @@ extension MainCoordinator {
 }
 
 extension MainCoordinator {
-    func canPerform(action: Action) -> Bool {
-        if isAppLockVisible {
-            return false
-        }
-        switch action {
-        case .showAboutScreen:
-            return true
-        case .showAppSettings:
-            return true
-        case .createDatabase:
-            return true
-        case .openDatabase:
-            return true
-        case .lockDatabase:
-            return databaseViewerCoordinator?.canPerform(action: .lockDatabase) ?? false
-        case .createEntry:
-            return databaseViewerCoordinator?.canPerform(action: .createEntry) ?? false
-        case .createGroup:
-            return databaseViewerCoordinator?.canPerform(action: .createGroup) ?? false
-        }
-    }
-
-    func perform(action: Action) {
-        switch action {
-        case .showAboutScreen:
-            showAboutScreen()
-        case .showAppSettings:
-            showSettingsScreen()
-        case .createDatabase:
-            createDatabase()
-        case .openDatabase:
-            openDatabase()
-        case .lockDatabase:
-            databaseViewerCoordinator?.perform(action: .lockDatabase)
-        case .createEntry:
-            databaseViewerCoordinator?.perform(action: .createEntry)
-        case .createGroup:
-            databaseViewerCoordinator?.perform(action: .createGroup)
-        }
-    }
-}
-
-extension MainCoordinator {
 
     private func resetApp() {
         Keychain.shared.reset()
@@ -407,8 +380,7 @@ extension MainCoordinator {
             return
         }
 
-        let dbUnlocker = showDatabaseUnlocker(databaseRef)
-        dbUnlocker.reloadingContext = context
+        let dbUnlocker = showDatabaseUnlocker(databaseRef, context: context)
         dbUnlocker.setDatabase(databaseRef)
     }
 
@@ -438,11 +410,16 @@ extension MainCoordinator {
         deallocateDatabaseUnlocker()
     }
 
-    private func showDatabaseUnlocker(_ databaseRef: URLReference) -> DatabaseUnlockerCoordinator {
+    private func showDatabaseUnlocker(
+        _ databaseRef: URLReference,
+        context: DatabaseReloadContext?
+    ) -> DatabaseUnlockerCoordinator {
         if let databaseUnlockerRouter = databaseUnlockerRouter {
             rootSplitVC.setDetailRouter(databaseUnlockerRouter)
             if let existingDBUnlocker = childCoordinators.first(where: { $0 is DatabaseUnlockerCoordinator }) {
-                return existingDBUnlocker as! DatabaseUnlockerCoordinator
+                let dbUnlocker = existingDBUnlocker as! DatabaseUnlockerCoordinator
+                dbUnlocker.reloadingContext = context
+                return dbUnlocker
             } else {
                 Diag.warning("Internal inconsistency: router without coordinator")
                 assertionFailure()
@@ -461,6 +438,7 @@ extension MainCoordinator {
             self?.databaseUnlockerRouter = nil
         }
         newDBUnlockerCoordinator.delegate = self
+        newDBUnlockerCoordinator.reloadingContext = context
         newDBUnlockerCoordinator.start()
         addChildCoordinator(newDBUnlockerCoordinator)
 
@@ -486,6 +464,7 @@ extension MainCoordinator {
         databaseViewerCoordinator.dismissHandler = { [weak self] coordinator in
             self?.removeChildCoordinator(coordinator)
             self?.databaseViewerCoordinator = nil
+            UIMenu.rebuildMainMenu()
         }
         databaseViewerCoordinator.delegate = self
         databaseViewerCoordinator.start()
@@ -493,6 +472,7 @@ extension MainCoordinator {
         self.databaseViewerCoordinator = databaseViewerCoordinator
 
         deallocateDatabaseUnlocker()
+        UIMenu.rebuildMainMenu()
     }
 
     private func deallocateDatabaseUnlocker() {
@@ -585,6 +565,22 @@ extension MainCoordinator {
         )
     }
 
+    func connectToServer() {
+        guard let dbViewer = databaseViewerCoordinator else {
+            databasePickerCoordinator.maybeAddRemoteDatabase(bypassPaywall: true, presenter: rootSplitVC)
+            return
+        }
+        dbViewer.closeDatabase(
+            shouldLock: false,
+            reason: .appLevelOperation,
+            animated: true,
+            completion: { [weak self] in
+                guard let self = self else { return }
+                self.databasePickerCoordinator.maybeAddRemoteDatabase(bypassPaywall: true, presenter: self.rootSplitVC)
+            }
+        )
+    }
+
     func lockDatabase() {
         assert(databaseViewerCoordinator != nil, "Tried to lock database, but there is none opened")
         databaseViewerCoordinator?.closeDatabase(
@@ -642,6 +638,56 @@ extension MainCoordinator {
             guard let self else { return }
             setDatabase(fileRef, autoOpenWith: context)
         }
+    }
+}
+
+extension MainCoordinator {
+    @objc private func handleShakeGesture() {
+        Diag.debug("Device shaken")
+        HapticFeedback.play(.deviceShaken)
+
+        let action = Settings.current.shakeGestureAction
+        switch action {
+        case .nothing:
+            break
+        case .lockAllDatabases:
+            maybeConfirmShakeAction(action) { [weak self] in
+                DatabaseSettingsManager.shared.eraseAllMasterKeys()
+                self?.lockDatabase()
+            }
+        case .lockApp:
+            guard Settings.current.isAppLockEnabled else {
+                Diag.debug("Nothing to lock, ignoring")
+                return
+            }
+            maybeConfirmShakeAction(action) { [weak self] in
+                self?.showAppLockScreen()
+            }
+        case .quitApp:
+            maybeConfirmShakeAction(action) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    exit(-1)
+                }
+            }
+        }
+    }
+
+    private func maybeConfirmShakeAction(
+        _ action: Settings.ShakeGestureAction,
+        confirmed: @escaping () -> Void
+    ) {
+        guard Settings.current.isConfirmShakeGestureAction && !isAppLockVisible else {
+            confirmed()
+            return
+        }
+
+        let alert = UIAlertController
+            .make(title: action.shortTitle, message: nil, dismissButtonTitle: LString.actionCancel)
+            .addAction(title: LString.actionContinue, style: .default) { _ in
+                confirmed()
+            }
+        Diag.debug("Presenting shake gesture confirmation")
+        getPresenterForModals().present(alert, animated: true)
     }
 }
 
@@ -750,6 +796,7 @@ extension MainCoordinator: WatchdogDelegate {
         } else {
             showPasscodeRequest()
         }
+        UIMenu.rebuildMainMenu()
     }
 
     private func hideAppLockScreen() {
@@ -760,6 +807,7 @@ extension MainCoordinator: WatchdogDelegate {
         appLockWindow?.resignKey()
         appLockWindow?.isHidden = true
         appLockWindow = nil
+        UIMenu.rebuildMainMenu()
         print("appLockWindow hidden")
     }
 
@@ -1143,5 +1191,176 @@ extension MainCoordinator: DatabaseViewerCoordinatorDelegate {
         in coordinator: DatabaseViewerCoordinator
     ) {
         switchToDatabase(databaseRef, key: compositeKey, in: coordinator)
+    }
+}
+
+extension MainCoordinator {
+    private var databaseViewerActionsManager: DatabaseViewerActionsManager {
+        databaseViewerCoordinator?.actionsManager ?? DatabaseViewerActionsManager()
+    }
+
+    override func buildMenu(with builder: UIMenuBuilder) {
+        guard builder.system == UIMenuSystem.main,
+              ProcessInfo.isRunningOnMac
+        else {
+            return
+        }
+
+        builder.remove(menu: .file)
+        builder.remove(menu: .help)
+        builder.remove(menu: .format)
+        builder.remove(menu: .openRecent)
+        builder.remove(menu: .spelling)
+        builder.remove(menu: .spellingOptions)
+        builder.remove(menu: .spellingPanel)
+        builder.remove(menu: .substitutions)
+        builder.remove(menu: .substitutionOptions)
+        builder.remove(menu: .transformations)
+        builder.remove(menu: .speech)
+        builder.remove(menu: .toolbar)
+        builder.remove(menu: .sidebar)
+        builder.replaceChildren(ofMenu: .edit) { _ -> [UIMenuElement] in
+            return []
+        }
+        if isAppLockVisible {
+            builder.remove(menu: .edit)
+            builder.remove(menu: .view)
+            builder.remove(menu: .window)
+            return
+        }
+
+        insertDatabaseMenu(to: builder)
+        insertAboutAppCommand(to: builder)
+        insertPreferencesCommand(to: builder)
+
+        insertToolsMenu(to: builder)
+        insertPasswordGeneratorCommand(to: builder)
+
+        databasePickerCoordinator?.buildMenu(with: builder, isDatabaseShown: databaseViewerCoordinator != nil)
+        databaseViewerActionsManager.buildMenu(with: builder)
+    }
+
+    override func target(forAction action: Selector, withSender sender: Any?) -> Any? {
+        if isAppLockVisible {
+            return self
+        }
+
+        for coo in childCoordinators {
+            if let cooResponder = coo as? UIResponder,
+               cooResponder.canPerformAction(action, withSender: sender)
+            {
+                return cooResponder
+            }
+        }
+        if databaseViewerActionsManager.canPerformAction(action, withSender: sender) {
+            return databaseViewerActionsManager
+        }
+
+        if canPerformAction(action, withSender: sender) {
+            return self
+        }
+        return nil
+    }
+
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if isAppLockVisible {
+            return false
+        }
+        switch action {
+        case #selector(kpmShowAboutScreen),
+             #selector(kpmShowSettingsScreen),
+             #selector(kpmShowRandomGenerator):
+            return true
+        case #selector(kpmCreateDatabase),
+             #selector(kpmOpenDatabase),
+             #selector(kpmConnectToServer):
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func insertDatabaseMenu(to builder: UIMenuBuilder) {
+        var children = [UIMenuElement]()
+        children.append(UIKeyCommand(
+            title: LString.titleNewDatabase,
+            action: #selector(kpmCreateDatabase),
+            hotkey: .createDatabase))
+        children.append(UIKeyCommand(
+            title: LString.actionOpenDatabase,
+            action: #selector(kpmOpenDatabase),
+            hotkey: .openDatabase))
+        children.append(UIKeyCommand(
+            title: LString.actionConnectToServer,
+            action: #selector(kpmConnectToServer),
+            hotkey: .connectToServer))
+        let dbFileMenu = UIMenu(
+            title: LString.titleDatabases,
+            identifier: .databaseFile,
+            children: children)
+        builder.insertSibling(dbFileMenu, afterMenu: .application)
+    }
+
+    private func insertAboutAppCommand(to builder: UIMenuBuilder) {
+        let title = builder.menu(for: .about)?.children.first?.title
+            ?? String.localizedStringWithFormat(LString.titleAboutKeePassium, AppInfo.name)
+        let actionAbout = UICommand(title: title, action: #selector(MainCoordinator.kpmShowAboutScreen))
+        let menuAbout = UIMenu(identifier: .about, options: .displayInline, children: [actionAbout])
+
+        builder.replace(menu: .about, with: menuAbout)
+    }
+
+    private func insertPreferencesCommand(to builder: UIMenuBuilder) {
+        let preferencesCommand = UIKeyCommand(
+            title: builder.menu(for: .preferences)?.children.first?.title ?? LString.menuSettingsMacOS,
+            action: #selector(kpmShowSettingsScreen),
+            hotkey: .appPreferences)
+        let preferencesMenu = UIMenu(
+            identifier: .preferences,
+            options: .displayInline,
+            children: [preferencesCommand]
+        )
+        builder.replace(menu: .preferences, with: preferencesMenu)
+    }
+
+    private func insertPasswordGeneratorCommand(to builder: UIMenuBuilder) {
+        let passwordGeneratorAction = UIKeyCommand(
+            title: LString.PasswordGenerator.titleRandomGenerator,
+            action: #selector(kpmShowRandomGenerator),
+            hotkey: .passwordGenerator)
+        let passGenMenu = UIMenu(
+            identifier: .passwordGenerator,
+            options: .displayInline,
+            children: [passwordGeneratorAction])
+        builder.insertChild(passGenMenu, atStartOfMenu: .tools)
+    }
+
+    private func insertToolsMenu(to builder: UIMenuBuilder) {
+        let toolsMenu = UIMenu(
+            title: LString.titleTools,
+            identifier: .tools,
+            children: []
+        )
+        builder.insertSibling(toolsMenu, afterMenu: .view)
+    }
+
+    @objc func kpmShowAboutScreen() {
+        showAboutScreen()
+    }
+    @objc func kpmShowSettingsScreen() {
+        showSettingsScreen()
+    }
+    @objc func kpmShowRandomGenerator() {
+        showPasswordGenerator(at: nil, in: getPresenterForModals())
+    }
+
+    @objc func kpmCreateDatabase() {
+        createDatabase()
+    }
+    @objc func kpmOpenDatabase() {
+        openDatabase()
+    }
+    @objc func kpmConnectToServer() {
+        connectToServer()
     }
 }

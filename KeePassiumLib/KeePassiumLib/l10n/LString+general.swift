@@ -198,6 +198,7 @@ extension LString {
     )
     public static let actionRefreshList = NSLocalizedString(
         "[Generic/RefreshList/action]",
+        bundle: Bundle.framework,
         value: "Refresh List",
         comment: "Action: refresh list of items, usually files"
     )
@@ -316,6 +317,12 @@ extension LString {
         value: "Search",
         comment: "Title of a search field (a noun, not verb)"
     )
+    public static let titleFileExport = NSLocalizedString(
+        "[Generic/File/Export/title]",
+        bundle: Bundle.framework,
+        value: "File Export",
+        comment: "Title of a generic file export screen."
+    )
     public static let titleFileImportError = NSLocalizedString(
         "[Generic/File/title] Import Error",
         bundle: Bundle.framework,
@@ -336,6 +343,7 @@ extension LString {
     )
     public static let dontUseDatabaseAsKeyFile = NSLocalizedString(
         "KeePass database should not be used as key file. Please pick a different file.",
+        bundle: Bundle.framework,
         comment: "Warning message when the user tries to use a database as a key file"
     )
     public static let tryToReAddFile = NSLocalizedString(
@@ -520,6 +528,12 @@ extension LString {
         value: "Lock Database",
         comment: "Action/button to lock current database (the next time, it will ask for the master key)."
     )
+    public static let titlePlainTextDatabaseExport = NSLocalizedString(
+        "[Database/Export/PlainText/warning]",
+        bundle: Bundle.framework,
+        value: "The exported file will contain your data in plaintext, without any protection.",
+        comment: "Notification message before database export."
+    )
 
     public static let actionChangeMasterKey = NSLocalizedString(
         "[Database/MasterKey/Change/action]",
@@ -630,6 +644,12 @@ extension LString {
         bundle: Bundle.framework,
         value: "Entries with OTP",
         comment: "Title of a list: entries with one-time passwords (OTP)"
+    )
+    public static let titleSmartGroupPasskeyEntries = NSLocalizedString(
+        "[Group/Smart/Preset/passkeyEntries]",
+        bundle: Bundle.framework,
+        value: "Entries with Passkeys",
+        comment: "Title of a list: entries that contain passkeys"
     )
     public static let titleSmartGroupExpiredEntries = NSLocalizedString(
         "[Group/Smart/Preset/expiredEntries]",
@@ -779,6 +799,12 @@ extension LString {
         bundle: Bundle.framework,
         value: "Password",
         comment: "Name of an entry field"
+    )
+    public static let fieldPasskey = NSLocalizedString(
+        "[Entry/Field/name] Passkey",
+        bundle: Bundle.framework,
+        value: "Passkey",
+        comment: "Title of an entry field"
     )
     public static let fieldURL = NSLocalizedString(
         "[Entry/Field/name] URL",
@@ -1051,22 +1077,27 @@ extension LString {
         comment: "Default name for new key files. Should match the `key file` term in the glossary.")
     public static let importKeyFileAction = NSLocalizedString(
         "[KeyFile/Import/action]",
+        bundle: Bundle.framework,
         value: "Import Key File",
         comment: "Action: import/add a key file into the app. `Key file` is a glossary term.")
     public static let importKeyFileDescription = NSLocalizedString(
         "[KeyFile/Import/actionDescription]",
+        bundle: Bundle.framework,
         value: "Add file to the app",
         comment: "Description of the `Import Key File` action.")
     public static let useKeyFileAction = NSLocalizedString(
         "[KeyFile/Use/action]",
+        bundle: Bundle.framework,
         value: "Select Key File",
         comment: "Action: use a key file at its storage location, without importing to the app.")
     public static let useKeyFileDescription = NSLocalizedString(
         "[KeyFile/Use/actionDescription]",
+        bundle: Bundle.framework,
         value: "Use without adding",
         comment: "Description of the `Select Key File` action.")
     public static let actionCreateKeyFile = NSLocalizedString(
         "[KeyFile/Create/action]",
+        bundle: Bundle.framework,
         value: "Create Key File",
         comment: "Action: create new key file.")
 

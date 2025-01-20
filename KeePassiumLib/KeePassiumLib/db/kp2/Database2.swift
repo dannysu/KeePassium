@@ -142,6 +142,8 @@ public class Database2: Database {
     override public var keyHelper: KeyHelper { return _keyHelper }
     private let _keyHelper = KeyHelper2()
 
+    public override var peakKDFMemoryFootprint: Int { header.peakKDFMemoryFootprint }
+
     override public init() {
         super.init()
         header = Header2(database: self)
@@ -1264,6 +1266,13 @@ public class Database2: Database {
                 (entry as! Entry2).enforceCustomIconUUID(isValid: knownIconUUIDs)
             }
         )
+    }
+
+    public func setPasskey(_ passkey: Passkey, for entry: Entry2) {
+        entry.backupState()
+        passkey.apply(to: entry)
+        entry.touch(.accessed)
+        entry.touch(.modified, updateParents: false)
     }
 }
 

@@ -10,7 +10,7 @@ import CryptoKit
 import Foundation
 import OSLog
 
-private let log = Logger(subsystem: "com.keepassium.crypto", category: "Curve25519PEMParser")
+private let log = Logger(subsystem: "com.dannysu.keepassium.crypto", category: "Curve25519PEMParser")
 private let pemHeader = "-----BEGIN PRIVATE KEY-----"
 private let pemFooter = "-----END PRIVATE KEY-----"
 

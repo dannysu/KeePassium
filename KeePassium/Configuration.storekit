@@ -135,7 +135,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.version.154",
+      "productID" : "com.dannysu.keepassium.ios.iap.version.154",
       "referenceName" : "Version 154",
       "type" : "NonConsumable"
     }

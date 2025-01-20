@@ -316,15 +316,19 @@ extension ItemIconPicker: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
-        let header = self.collectionView(
-            collectionView,
-            viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader,
-            at: IndexPath(row: 0, section: section))
-            as! ItemIconPickerSectionHeader
-
         let horizontalMargins = collectionView.layoutMargins.left + collectionView.layoutMargins.right
         let targetWidth = collectionView.bounds.width - horizontalMargins
-        var requiredLabelSize = header.titleLabel.sizeThatFits(
+        let titleLabel = UILabel()
+        titleLabel.font = .preferredFont(forTextStyle: .headline)
+        switch SectionID(rawValue: section) {
+        case .standard:
+            titleLabel.text = LString.itemIconPickerStandardIcons
+        case .custom:
+            titleLabel.text = LString.itemIconPickerCustomIcons
+        default:
+            assertionFailure()
+        }
+        var requiredLabelSize = titleLabel.sizeThatFits(
             CGSize(width: targetWidth, height: .greatestFiniteMagnitude)
         )
         let verticalMargins = CGFloat(8 + 8)

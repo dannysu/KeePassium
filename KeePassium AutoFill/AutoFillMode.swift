@@ -8,18 +8,27 @@
 
 import Foundation
 
-enum AutoFillMode {
+enum AutoFillMode: Equatable {
     case credentials
     case oneTimeCode
     case text
-    case passkey
+    case passkeyRegistration
+    case passkeyAssertion(_ allowPasswords: Bool)
 }
 
 extension AutoFillMode {
     var query: String? {
         switch self {
-        case .credentials, .text, .passkey:
+        case .credentials,
+             .passkeyRegistration,
+             .text:
             return nil
+        case .passkeyAssertion(let allowPasswords):
+            if allowPasswords {
+                return nil
+            } else {
+                return "is:passkey"
+            }
         case .oneTimeCode:
             return "otp:* "
         }
@@ -33,8 +42,10 @@ extension AutoFillMode: CustomDebugStringConvertible {
             return "credentials"
         case .oneTimeCode:
             return "one time code"
-        case .passkey:
-            return "passkey"
+        case .passkeyRegistration:
+            return "passkeyRegistration"
+        case .passkeyAssertion(let allowPasswords):
+            return allowPasswords ? "passkeyAssertion + passwords" : "passkeyAssertion"
         case .text:
             return "text"
         }

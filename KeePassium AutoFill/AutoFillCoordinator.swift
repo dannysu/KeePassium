@@ -26,7 +26,11 @@ class AutoFillCoordinator: NSObject, Coordinator {
     let extensionContext: ASCredentialProviderExtensionContext
     var router: NavigationRouter
 
-    var autoFillMode: AutoFillMode?
+    var autoFillMode: AutoFillMode? {
+        didSet {
+            Diag.debug("Mode: \(autoFillMode?.debugDescription ?? "nil")")
+        }
+    }
 
     private var hasUI = false
     private var isServicesInitialized = false
@@ -40,6 +44,7 @@ class AutoFillCoordinator: NSObject, Coordinator {
     private var serviceIdentifiers = [ASCredentialServiceIdentifier]()
     private var passkeyRelyingParty: String?
     private var passkeyClientDataHash: Data?
+    private var passkeyRegistrationParams: PasskeyRegistrationParams?
 
     private var quickTypeDatabaseLoader: DatabaseLoader?
     private var quickTypeRequiredRecord: QuickTypeAutoFillRecord?
@@ -49,10 +54,18 @@ class AutoFillCoordinator: NSObject, Coordinator {
     fileprivate var isBiometricAuthShown = false
     fileprivate var isPasscodeInputShown = false
 
+    var fileExportHelper: FileExportHelper?
+    var saveSuccessHandler: (() -> Void)?
+    var databaseSaver: DatabaseSaver?
+
     #if INTUNE
     private var enrollmentDelegate: IntuneEnrollmentDelegateImpl?
     private var policyDelegate: IntunePolicyDelegateImpl?
     #endif
+
+    private var memoryFootprintBeforeDatabaseMiB: Float?
+    private var databaseMemoryFootprintMiB: Float?
+    private let memoryPressureSource = DispatchSource.makeMemoryPressureSource(eventMask: [.warning, .critical])
 
     init(
         rootController: CredentialProviderViewController,
@@ -86,6 +99,9 @@ class AutoFillCoordinator: NSObject, Coordinator {
         SettingsMigrator.processAppLaunch(with: Settings.current)
         Diag.info(AppInfo.description)
 
+        memoryPressureSource.setEventHandler { [weak self] in self?.handleMemoryWarning() }
+        memoryPressureSource.activate()
+
         watchdog.delegate = self
     }
 
@@ -93,12 +109,26 @@ class AutoFillCoordinator: NSObject, Coordinator {
         log.trace("Coordinator is deinitializing")
         assert(childCoordinators.isEmpty)
         removeAllChildCoordinators()
+        memoryPressureSource.cancel()
     }
 
-    public func handleMemoryWarning() {
-        log.warning("Received a memory warning, will cancel loading")
-        Diag.error("Received a memory warning")
-        databaseUnlockerCoordinator?.cancelLoading(reason: .lowMemoryWarning)
+    private func handleMemoryWarning() {
+        if memoryPressureSource.isCancelled {
+            return
+        }
+
+        let mibFootprint = MemoryMonitor.getMemoryFootprintMiB()
+        let event = memoryPressureSource.data
+        switch event {
+        case .warning:
+            Diag.error(String(format: "Received a memory warning, using %.1f MiB", mibFootprint))
+        case.critical:
+            Diag.error(String(format: "Received a CRITICAL memory warning, using %.1f MiB", mibFootprint))
+            log.warning("Received a CRITICAL memory warning, will cancel loading")
+            databaseUnlockerCoordinator?.cancelLoading(reason: .lowMemoryWarning)
+        default:
+            log.error("Received a memory warning of unrecognized type")
+        }
     }
 
     func initServices() {
@@ -175,11 +205,20 @@ class AutoFillCoordinator: NSObject, Coordinator {
         }
         #endif
 
-        if Settings.current.isAutoFillFinishedOK {
-            databasePickerCoordinator.shouldSelectDefaultDatabase = true
-        } else {
+        guard Settings.current.isAutoFillFinishedOK else {
             showCrashReport()
+            return
         }
+
+        let isDefaultDatabaseReachable: Bool
+        if Settings.current.startupDatabase?.location == .internalDocuments {
+            let areInternalDatabasesLikelyMissing = FileKeeper.canPossiblyAccessAppSandbox
+                    && !FileKeeper.shared.canActuallyAccessAppSandbox
+            isDefaultDatabaseReachable = !areInternalDatabasesLikelyMissing
+        } else {
+            isDefaultDatabaseReachable = true
+        }
+        databasePickerCoordinator.shouldSelectDefaultDatabase = isDefaultDatabaseReachable
     }
 
     internal func cleanup() {
@@ -199,7 +238,7 @@ class AutoFillCoordinator: NSObject, Coordinator {
 
 extension AutoFillCoordinator {
     private func isNeedsOnboarding() -> Bool {
-        if FileKeeper.canAccessAppSandbox {
+        if FileKeeper.canPossiblyAccessAppSandbox {
             return false
         }
 
@@ -278,6 +317,7 @@ extension AutoFillCoordinator {
         databaseFile: DatabaseFile,
         warnings: DatabaseLoadingWarnings
     ) {
+        log.trace("Displaying database viewer")
         let entryFinderCoordinator = EntryFinderCoordinator(
             router: router,
             originalRef: fileRef,
@@ -285,6 +325,7 @@ extension AutoFillCoordinator {
             loadingWarnings: warnings,
             serviceIdentifiers: serviceIdentifiers,
             passkeyRelyingParty: passkeyRelyingParty,
+            passkeyRegistrationParams: passkeyRegistrationParams,
             autoFillMode: autoFillMode
         )
         entryFinderCoordinator.dismissHandler = {[weak self] coordinator in
@@ -296,6 +337,111 @@ extension AutoFillCoordinator {
         entryFinderCoordinator.start()
         addChildCoordinator(entryFinderCoordinator)
         self.entryFinderCoordinator = entryFinderCoordinator
+    }
+
+    func maybeWarnAboutExcessiveMemory(presenter: UIViewController, _ completion: @escaping () -> Void) {
+        guard let databaseMemoryFootprintMiB,
+              let kdfPeak = entryFinderCoordinator?.databaseFile.database.peakKDFMemoryFootprint
+        else {
+            assertionFailure()
+            completion()
+            return
+        }
+
+        let kdfPeakMiB = MemoryMonitor.bytesToMiB(kdfPeak)
+        let memoryRequiredForSavingMiB = kdfPeakMiB
+                + 2 * databaseMemoryFootprintMiB
+                + MemoryMonitor.autoFillMemoryWarningThresholdMiB
+        let memoryAvailableMiB = MemoryMonitor.estimateAutoFillMemoryRemainingMiB()
+        Diag.debug(String(
+            format: "%.1f MiB necessary, %.1f MiB available",
+            memoryRequiredForSavingMiB,
+            memoryAvailableMiB
+        ))
+        log.debug("\(memoryRequiredForSavingMiB, format: .fixed(precision: 1), privacy: .public) MiB necessary, \(memoryAvailableMiB, format: .fixed(precision: 1), privacy: .public) MiB available")
+
+        if memoryAvailableMiB > memoryRequiredForSavingMiB {
+            completion()
+        } else {
+            let alert = UIAlertController.make(
+                title: LString.titleWarning,
+                message: LString.messageAutoFillCannotModify,
+                dismissButtonTitle: LString.actionCancel)
+            alert.addAction(title: LString.actionContinue, style: .default, preferred: true) { _ in
+                completion()
+            }
+            presenter.present(alert, animated: true, completion: nil)
+        }
+    }
+
+    private func startPasskeyRegistration(
+        with params: PasskeyRegistrationParams,
+        target entry: Entry?,
+        in databaseFile: DatabaseFile,
+        presenter: UIViewController
+    ) {
+        let presenter = router.navigationController
+        guard let db2 = databaseFile.database as? Database2,
+              let rootGroup = db2.root as? Group2
+        else {
+            Diag.error("Tried to register passkey in non-KDBX database, cancelling")
+            presenter.showErrorAlert(LString.titleDatabaseFormatDoesNotSupportPasskeys)
+            return
+        }
+
+        let passkey: NewPasskey
+        do {
+            passkey = try NewPasskey.make(with: params)
+        } catch {
+            log.error("Failed to create passkey. Reason: \(error.localizedDescription, privacy: .public)")
+            presenter.showErrorAlert(error.localizedDescription)
+            return
+        }
+
+        guard let targetEntry = entry as? Entry2 else {
+            Diag.debug("Creating a new passkey entry")
+            _ = rootGroup.createPasskeyEntry(with: passkey)
+            finishPasskeyRegistration(passkey, in: databaseFile, presenter: presenter)
+            return
+        }
+        guard let _ = Passkey.make(from: targetEntry) else {
+            Diag.debug("Adding passkey to existing entry")
+            db2.setPasskey(passkey, for: targetEntry)
+            finishPasskeyRegistration(passkey, in: databaseFile, presenter: presenter)
+            return
+        }
+
+        let overwriteConfirmationAlert = UIAlertController.make(
+            title: LString.fieldPasskey,
+            message: LString.titleConfirmReplacingExistingPasskey,
+            dismissButtonTitle: LString.actionCancel)
+        overwriteConfirmationAlert.addAction(
+            title: LString.actionReplace,
+            style: .destructive,
+            preferred: false,
+            handler: { [weak self, weak databaseFile, weak presenter] _ in
+                guard let self, let databaseFile, let presenter else { return }
+                Diag.debug("Replacing passkey in existing entry")
+                db2.setPasskey(passkey, for: targetEntry)
+                finishPasskeyRegistration(passkey, in: databaseFile, presenter: presenter)
+            }
+        )
+        presenter.present(overwriteConfirmationAlert, animated: true)
+    }
+
+    private func finishPasskeyRegistration(
+        _ passkey: NewPasskey,
+        in databaseFile: DatabaseFile,
+        presenter: UIViewController
+    ) {
+        maybeWarnAboutExcessiveMemory(presenter: presenter) { [weak self] in
+            guard let self else { return }
+
+            Settings.current.isAutoFillFinishedOK = false
+            saveDatabase(databaseFile, onSuccess: { [weak self, passkey] in
+                self?.returnPasskeyRegistration(passkey: passkey)
+            })
+        }
     }
 }
 
@@ -314,15 +460,31 @@ extension AutoFillCoordinator: DatabaseLoaderDelegate {
         start()
     }
 
-    public func startPasskeyUI(
-        _ passkeyRequest: ASPasskeyCredentialRequestParameters,
+    public func startPasskeyRegistrationUI(_ request: ASPasskeyCredentialRequest) {
+        log.trace("Starting passkey registration UI")
+        self.autoFillMode = .passkeyRegistration
+        let identity = request.credentialIdentity as! ASPasskeyCredentialIdentity
+        self.passkeyRelyingParty = identity.relyingPartyIdentifier
+        self.passkeyClientDataHash = request.clientDataHash
+        self.passkeyRegistrationParams = PasskeyRegistrationParams(
+            identity: identity,
+            userVerificationPreference: request.userVerificationPreference,
+            clientDataHash: request.clientDataHash,
+            supportedAlgorithms: request.supportedAlgorithms)
+        start()
+    }
+
+    public func startPasskeyAssertionUI(
+        allowPasswords: Bool,
+        clientDataHash: Data,
+        relyingParty: String,
         forServices serviceIdentifiers: [ASCredentialServiceIdentifier]
     ) {
-        log.trace("Starting passkey UI")
+        log.trace("Starting passkey assertion UI")
         self.serviceIdentifiers = serviceIdentifiers
-        self.autoFillMode = .passkey
-        self.passkeyClientDataHash = passkeyRequest.clientDataHash
-        self.passkeyRelyingParty = passkeyRequest.relyingPartyIdentifier
+        self.autoFillMode = .passkeyAssertion(allowPasswords)
+        self.passkeyClientDataHash = clientDataHash
+        self.passkeyRelyingParty = relyingParty
         start()
     }
 
@@ -345,7 +507,7 @@ extension AutoFillCoordinator: DatabaseLoaderDelegate {
     ) {
         self.passkeyClientDataHash = clientDataHash
         self.passkeyRelyingParty = credentialIdentity.relyingPartyIdentifier
-        provideWithoutUI(forIdentity: credentialIdentity, mode: .passkey)
+        provideWithoutUI(forIdentity: credentialIdentity, mode: .passkeyAssertion(false))
     }
 
     func provideWithoutUI(forIdentity credentialIdentity: ASCredentialIdentity, mode: AutoFillMode) {
@@ -364,11 +526,21 @@ extension AutoFillCoordinator: DatabaseLoaderDelegate {
         quickTypeRequiredRecord = record
         self.autoFillMode = mode
 
+        var dbStatus = DatabaseFile.Status([.readOnly, .useStreams])
         guard let dbRef = findDatabase(for: record) else {
             log.warning("Failed to find the record, switching to UI")
             QuickTypeAutoFillStorage.removeAll()
             cancelRequest(.userInteractionRequired)
             return
+        }
+
+        var fallbackDBRef: URLReference?
+        if !(dbRef.location.isInternal || dbRef.fileProvider == .localStorage) {
+            fallbackDBRef = DatabaseManager.getFallbackFile(for: dbRef)
+        }
+        if fallbackDBRef != nil {
+            log.info("Found fallback file, using it")
+            dbStatus.insert(.localFallback)
         }
 
         let databaseSettingsManager = DatabaseSettingsManager.shared
@@ -385,9 +557,9 @@ extension AutoFillCoordinator: DatabaseLoaderDelegate {
 
         assert(self.quickTypeDatabaseLoader == nil)
         quickTypeDatabaseLoader = DatabaseLoader(
-            dbRef: dbRef,
+            dbRef: fallbackDBRef ?? dbRef,
             compositeKey: masterKey,
-            status: [.readOnly, .useStreams],
+            status: dbStatus,
             timeout: Timeout(duration: timeoutDuration),
             delegate: self
         )
@@ -405,6 +577,7 @@ extension AutoFillCoordinator {
                 code: code.rawValue
             )
         )
+        cleanup()
     }
 
     private func getOTPForClipboard(for entry: Entry) -> String? {
@@ -428,10 +601,16 @@ extension AutoFillCoordinator {
                 assertionFailure()
                 cancelRequest(.failed)
             }
-        case .passkey:
-            returnPasskey(from: entry)
+        case .passkeyAssertion(let allowPasswords):
+            let passkeyReturned = maybeReturnPasskeyAssertion(from: entry)
+            guard passkeyReturned || allowPasswords else {
+                cancelRequest(.credentialIdentityNotFound)
+                return
+            }
+            returnCredentials(from: entry)
         default:
-            log.error("Unexpected AutoFillMode value, cancelling")
+            let mode = autoFillMode?.debugDescription ?? "nil"
+            log.error("Unexpected AutoFillMode value `\(mode, privacy: .public)`, cancelling")
             assertionFailure()
             cancelRequest(.failed)
         }
@@ -474,7 +653,6 @@ extension AutoFillCoordinator {
         guard let totpGenerator = TOTPGeneratorFactory.makeGenerator(for: entry) else {
             log.error("Tried to return one time code from entry with no TOTP, cancelling")
             cancelRequest(.credentialIdentityNotFound)
-            cleanup()
             return
         }
 
@@ -506,8 +684,8 @@ extension AutoFillCoordinator {
         cleanup()
     }
 
-    private func returnPasskey(from entry: Entry) {
-        log.trace("Will return passkey")
+    private func returnPasskeyRegistration(passkey: NewPasskey) {
+        log.trace("Will return registered passkey")
         watchdog.restart()
         guard let passkeyClientDataHash else {
             log.error("Passkey request parameters unexpectedly missing, cancelling")
@@ -516,14 +694,41 @@ extension AutoFillCoordinator {
             return
         }
 
-        guard let passkey = Passkey.make(from: entry) else {
-            log.error("Selected entry does not have passkeys, cancelling")
-            assertionFailure()
-            cancelRequest(.credentialIdentityNotFound)
-            return
-        }
+        let passkeyCredential = passkey.makeRegistrationCredential(clientDataHash: passkeyClientDataHash)
+        extensionContext.completeRegistrationRequest(
+            using: passkeyCredential,
+            completionHandler: { [self] expired in
+                log.info("Did return passkey (exp: \(expired))")
+            }
+        )
 
-        guard let passkeyCredential = passkey.makeCredential(clientDataHash: passkeyClientDataHash) else {
+        if hasUI {
+            HapticFeedback.play(.credentialsPasted)
+        }
+        Settings.current.isAutoFillFinishedOK = true
+        cleanup()
+    }
+
+    private func maybeReturnPasskeyAssertion(from entry: Entry) -> Bool {
+        guard let passkeyClientDataHash else {
+            log.error("Passkey request parameters missing")
+            return false
+        }
+        guard let passkey = Passkey.make(from: entry) else {
+            log.error("Selected entry does not have passkeys")
+            return false
+        }
+        returnPasskeyAssertion(passkey: passkey, clientDataHash: passkeyClientDataHash)
+        return true
+    }
+
+    private func returnPasskeyAssertion(passkey: Passkey, clientDataHash: Data) {
+        log.trace("Will return passkey")
+        watchdog.restart()
+
+        guard let passkeyCredential =
+                passkey.makeAssertionCredential(clientDataHash: clientDataHash)
+        else {
             log.error("Failed to make passkey credential, cancelling")
             assertionFailure()
             cancelRequest(.failed)
@@ -576,6 +781,7 @@ extension AutoFillCoordinator {
             cancelRequest(.credentialIdentityNotFound)
             return
         }
+        log.trace("returnQuickTypeEntry")
         returnEntry(foundEntry)
     }
 
@@ -845,6 +1051,10 @@ extension AutoFillCoordinator: DatabaseUnlockerCoordinatorDelegate {
     }
 
     func willUnlockDatabase(_ fileRef: URLReference, in coordinator: DatabaseUnlockerCoordinator) {
+        assert(memoryFootprintBeforeDatabaseMiB == nil)
+        memoryFootprintBeforeDatabaseMiB = MemoryMonitor.getMemoryFootprintMiB()
+        Diag.debug(String(format: "Memory use before loading: %.1f MiB", memoryFootprintBeforeDatabaseMiB!))
+
         Settings.current.isAutoFillFinishedOK = false
     }
 
@@ -854,7 +1064,8 @@ extension AutoFillCoordinator: DatabaseUnlockerCoordinatorDelegate {
         reason: String?,
         in coordinator: DatabaseUnlockerCoordinator
     ) {
-        Settings.current.isAutoFillFinishedOK = true 
+        Settings.current.isAutoFillFinishedOK = true
+        memoryFootprintBeforeDatabaseMiB = nil
     }
 
     func shouldChooseFallbackStrategy(
@@ -870,10 +1081,27 @@ extension AutoFillCoordinator: DatabaseUnlockerCoordinatorDelegate {
         warnings: DatabaseLoadingWarnings,
         in coordinator: DatabaseUnlockerCoordinator
     ) {
-        Settings.current.isAutoFillFinishedOK = true 
+        if let memoryFootprintBeforeDatabaseMiB {
+            let currentFootprintMiB = MemoryMonitor.getMemoryFootprintMiB()
+            Diag.debug(String(format: "Memory use after loading: %.1f MiB", currentFootprintMiB))
+            databaseMemoryFootprintMiB = max(currentFootprintMiB - memoryFootprintBeforeDatabaseMiB, 0)
+            let kdfMemoryFootprintMiB = MemoryMonitor.bytesToMiB(databaseFile.database.peakKDFMemoryFootprint)
+            Diag.debug(String(
+                format: "DB memory footprint: %.1f MiB KDF + %.1f MiB data",
+                kdfMemoryFootprintMiB,
+                databaseMemoryFootprintMiB!
+            ))
+        } else {
+            assertionFailure("memoryAvailableBeforeDatabaseLoad is unexpectedly nil")
+        }
+        memoryFootprintBeforeDatabaseMiB = nil
+
+        Settings.current.isAutoFillFinishedOK = true
         if let targetRecord = quickTypeRequiredRecord,
-           let desiredEntry = findEntry(matching: targetRecord, in: databaseFile)
+           let desiredEntry = findEntry(matching: targetRecord, in: databaseFile),
+           autoFillMode != .passkeyRegistration
         {
+            log.trace("Unlocked and found a match")
             returnEntry(desiredEntry)
         } else {
             showDatabaseViewer(fileRef, databaseFile: databaseFile, warnings: warnings)
@@ -905,6 +1133,7 @@ extension AutoFillCoordinator: EntryFinderCoordinatorDelegate {
     }
 
     func didSelectEntry(_ entry: Entry, in coordinator: EntryFinderCoordinator) {
+        log.trace("didSelectEntry")
         returnEntry(entry)
     }
 
@@ -917,6 +1146,33 @@ extension AutoFillCoordinator: EntryFinderCoordinatorDelegate {
         coordinator.stop(animated: true) { [weak self] in
             self?.reinstateDatabase(fileRef)
         }
+    }
+
+    func didPressCreatePasskey(
+        with params: PasskeyRegistrationParams,
+        target entry: Entry?,
+        presenter: UIViewController,
+        in coordinator: EntryFinderCoordinator
+    ) {
+        startPasskeyRegistration(
+            with: params,
+            target: entry,
+            in: coordinator.databaseFile,
+            presenter: presenter
+        )
+    }
+}
+
+extension AutoFillCoordinator: DatabaseSaving {
+    var savingProgressHost: ProgressViewHost? {
+        return router
+    }
+
+    func didRelocate(databaseFile: KeePassiumLib.DatabaseFile, to newURL: URL) {
+    }
+
+    func getDatabaseSavingErrorParent() -> UIViewController {
+        return router.navigationController
     }
 }
 

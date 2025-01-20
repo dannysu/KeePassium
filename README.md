@@ -79,8 +79,7 @@ To build your own binary, download the project and open it in Xcode 10.2 (or abo
 - Open `KeePassium.xcworkspace`
 - Select "KeePassium Pro" build target
 - From the menu: Product -> Archive
-- From Archives, "Distribute App" for Debugging
-- Choose App Thining option for the particular device
+- From Archives, "Distribute App" for Release Testing and export it
 - Plug in device and then drag & drop the IPA onto the device in Finder
 
 

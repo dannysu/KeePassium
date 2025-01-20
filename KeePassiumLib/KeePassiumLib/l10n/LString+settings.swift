@@ -13,6 +13,11 @@ extension LString {
         bundle: Bundle.framework,
         value: "Settings",
         comment: "Title of the app settings screen")
+    public static let menuSettingsMacOS = NSLocalizedString(
+        "[Menu/Settings/title]",
+        bundle: Bundle.framework,
+        value: "Settings…",
+        comment: "Menu title: app settings")
 
     public static let actionRestoreDefaults = NSLocalizedString(
         "[Settings/RestoreDefaults/action]",

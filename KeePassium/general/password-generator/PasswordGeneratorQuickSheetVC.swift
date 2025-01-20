@@ -95,7 +95,20 @@ final class PasswordGeneratorQuickSheetVC: UITableViewController, Refreshable {
             ],
             animated: false
         )
+    }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if popoverPresentationController?.presentationStyle == .popover {
+            setupPreferredContentSize()
+        }
+    }
+
+    private func setupPreferredContentSize() {
         preferredContentSizeObservation = tableView.observe(\.contentSize) { [weak self] _, _ in
             guard let self else { return }
             guard self.navigationController?.viewControllers.count == 1 else {
@@ -105,14 +118,11 @@ final class PasswordGeneratorQuickSheetVC: UITableViewController, Refreshable {
                 width: 400,
                 height: self.tableView.contentSize.height
             )
+
             DispatchQueue.main.async {
                 self.preferredContentSize = newPreferredSize
             }
         }
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     func refresh() {

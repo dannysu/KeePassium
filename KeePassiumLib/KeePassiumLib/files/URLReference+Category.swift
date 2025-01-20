@@ -25,9 +25,9 @@ extension URLReference {
 
         private static var mainAppPrefix: String {
             if BusinessModel.type == .prepaid {
-                return "com.keepassium.pro.recentFiles"
+                return "com.dannysu.keepassium.pro.recentFiles"
             } else {
-                return "com.keepassium.recentFiles"
+                return "com.dannysu.keepassium.recentFiles"
             }
         }
 
@@ -37,9 +37,9 @@ extension URLReference {
             }
 
             if BusinessModel.type == .prepaid {
-                return "com.keepassium.pro.autoFill.recentFiles"
+                return "com.dannysu.keepassium.pro.autoFill.recentFiles"
             } else {
-                return "com.keepassium.autoFill.recentFiles"
+                return "com.dannysu.keepassium.autoFill.recentFiles"
             }
         }
 
