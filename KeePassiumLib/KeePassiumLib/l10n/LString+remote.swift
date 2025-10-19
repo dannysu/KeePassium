@@ -15,6 +15,12 @@ extension LString {
         value: "Connect to Server",
         comment: "Action: connect to a network server ")
 
+    public static let actionEditConnection = NSLocalizedString(
+        "[RemoteConnection/Edit/action]",
+        bundle: Bundle.framework,
+        value: "Edit Connection…",
+        comment: "Action: change properties of a remote network connection")
+
     public static let titleRemoteConnection = NSLocalizedString(
         "[RemoteConnection/title]",
         bundle: Bundle.framework,
@@ -28,7 +34,19 @@ extension LString {
         comment: "Error message: user credentials rejected by the server"
     )
 
+    public static let connectionTypeHetzner = "Hetzner Storage Box"
+    public static let connectionTypeHiDriveIonos = "HiDrive (Ionos)"
+    public static let connectionTypeHiDriveStrato = "HiDrive (Strato)"
+    public static let connectionTypeHTTP = "HTTP/S"
+    public static let connectionTypeKoofr = "Koofr"
+    public static let connectionTypeMagentaCloud = "MagentaCloud"
+    public static let connectionTypeNextcloud = "Nextcloud"
+    public static let connectionTypeOwnCloud = "ownCloud"
+    public static let connectionTypeQNAP = "QNAP"
+    public static let connectionTypeSynology = "Synology"
     public static let connectionTypeWebDAV = "WebDAV"
+    public static let connectionTypeWoelkli = "Woelkli"
+
     public static let connectionTypeOneDrive = "OneDrive"
     public static let connectionTypeOneDrivePersonal = connectionTypeOneDrive
     public static let connectionTypeSharePoint = "SharePoint"
@@ -37,6 +55,11 @@ extension LString {
         bundle: Bundle.framework,
         value: "OneDrive for Business",
         comment: "Name of a cloud storage service. Must match Microsoft's translation, see  https://partner.microsoft.com/solutions/onedrive-for-business")
+    public static let connectionTypeDedicatedAppFolder = NSLocalizedString(
+        "[StorageService/DedicatedAppFolder/title]",
+        bundle: Bundle.framework,
+        value: "App Folder Only",
+        comment: "Subtitle for a storage service: the app will have access only to its own dedicated folder.")
     public static let connectionTypeDropbox = "Dropbox"
     public static let connectionTypeDropboxBusiness = NSLocalizedString(
         "[StorageService/DropboxBusiness/title]",
@@ -65,6 +88,11 @@ extension LString {
         bundle: Bundle.framework,
         value: "Connection",
         comment: "Network connection. For example `Connection: WebDAV` or `Connection: MyCloud`.")
+    public static let directConnectionTitle = NSLocalizedString(
+        "[RemoteConnection/Direct/title]",
+        bundle: Bundle.framework,
+        value: "Online Services",
+        comment: "Title of a list with online storage services like OneDrive, Dropbox, etc.")
     public static let directConnectionDescription = NSLocalizedString(
         "[RemoteConnection/Direct/description]",
         bundle: Bundle.framework,
@@ -93,11 +121,24 @@ extension LString {
         bundle: Bundle.framework,
         value: "Server URL",
         comment: "Network address of a WebDAV server")
+
+    public static let titleFullURL = NSLocalizedString(
+        "[RemoteConnection/FullURL]",
+        bundle: Bundle.framework,
+        value: "Full URL",
+        comment: "Complete WebDAV URL including path prefix")
+
     public static let titleCredentials = NSLocalizedString(
         "[RemoteConnection/Credentials]",
         bundle: Bundle.framework,
         value: "Credentials",
         comment: "Title of a section: username, password, etc")
+
+    public static let titleWebDAVServiceSetupGuideTemplate = NSLocalizedString(
+        "[RemoteConnection/WebDAVService/SetupGuide]",
+        bundle: Bundle.framework,
+        value: "%@ Setup Guide",
+        comment: "Link to a help page for an online storage service. The parameter is the service name in fixed neutral form. Example: 'Nextcloud Setup Guide' or 'Synology NAS Setup Guide'.")
 
     public static let titleFolderIsEmpty = NSLocalizedString(
         "[General/FileList/Empty/title]",

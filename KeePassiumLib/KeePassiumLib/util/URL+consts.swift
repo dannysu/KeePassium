@@ -36,8 +36,10 @@ extension URL {
             }
         }
     }
+
     public enum AppHelp {
         public static let helpIndex = URL(string: "https://keepassium.com/apphelp/")!
+        public static var changeLog = URL(string: "https://keepassium.com/changelog/")!
 
         public static let termsAndConditions = URL(string: "https://keepassium.com/terms/app")!
         public static let privacyPolicyOfflineMode = URL(string: "https://keepassium.com/privacy/app")!
@@ -67,6 +69,7 @@ extension URL {
 
         public static let yubikeySetup = URL(string: "https://keepassium.com/apphelp/yubikey-setup/")!
 
+        public static let usingFallbackDatabase = URL(string: "https://keepassium.com/apphelp/database-unreachable-using-fallback/")!
         public static let databaseFileIsInTrashWarning = URL(string: "https://keepassium.com/apphelp/database-recently-deleted-warning/")!
         public static let temporaryBackupDatabaseWarning = URL(string: "https://keepassium.com/apphelp/temporary-backup-database-warning/")!
 

@@ -26,7 +26,7 @@ final class RemoteFileExportCoordinator: BaseCoordinator {
     init(data: ByteArray, fileName: String, router: NavigationRouter) {
         self.data = data
         self.fileName = fileName
-        connectionTypePicker = ConnectionTypePickerVC.make()
+        connectionTypePicker = ConnectionTypePickerVC()
         super.init(router: router)
         connectionTypePicker.delegate = self
         connectionTypePicker.showsOtherLocations = false
@@ -37,7 +37,7 @@ final class RemoteFileExportCoordinator: BaseCoordinator {
         _pushInitialViewController(connectionTypePicker, animated: true)
     }
 
-    private func upload<Manager: RemoteDataSourceManager> (
+    private func upload<Manager: RemoteDataSourceManager>(
         _ folder: Manager.ItemType,
         oauthToken: OAuthToken,
         timeout: Timeout,
@@ -230,15 +230,8 @@ final class RemoteFileExportCoordinator: BaseCoordinator {
 }
 
 extension RemoteFileExportCoordinator: ConnectionTypePickerDelegate {
-    func isConnectionTypeEnabled(
-        _ connectionType: RemoteConnectionType,
-        in viewController: ConnectionTypePickerVC
-    ) -> Bool {
-        return true
-    }
-
-    func willSelect(
-        connectionType: KeePassiumLib.RemoteConnectionType,
+    func shouldSelect(
+        connectionType: RemoteConnectionType,
         in viewController: ConnectionTypePickerVC
     ) -> Bool {
         if connectionType.isPremiumUpgradeRequired {
@@ -255,14 +248,25 @@ extension RemoteFileExportCoordinator: ConnectionTypePickerDelegate {
         viewController.ensuringNetworkAccessPermitted { [weak self] in
             guard let self else { return }
             switch connectionType {
-            case .webdav:
-                startWebDAVSetup(stateIndicator: viewController)
-            case .oneDrivePersonal, .oneDriveForBusiness:
-                startOneDriveSetup(stateIndicator: viewController)
-            case .dropbox, .dropboxBusiness:
-                startDropboxSetup(stateIndicator: viewController)
-            case .googleDrive, .googleWorkspace:
-                startGoogleDriveSetup(stateIndicator: viewController)
+            case .genericWebDAV,
+                 .genericHTTP,
+                 .hetzner,
+                 .hiDriveIonos,
+                 .hiDriveStrato,
+                 .koofr,
+                 .magentaCloud,
+                 .nextcloud,
+                 .owncloud,
+                 .qnap,
+                 .synology,
+                 .woelkli:
+                startWebDAVSetup(connectionType: connectionType, stateIndicator: viewController)
+            case .oneDrivePersonal(let scope), .oneDriveForBusiness(let scope):
+                startOneDriveSetup(scope: scope, stateIndicator: viewController)
+            case .dropboxPersonal(let scope), .dropboxBusiness(let scope):
+                startDropboxSetup(scope: scope, stateIndicator: viewController)
+            case .googleDrive(let scope), .googleWorkspace(let scope):
+                startGoogleDriveSetup(scope: scope, stateIndicator: viewController)
             }
         }
     }
@@ -273,12 +277,12 @@ extension RemoteFileExportCoordinator: ConnectionTypePickerDelegate {
 }
 
 extension RemoteFileExportCoordinator: GoogleDriveConnectionSetupCoordinatorDelegate {
-    private func startGoogleDriveSetup(stateIndicator: BusyStateIndicating) {
+    private func startGoogleDriveSetup(scope: OAuthScope, stateIndicator: BusyStateIndicating) {
         let setupCoordinator = GoogleDriveConnectionSetupCoordinator(
-            router: _router,
+            mode: .pick(.folder),
+            scope: scope,
             stateIndicator: stateIndicator,
-            oldRef: nil,
-            selectionMode: .folder
+            router: _router,
         )
         setupCoordinator.delegate = self
         setupCoordinator.start()
@@ -312,12 +316,12 @@ extension RemoteFileExportCoordinator: GoogleDriveConnectionSetupCoordinatorDele
 }
 
 extension RemoteFileExportCoordinator: DropboxConnectionSetupCoordinatorDelegate {
-    private func startDropboxSetup(stateIndicator: BusyStateIndicating) {
+    private func startDropboxSetup(scope: OAuthScope, stateIndicator: BusyStateIndicating) {
         let setupCoordinator = DropboxConnectionSetupCoordinator(
-            router: _router,
+            mode: .pick(.folder),
+            scope: scope,
             stateIndicator: stateIndicator,
-            oldRef: nil,
-            selectionMode: .folder
+            router: _router,
         )
         setupCoordinator.delegate = self
         setupCoordinator.start()
@@ -351,11 +355,11 @@ extension RemoteFileExportCoordinator: DropboxConnectionSetupCoordinatorDelegate
 }
 
 extension RemoteFileExportCoordinator: OneDriveConnectionSetupCoordinatorDelegate {
-    private func startOneDriveSetup(stateIndicator: BusyStateIndicating) {
+    private func startOneDriveSetup(scope: OAuthScope, stateIndicator: BusyStateIndicating) {
         let setupCoordinator = OneDriveConnectionSetupCoordinator(
+            mode: .pick(.folder),
+            scope: scope,
             stateIndicator: stateIndicator,
-            selectionMode: .folder,
-            oldRef: nil,
             router: _router
         )
         setupCoordinator.delegate = self
@@ -390,10 +394,11 @@ extension RemoteFileExportCoordinator: OneDriveConnectionSetupCoordinatorDelegat
 }
 
 extension RemoteFileExportCoordinator: WebDAVConnectionSetupCoordinatorDelegate {
-    private func startWebDAVSetup(stateIndicator: BusyStateIndicating) {
+    private func startWebDAVSetup(connectionType: RemoteConnectionType, stateIndicator: BusyStateIndicating) {
         let setupCoordinator = WebDAVConnectionSetupCoordinator(
-            router: _router,
-            selectionMode: .folder
+            mode: .pick(.folder),
+            connectionType: connectionType,
+            router: _router
         )
         setupCoordinator.delegate = self
         setupCoordinator.start()

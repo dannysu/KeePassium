@@ -17,6 +17,10 @@ public extension URL {
 
     var isRemoteURL: Bool { !isFileURL }
 
+    var isDeepLinkURL: Bool { scheme == AppGroup.appURLScheme }
+
+    var isOTPAuthURL: Bool { scheme == "otpauth" }
+
     var isInTrashDirectory: Bool {
         do {
             let fileManager = FileManager.default
@@ -232,7 +236,7 @@ public extension URL {
             return WebDAVFileURL.getDescription(for: self)
         } else if isOneDrivePersonalFileURL || isOneDriveBusinessFileURL {
             return self.getOneDriveLocationDescription()
-        } else if isDropboxFileURL {
+        } else if isDropboxPersonalFileURL || isDropboxBusinessFileURL {
             return self.getDropboxLocationDescription()
         } else if isGoogleDriveFileURL {
             return self.getGoogleDriveLocationDescription()

@@ -99,6 +99,17 @@ public class DatabaseLoader: ProgressObserver {
             }
         }
 
+        public var helpURL: URL? {
+            switch self {
+            case .databaseUnreachable(let reasonUnreachable):
+                return reasonUnreachable.helpURL
+            case .keyFileUnreachable(let reasonUnreachable):
+                return reasonUnreachable.helpURL
+            default:
+                return nil
+            }
+        }
+
         public enum DatabaseUnreachableReason: LocalizedError {
             case cannotFindDatabaseFile(reason: FileAccessError)
             case cannotOpenDatabaseFile(reason: FileAccessError)
@@ -117,6 +128,15 @@ public class DatabaseLoader: ProgressObserver {
                 case .cannotFindDatabaseFile(let reason),
                      .cannotOpenDatabaseFile(let reason):
                     return reason.localizedDescription
+                }
+            }
+
+            public var helpURL: URL? {
+                switch self {
+                case .cannotFindDatabaseFile(let fileAccessError):
+                    return fileAccessError.helpURL
+                case .cannotOpenDatabaseFile(let fileAccessError):
+                    return fileAccessError.helpURL
                 }
             }
         }
@@ -141,6 +161,15 @@ public class DatabaseLoader: ProgressObserver {
                     return reason.localizedDescription
                 }
             }
+
+            public var helpURL: URL? {
+                switch self {
+                case .cannotFindKeyFile(let fileAccessError):
+                    return fileAccessError.helpURL
+                case .cannotOpenKeyFile(let fileAccessError):
+                    return fileAccessError.helpURL
+                }
+            }
         }
     }
 
@@ -158,6 +187,7 @@ public class DatabaseLoader: ProgressObserver {
     public weak var delegate: DatabaseLoaderDelegate?
     private let delegateQueue: DispatchQueue
 
+    private let originalDatabaseRef: URLReference
     private let dbRef: URLReference
     private let compositeKey: CompositeKey
     public let status: DatabaseFile.Status
@@ -179,8 +209,11 @@ public class DatabaseLoader: ProgressObserver {
 
     private var startTime: Date?
 
+    private var currentDataSource: DataSource?
+
     public init(
-        dbRef: URLReference,
+        originalDBRef: URLReference,
+        actualDBRef: URLReference,
         compositeKey: CompositeKey,
         status: DatabaseFile.Status,
         timeout: Timeout,
@@ -188,7 +221,8 @@ public class DatabaseLoader: ProgressObserver {
         delegateQueue: DispatchQueue = .main
     ) {
         assert(compositeKey.state != .empty)
-        self.dbRef = dbRef
+        self.dbRef = actualDBRef
+        self.originalDatabaseRef = originalDBRef
         self.compositeKey = compositeKey.clone()
         self.status = status
         self.timeout = timeout
@@ -200,6 +234,12 @@ public class DatabaseLoader: ProgressObserver {
         progress.totalUnitCount = ProgressSteps.all
         progress.completedUnitCount = ProgressSteps.willStart
         super.init(progress: progress)
+
+        progress.onCancel = { [weak self] in
+            if let remoteDataSource = self?.currentDataSource as? any RemoteDataSource {
+                remoteDataSource.cancelAllOperations()
+            }
+        }
     }
 
     private func initDatabase(signature data: ByteArray) -> Database? {
@@ -285,6 +325,9 @@ public class DatabaseLoader: ProgressObserver {
     private func onDatabaseURLResolved(url: URL, fileProvider: FileProvider?) {
         assert(operationQueue.isCurrent)
         progress.status = LString.Progress.loadingDatabaseFile
+
+        currentDataSource = DataSourceFactory.getDataSource(for: url)
+
         FileDataProvider.read(
             url,
             fileProvider: fileProvider,
@@ -293,6 +336,7 @@ public class DatabaseLoader: ProgressObserver {
             completionQueue: operationQueue,
             completion: { [weak self] result in
                 guard let self else { return }
+                self.currentDataSource = nil
                 switch result {
                 case .success(let docData):
                     self.onDatabaseDocumentReadComplete(data: docData, fileURL: url, fileProvider: fileProvider)
@@ -332,6 +376,7 @@ public class DatabaseLoader: ProgressObserver {
             data: data,
             fileURL: fileURL,
             fileReference: dbRef,
+            originalReference: originalDatabaseRef,
             status: status
         )
         guard compositeKey.state == .rawComponents else {
@@ -369,6 +414,9 @@ public class DatabaseLoader: ProgressObserver {
 
     private func onKeyFileURLResolved(url: URL, fileProvider: FileProvider?, dbFile: DatabaseFile) {
         assert(operationQueue.isCurrent)
+
+        currentDataSource = DataSourceFactory.getDataSource(for: url)
+
         FileDataProvider.read(
             url,
             fileProvider: fileProvider,
@@ -377,6 +425,7 @@ public class DatabaseLoader: ProgressObserver {
             completionQueue: operationQueue,
             completion: { [weak self] result in
                 guard let self else { return }
+                self.currentDataSource = nil
                 switch result {
                 case .success(let docData):
                     self.onKeyFileDataReady(dbFile: dbFile, keyFileData: SecureBytes.from(docData))
@@ -445,7 +494,7 @@ public class DatabaseLoader: ProgressObserver {
             Diag.info("Database loaded OK")
 
             addFileLocationWarnings(to: warnings)
-
+            applyPendingOperations(dbFile, warnings: warnings)
             performAfterLoadTasks(dbFile)
 
             progress.completedUnitCount = ProgressSteps.all
@@ -521,6 +570,16 @@ public class DatabaseLoader: ProgressObserver {
                 nameTemplate: dbFile.visibleFileName,
                 mode: .renameLatest,
                 contents: dbFile.data)
+        }
+    }
+
+    private func applyPendingOperations(_ dbFile: DatabaseFile, warnings: DatabaseLoadingWarnings) {
+        do {
+            try dbFile.applyUnappliedPendingOperations(recoveryMode: false)
+        } catch let error as DatabaseOperation.Error {
+            Diag.warning("Failed to apply pending database operation [message: \(error.localizedDescription)]")
+        } catch {
+            Diag.warning("Failed to get pending database operations [message: \(error.localizedDescription)]")
         }
     }
 

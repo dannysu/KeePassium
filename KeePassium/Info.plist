@@ -208,6 +208,16 @@
 #endif
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>OTP Authentication</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>otpauth</string>
+            </array>
+        </dict>
 #ifdef INTUNE
         <dict>
             <key>CFBundleTypeRole</key>
@@ -331,6 +341,23 @@
     </array>
     <key>UISupportsDocumentBrowser</key>
     <false/>
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+        <key>UISceneConfigurations</key>
+        <dict>
+            <key>UIWindowSceneSessionRoleApplication</key>
+            <array>
+                <dict>
+                    <key>UISceneConfigurationName</key>
+                    <string>Default Configuration</string>
+                    <key>UISceneDelegateClassName</key>
+                    <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+                </dict>
+            </array>
+        </dict>
+    </dict>
     <key>UTExportedTypeDeclarations</key>
     <array>
         <dict>
