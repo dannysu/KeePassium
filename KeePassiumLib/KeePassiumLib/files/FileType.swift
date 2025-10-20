@@ -12,7 +12,7 @@ public enum FileType: CaseIterable {
     public static let attachmentUTIs: [UTType] = [.data, .content]
 
     public static let databaseUTIs: [UTType] = [
-        .init("com.dannysu.keepassium.kdb")!, .init("com.keepassium.kdbx")!,
+        .init("com.dannysu.keepassium.kdb")!, .init("com.dannysu.keepassium.kdbx")!,
         .init("com.maxep.mikee.kdb")!, .init("com.maxep.mikee.kdbx")!,
         .init("com.jflan.MiniKeePass.kdb")!, .init("com.jflan.MiniKeePass.kdbx")!,
         .init("com.kptouch.kdb")!, .init("com.kptouch.kdbx")!,
