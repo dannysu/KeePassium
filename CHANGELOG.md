@@ -1,5 +1,17 @@
 #CHANGELOG
 
+## [2.4.170] - 2025-10-30
+
+### Fixed
+
+- Donation option appeared in Pro and Org app settings (regression in 2.4.165)
+
+
+## [2.4.169] - 2025-10-30
+
+- Resubmission with corrected provisioning profile.
+
+
 ## [2.4.168] - 2025-10-28
 
 ### Removed
