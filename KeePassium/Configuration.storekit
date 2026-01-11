@@ -160,7 +160,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.keepassium.ios.iap.version.166",
+      "productID" : "com.dannysu.keepassium.ios.iap.version.166",
       "referenceName" : "Version 166",
       "type" : "NonConsumable"
     }

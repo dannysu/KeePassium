@@ -11,7 +11,7 @@ import Foundation
 import OSLog
 
 final class BarebonesPEMPrivateKeyParser {
-    private static let log = Logger(subsystem: "com.keepassium.crypto", category: "BarebonesPEMParser")
+    private static let log = Logger(subsystem: "com.dannysu.keepassium.crypto", category: "BarebonesPEMParser")
     private static let pemHeader = "-----BEGIN PRIVATE KEY-----"
     private static let pemFooter = "-----END PRIVATE KEY-----"
 

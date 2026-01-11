@@ -45,7 +45,7 @@ public class Diag {
 
     private static let level = Level.debug
     private static let instance = Diag()
-    private let queue = DispatchQueue(label: "com.KeePassium.diagnostics")
+    private let queue = DispatchQueue(label: "com.dannysu.KeePassium.diagnostics")
     private var items = [Item]()
     private var startTime: TimeInterval = Date.timeIntervalSinceReferenceDate
 

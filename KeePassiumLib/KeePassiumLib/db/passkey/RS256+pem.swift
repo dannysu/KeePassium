@@ -10,7 +10,7 @@ import CryptoKit
 import OSLog
 import Security
 
-private let log = Logger(subsystem: "com.keepassium.crypto", category: "RS256")
+private let log = Logger(subsystem: "com.dannysu.keepassium.crypto", category: "RS256")
 
 final class RS256PrivateKey {
     static let prefixLength = 26
