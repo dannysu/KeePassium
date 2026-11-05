@@ -15,6 +15,7 @@ struct Hotkey: Equatable {
     static let systemCopyToClipboard = Self(input: "C", modifiers: [.command])
 
     static let appPreferences = Self(input: ",", modifiers: [.command])
+    static let selectAll      = Self(input: "a", modifiers: [.command])
     static let refreshList    = Self(input: "r", modifiers: [.command])
     static let search         = Self(input: "f", modifiers: [.command])
 
@@ -36,6 +37,7 @@ struct Hotkey: Equatable {
 
     static let copyUserName = Self(input: "B", modifiers: [.command])
     static let copyPassword = Self(input: "C", modifiers: [.command])
+    static let copyTOTP     = Self(input: "T", modifiers: [.command])
     static let copyURL      = Self(input: "U", modifiers: [.command])
     static let openURL      = Self(input: "U", modifiers: [.command, .shift])
 }

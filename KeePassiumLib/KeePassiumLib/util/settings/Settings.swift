@@ -9,7 +9,7 @@
 import Foundation
 
 public class Settings {
-    public static let latestVersion = 5
+    public static let latestVersion = 6
     public static let current = Settings()
 
     public enum Keys: String {
@@ -74,6 +74,9 @@ public class Settings {
         case quickTypeEnabled
         case autoFillContextSavingMode
         case autoFillContextSavingModeChosenTimestamp
+        case autoFillIncludeExpiredEntries
+        case autoFillIncludeEntriesWithAutoFillDisabled
+        case autoFillIncludeGroupsWithAutoFillDisabled
 
         case hapticFeedbackEnabled
 
