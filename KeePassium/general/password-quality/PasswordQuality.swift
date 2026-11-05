@@ -37,7 +37,7 @@ enum PasswordQuality {
 
     private static let backgroundQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.keepassium.PasswordQuality"
+        queue.name = "com.dannysu.keepassium.PasswordQuality"
         queue.qualityOfService = .utility
         queue.maxConcurrentOperationCount = 4
         return queue
